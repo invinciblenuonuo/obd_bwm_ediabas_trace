@@ -59,9 +59,30 @@ MVP 字段从原始结果中按名称模式提取；若某字段未命中，会�
 | Job 名 | 结果 |
 | ------ | ---- |
 | `ident` | **存在**（E 系标准识别 Job，默认首选） |
-| `identification`、`identifikation`、`aif_lesen`、`c_c_lesen`、`ident_lesen`、`ecu_identification`、`info_lesen`、`status_lesen`、`lieferanten_ident`、`sgbd_ident` | 不存在 |
+| `identification`、`identifikation`、`aif_lesen`、`c_c_lesen`、`ident_lesen`、`ecu_identification`、`info_lesen`、`status_lesen`、`lieferanten_ident`、`sgbd_ident`、`fin_lesen`、`vin_lesen`、`zcs_lesen`、`fa_lesen` 等 30+ 个常见名 | 不存在 |
 
-接车后 `ident` 的具体结果字段以实车返回为准；如需其他只读 Job，用 Tool32（`C:\EDIABAS\Bin\tool32.exe`）加载 `mevd1724.prg` 查看 Job 列表，再以 `--job <名称>` 调用。
+## 实车联调结论（2026-09-21，点火 ON）
+
+**本车 DME 拒绝 mevd1724.prg 的 `ident`（JOB_STATUS=ERROR_ECU_SUB_FUNCTION_NOT_SUPPORTED），
+但接受以下 SGBD 的 `ident`（JOB_STATUS=OKAY）并返回真实数据：**
+
+```text
+ObdLogger.exe --ecu MEVD174K       # 或 01mevd1724 / MEVD176K / MEVD17KW / 01mevd1726 / 01MEVD1727 / 01MEVD1729
+```
+
+DME 自报（KWP2000 服务 0x1A 识别块 0x80，地址 0x12）：
+
+| 字段 | 值 |
+| ---- | -- |
+| BMW 零件号 (ID_BMW_NR) | **8631730**（DME 身份的权威标识，可在 realoem.com 查证对应型号） |
+| 硬件号 (ID_HW_NR) | 01 |
+| 供应商 (ID_LIEF_TEXT) | Bosch |
+| 数据日期 (ID_DATUM) | 05.07.2014 |
+| 软件号 FSV (ID_SW_NR_FSV) | 255.255.255（出厂原始软件，未被编程过） |
+
+- 被拒绝的 SGBD：mevd1724（默认 4.4MB E 系完整版）、mevd172y、mevd1725、mevd172、mevd172y_alt、mevd172_alt——其 `ident` 请求的子功能不被本 DME 软件支持（PRG 与 DME 软件版本不完全匹配，即风险项 R-1 的实际表现）。
+- 0x80 识别块**不含 VIN**；后续可用 `--ecu MEVD174K --job fin_lesen`（或 vin_lesen / fa_lesen / zcs_lesen，均为只读）尝试获取 VIN，尚未实车验证。
+- **系统结果字段 -1 的含义**：UBATTCURRENT/IGNITIONCURRENT 等显示 -1 = “未定义”（0=关闭，1=开启）。原因是 EDIABAS.INI 中 `UbattHandling = 0` / `IgnitionHandling = 0`（电压/点火监测未启用）。如需实际值可将两项设为 1（程序不修改配置；廉价 FTDI 线可能未接状态线，设置后仍可能为 -1）。
 
 ## 排障指南
 
@@ -69,8 +90,9 @@ MVP 字段从原始结果中按名称模式提取；若某字段未命中，会�
 | ---- | ---- |
 | 提示 COM6 无法打开/被占用 | 关闭 INPA / Tool32 / 其他串口工具后重试 |
 | 提示未检测到 COM6 | 检查 USB 线、FTDI 驱动（设备管理器中应有 USB Serial Port COM6） |
-| IFH-0003 等接口类错误 | 确认已接车、点火 ON；检查线缆与电压；先用 INPA/Tool32 验证线缆通信再回到本程序 |
+| IFH-0003 / IFH-0009 等接口类错误 | 确认已接车、点火 ON；检查线缆与电压；先用 INPA/Tool32 验证线缆通信再回到本程序 |
 | SYS-0008 JOB NOT FOUND | Job 名不在 PRG 中：用 Tool32 查实际 Job 名后 `--job` 指定 |
+| ECU 拒绝（JOB_STATUS=ERROR_ECU_SUB_FUNCTION_NOT_SUPPORTED） | DME 通信正常但 SGBD 的识别服务不匹配：`--ecu MEVD174K`（本车实测可用）；或 `--para` 传 Job 参数 |
 | ECU 识别信息不符（R-1） | 实车 DME 可能不是 MEVD1724：`--ecu <名称>` 更换匹配 SGBD |
 
 深度排障（FR-9，程序不修改配置）：将 `C:\EDIABAS\Bin\EDIABAS.INI` 中 `ApiTrace` / `IfhTrace` 临时设为 `1`，重跑后查看 `C:\EDIABAS\TRACE\` 跟踪文件，排障后改回 `0`。
@@ -106,12 +128,12 @@ src/ObdLogger/
 
 | AC | 场景 | 状态 |
 | -- | ---- | ---- |
-| AC-1 | 接车+点火 ON：初始化成功、建立通信、退出码 0 | 待实车验证 |
-| AC-2 | 打印全部 MVP 字段；VIN 与铭牌一致 | 待实车验证 |
-| AC-3 | 确认 E84 N20 实际 DME 型号 | 待实车验证 |
-| AC-4 | 未接车/点火 OFF：明确提示、正常退出 | **已验证**（IFH-0003，退出码 3） |
+| AC-1 | 接车+点火 ON：初始化成功、建立通信、退出码 0 | **已验证**（2026-09-21，`--ecu MEVD174K`，退出码 0；默认 mevd1724 被 ECU 拒绝，见“实车联调结论”） |
+| AC-2 | 打印全部 MVP 字段；VIN 与铭牌一致 | 部分验证：硬件号/软件号/BMW 零件号已读取；**VIN 待验证**（0x80 块不含 VIN，需试 fin_lesen 等 Job） |
+| AC-3 | 确认 E84 N20 实际 DME 型号 | 初步：Bosch MEVD17 家族，BMW 零件号 **8631730**（待 realoem 比对确认具体变体） |
+| AC-4 | 未接车/点火 OFF：明确提示、正常退出 | **已验证**（IFH-0003/IFH-0009，退出码 3） |
 | AC-5 | COM6 被占用：明确提示、正常退出 | **已验证**（预检拦截，退出码 3） |
-| AC-6 | 全程仅只读 Job | **已验证**（代码评审：无写入/复位/编程调用） |
+| AC-6 | 全程仅只读 Job | **已验证**（代码评审：无写入/复位/编程调用；联调仅使用 ident 等只读 Job） |
 
 ## 后续阶段（展望，非本期承诺）
 

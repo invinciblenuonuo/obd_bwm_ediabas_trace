@@ -104,7 +104,7 @@ namespace ObdLogger
 
                         // FR-3/FR-4/FR-5：执行识别类 Job 并提取车辆基础信息
                         var reader = new VehicleInfoReader(log);
-                        VehicleInfo info = reader.Read(client, options.EcuName, options.JobName);
+                        VehicleInfo info = reader.Read(client, options.EcuName, options.JobName, options.Para);
 
                         PrintReport(info);
 
@@ -242,6 +242,16 @@ namespace ObdLogger
                 Console.Error.WriteLine("[中断] 已被用户中断 (Ctrl+C)，资源已正常释放。");
                 return;
             }
+            if (ex.IsEcuRejection)
+            {
+                Console.Error.WriteLine("[错误] 与 ECU 通信成功，但 ECU 拒绝了该诊断请求（{0}）。", ex.ErrorText);
+                Console.Error.WriteLine("可能原因与对策：");
+                Console.Error.WriteLine("  1) 实际 DME 与该 SGBD 不完全匹配（风险项 R-1）：--ecu 更换 SGBD 重试");
+                Console.Error.WriteLine("     （实测本车 DME 接受：01mevd1724 / MEVD174K / MEVD176K / MEVD17KW / 01mevd1726 / 01MEVD1727 / 01MEVD1729）；");
+                Console.Error.WriteLine("  2) 该 Job 需要参数：用 Tool32 查看 {0}.prg 中 {1} 的参数定义后 --para 传入；", ex.Ecu, ex.Job);
+                Console.Error.WriteLine("  3) 若多个 SGBD 均报子功能不支持，可能 DME 软件版本过新/过旧，需匹配对应版本的 PRG。");
+                return;
+            }
             switch (ex.Category)
             {
                 case EdiabasErrorCategory.Interface:
@@ -273,12 +283,20 @@ namespace ObdLogger
             Console.Error.WriteLine("[错误] 所有候选识别类 Job 均执行失败：");
             foreach (EdiabasJobException f in ex.Failures)
             {
-                Console.Error.WriteLine("  - {0}: 错误码 {1} ({2})", f.Job, f.ErrorCode, f.ErrorText);
+                if (f.IsEcuRejection)
+                {
+                    Console.Error.WriteLine("  - {0}: ECU 拒绝 ({1})", f.Job, f.ErrorText);
+                }
+                else
+                {
+                    Console.Error.WriteLine("  - {0}: 错误码 {1} ({2})", f.Job, f.ErrorCode, f.ErrorText);
+                }
             }
             Console.Error.WriteLine("排查建议：");
-            Console.Error.WriteLine("  1) 用 Tool32 (C:\\EDIABAS\\Bin\\tool32.exe) 加载 {0}.prg 查看实际 Job 列表，", ex.EcuName);
-            Console.WriteLine("     然后用  ObdLogger.exe --job <Job名>  指定识别类 Job 重试；");
-            Console.Error.WriteLine("  2) 若车辆实际 DME 不是 MEVD1724（风险项 R-1），请用  --ecu <名称>  指定匹配的 SGBD；");
+            Console.Error.WriteLine("  1) 若失败含 \"ECU 拒绝 (JOB_STATUS=ERROR_ECU_SUB_FUNCTION_NOT_SUPPORTED)\"：");
+            Console.Error.WriteLine("     说明 DME 通信正常但该 SGBD 的识别服务不匹配 —— --ecu 换 SGBD（R-1），或 --para 传 Job 参数；");
+            Console.Error.WriteLine("  2) 用 Tool32 (C:\\EDIABAS\\Bin\\tool32.exe) 加载 {0}.prg 查看实际 Job 列表与参数定义，", ex.EcuName);
+            Console.Error.WriteLine("     然后用  ObdLogger.exe --job <Job名> [--para <参数>]  重试；");
             Console.Error.WriteLine("  3) 确认 C:\\EDIABAS\\ECU\\{0}.prg 文件存在。", ex.EcuName);
         }
 
@@ -374,6 +392,7 @@ namespace ObdLogger
             Console.WriteLine("选项:");
             Console.WriteLine("  --ecu <名称>     SGBD/PRG 名称（默认 " + DefaultEcuName + "；DME 不匹配时更换，风险项 R-1）");
             Console.WriteLine("  --job <名称>     强制使用指定只读 Job（跳过候选探测；Job 名可用 Tool32 查看）");
+            Console.WriteLine("  --para <参数>    传给 Job 的参数（识别类 Job 通常留空；参数定义可用 Tool32 查看）");
             Console.WriteLine("  --verbose, -v    控制台输出 API 调用明细（日志文件始终记录）");
             Console.WriteLine("  --help, -h       显示本帮助");
             Console.WriteLine();
@@ -385,6 +404,7 @@ namespace ObdLogger
         {
             public string EcuName = DefaultEcuName;
             public string JobName;
+            public string Para;
             public bool Verbose;
             public bool ShowHelp;
 
@@ -403,6 +423,10 @@ namespace ObdLogger
                         case "--job":
                             if (++i >= args.Length) return false;
                             options.JobName = args[i];
+                            break;
+                        case "--para":
+                            if (++i >= args.Length) return false;
+                            options.Para = args[i];
                             break;
                         case "--verbose":
                         case "-v":

@@ -175,7 +175,14 @@ namespace ObdLogger.Ediabas
             }
         }
 
-        /// <summary>FR-4：通过 apiResult...() 系列函数枚举最近一次 Job 的全部结果集与字段。</summary>
+        /// <summary>
+        /// FR-4：通过 apiResult...() 系列函数枚举最近一次 Job 的全部结果集与字段。
+        /// 关键语义（实测 + ediabaslib ApiInternal 交叉验证）：
+        ///   - rset 结果集索引为 0 基（0 .. rsets-1）；
+        ///   - apiResultSets 可能返回“总数-1”，即存在一个不参与计数的额外结果集
+        ///     （系统结果如 UBATT/IGNITION 常置于此）——探测 rset=rsets 可一并捕获；
+        ///   - 字段索引 index 为 1 基（1 .. count），0 基调用会返回 FALSE。
+        /// </summary>
         private JobResult ReadResults(string jobName)
         {
             var result = new JobResult { JobName = jobName };
@@ -190,43 +197,55 @@ namespace ObdLogger.Ediabas
             ushort setBase = DetectResultSetBase(sets);
             for (ushort i = 0; i < sets; i++)
             {
-                ushort rset = (ushort)(setBase + i);
-                var set = new ResultSet { Index = rset };
-                if (!NativeMethods.ApiResultNumber(_handle, out ushort count, rset))
-                {
-                    _log.Api("apiResultNumber(rset={0}) => FALSE，跳过该结果集", rset);
-                    result.Sets.Add(set);
-                    continue;
-                }
-                _log.Api("结果集 {0}：{1} 个字段", rset, count);
-
-                for (ushort f = 0; f < count; f++)
-                {
-                    byte[] nameBuf = new byte[NativeMethods.ApiMaxName];
-                    if (!NativeMethods.ApiResultName(_handle, nameBuf, f, rset))
-                    {
-                        _log.Api("apiResultName(index={0}, rset={1}) => FALSE", f, rset);
-                        continue;
-                    }
-                    string name = AnsiToString(nameBuf);
-
-                    ApiResultFormat format = ApiResultFormat.Unknown;
-                    if (NativeMethods.ApiResultFormat(_handle, out int fmt, name, rset))
-                    {
-                        format = Enum.IsDefined(typeof(ApiResultFormat), fmt)
-                            ? (ApiResultFormat)fmt : ApiResultFormat.Unknown;
-                    }
-
-                    string value = ReadFieldText(name, rset, format);
-                    set.Fields.Add(new ResultField { Name = name, Format = format, Value = value });
-                    _log.Api("  [{0}] {1} ({2}) = {3}", rset, name, FormatName(format), value);
-                }
-                result.Sets.Add(set);
+                ReadResultSet(result, (ushort)(setBase + i), false);
             }
+            // 额外结果集（EDIABAS 系统结果所在，不参与 apiResultSets 计数）；不存在时探测返回 FALSE，无副作用
+            ReadResultSet(result, (ushort)(setBase + sets), true);
             return result;
         }
 
-        /// <summary>结果集索引基址自适应（0 基或 1 基；正常为 0 基，异常实现兜底探测）。</summary>
+        private void ReadResultSet(JobResult result, ushort rset, bool isExtraSet)
+        {
+            var set = new ResultSet { Index = rset };
+            if (!NativeMethods.ApiResultNumber(_handle, out ushort count, rset))
+            {
+                if (!isExtraSet)
+                {
+                    _log.Api("apiResultNumber(rset={0}) => FALSE，跳过该结果集", rset);
+                    result.Sets.Add(set);
+                }
+                return;
+            }
+            _log.Api("结果集 {0}{1}：{2} 个字段", rset, isExtraSet ? "（额外/系统结果集）" : "", count);
+
+            ushort fieldBase = DetectFieldIndexBase(rset, count);
+            for (ushort i = 0; i < count; i++)
+            {
+                ushort index = (ushort)(fieldBase + i);
+                byte[] nameBuf = new byte[256];
+                if (!NativeMethods.ApiResultName(_handle, nameBuf, index, rset))
+                {
+                    _log.Api("apiResultName(index={0}, rset={1}) => FALSE", index, rset);
+                    continue;
+                }
+                string name = AnsiToString(nameBuf);
+                _log.Api("  [{0}] 字段[{1}] 名称 = {2}", rset, index, name);
+
+                ApiResultFormat format = ApiResultFormat.Unknown;
+                if (NativeMethods.ApiResultFormat(_handle, out int fmt, name, rset))
+                {
+                    format = Enum.IsDefined(typeof(ApiResultFormat), fmt)
+                        ? (ApiResultFormat)fmt : ApiResultFormat.Unknown;
+                }
+
+                string value = ReadFieldText(name, rset, format);
+                set.Fields.Add(new ResultField { Name = name, Format = format, Value = value });
+                _log.Api("  [{0}] {1} ({2}) = {3}", rset, name, FormatName(format), value);
+            }
+            result.Sets.Add(set);
+        }
+
+        /// <summary>结果集索引基址自适应（正常为 0 基，异常实现兜底探测）。</summary>
         private ushort DetectResultSetBase(ushort sets)
         {
             if (NativeMethods.ApiResultNumber(_handle, out _, 0))
@@ -242,11 +261,29 @@ namespace ObdLogger.Ediabas
             return 0;
         }
 
-        /// <summary>读取单个字段的文本值；BINARY 格式在文本读取失败时回退为十六进制。</summary>
+        /// <summary>字段索引基址自适应（实测为 1 基；探测 index=0 失败则按 1 基枚举）。</summary>
+        private ushort DetectFieldIndexBase(ushort rset, ushort count)
+        {
+            if (count == 0) return 1;
+            byte[] probe = new byte[256];
+            if (NativeMethods.ApiResultName(_handle, probe, 0, rset))
+            {
+                _log.Api("结果集 {0} 字段索引为 0 基", rset);
+                return 0;
+            }
+            _log.Api("结果集 {0} 字段索引为 1 基（EDIABAS 标准）", rset);
+            return 1;
+        }
+
+        /// <summary>
+        /// 读取单个字段的文本值；BINARY 格式在文本读取失败时回退为十六进制。
+        /// 注意：format 必须传空字符串而非 null——原生实现对 format 不做空指针检查，
+        /// 传 null 会导致访问冲突并使进程直接终止（2026-09-21 实机日志证实）。
+        /// </summary>
         private string ReadFieldText(string name, ushort rset, ApiResultFormat format)
         {
             byte[] buf = new byte[NativeMethods.ApiMaxText];
-            if (NativeMethods.ApiResultText(_handle, buf, name, rset, null))
+            if (NativeMethods.ApiResultText(_handle, buf, name, rset, string.Empty))
             {
                 return AnsiToString(buf);
             }

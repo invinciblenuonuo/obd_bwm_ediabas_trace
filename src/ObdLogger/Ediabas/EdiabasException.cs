@@ -52,6 +52,26 @@ namespace ObdLogger.Ediabas
             Category = Classify(errorCode);
         }
 
+        private EdiabasJobException(string ecu, string job, string ecuJobStatus)
+            : base(string.Format("Job {0} 被 ECU 拒绝：{1}", job, ecuJobStatus))
+        {
+            Ecu = ecu;
+            Job = job;
+            ErrorCode = 0;
+            ErrorText = ecuJobStatus;
+            JobInfo = string.Empty;
+            Category = EdiabasErrorCategory.Run;
+        }
+
+        /// <summary>ECU 级拒绝（API 层成功但 JOB_STATUS 为 ERROR_...）。ErrorCode 恒为 0。</summary>
+        public static EdiabasJobException ForEcuRejection(string ecu, string job, string jobStatus)
+        {
+            return new EdiabasJobException(ecu, job, "JOB_STATUS=" + jobStatus);
+        }
+
+        /// <summary>是否为 ECU 级拒绝（区别于 API 错误码失败）。</summary>
+        public bool IsEcuRejection { get { return ErrorCode == 0 && Category == EdiabasErrorCategory.Run; } }
+
         internal static EdiabasErrorCategory Classify(int code)
         {
             if (code == 0) return EdiabasErrorCategory.None;
