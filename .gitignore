@@ -1,0 +1,28 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / IDE
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ReSharper / Rider
+.idea/
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+!packages/build/
+
+# Logs
+*.log
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
