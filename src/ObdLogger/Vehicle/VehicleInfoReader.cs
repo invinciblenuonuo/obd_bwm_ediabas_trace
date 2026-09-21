@@ -12,7 +12,7 @@ namespace ObdLogger.Vehicle
     internal sealed class VehicleInfoReader
     {
         /// <summary>
-        /// 只读识别类 Job 候选清单（按可能性排序，首个执行成功者生效）。
+        /// 第 1 阶段：只读识别类 Job 候选清单（按可能性排序，首个执行成功者生效）。
         /// 已实测（2026-09，本机 mevd1724.prg，SYS-0008=Job 不存在）：
         ///   "ident" 存在于 mevd1724.prg（E 系经典识别 Job）；
         ///   identification / identifikation / aif_lesen / c_c_lesen / ident_lesen /
@@ -30,10 +30,31 @@ namespace ObdLogger.Vehicle
             "c_c_lesen",        // 编码数据读取（只读）
         };
 
+        /// <summary>
+        /// 第 2 阶段：VIN 补齐 Job 候选（全部只读“lesen”类；依据 doc/材料/MEVD174K.b1v
+        /// 反编译的权威 Job 定义）：
+        ///   AIF_LESEN ：$23 ReadMemoryByAddress 读 AIF（AIF_FG_NR_LANG，17 位完整 VIN，
+        ///               无则回退 7 位），参数 AIF_NUMMER 留空默认 0=当前 AIF——已实车验证（2026-09-21）；
+        ///   C_FG_LESEN：KWP2000 $1A/$90 读车架号（FG_NR，7 位）——已实车验证（2026-09-21）；
+        ///   其余为其他 SGBD 命名兜底。
+        /// 红线：绝不使用 *_SCHREIBEN / *_AUFTRAG / FS_LOESCHEN / *_RESET / PROGRAMMIEREN 等
+        /// 写/复位/编程类 Job。
+        /// </summary>
+        private static readonly string[] VinJobCandidates =
+        {
+            "AIF_LESEN",
+            "C_FG_LESEN",
+            "fin_lesen",
+            "vin_lesen",
+            "fa_lesen",
+            "zcs_lesen",
+        };
+
         // ---- MVP/可选字段的名称匹配模式（不区分大小写，按优先级先后尝试） ----
         // 实车实测（2026-09-21）：本车 DME 的 0x80 识别块字段为 ID_BMW_NR（BMW 零件号）、
-        // ID_HW_NR（硬件号）、ID_SW_NR_FSV 等；VARIANTE 为 SGBD 变体名（最后兜底）。
-        private static readonly string[] VinPatterns = { @"\bVIN\b", @"FGNR", @"\bFIN\b", @"FIN$", @"FZG" };
+        // ID_HW_NR（硬件号）、ID_SW_NR_FSV 等；VIN 字段为 FG_NR（7 位）/ AIF_FG_NR_LANG（17 位，
+        // 据 MEVD174K.b1v 反编译）；VARIANTE 为 SGBD 变体名（最后兜底）。
+        private static readonly string[] VinPatterns = { @"\bVIN\b", @"FG.?NR.?LANG", @"FGNR", @"\bFIN\b", @"FIN$", @"^FG.?NR$", @"FZG" };
         private static readonly string[] EcuPatterns = { @"^ID_BMW_NR$", @"BMW.?NR", @"ECU.?NAME", @"BASIC.?ECU", @"ECU.?IDENT", @"BEDIAG", @"^VARIANTE$", @"DME" };
         private static readonly string[] HwPatterns = { @"HW.?(NR|NUM|REF|VER|TEIL|IDENT)", @"HARDWARE" };
         private static readonly string[] SwPatterns = { @"SW.?(NR|NUM|REF|VER|TEIL|IDENT)", @"SOFTWARE" };
@@ -48,71 +69,109 @@ namespace ObdLogger.Vehicle
         }
 
         /// <summary>
-        /// 执行识别类 Job 并提取车辆基础信息。
+        /// 两阶段读取车辆基础信息：
+        /// 第 1 阶段执行识别类 Job（ECU 标识/硬件/软件号）；
+        /// 第 2 阶段在 VIN 未命中时自动按序尝试只读 VIN Job（C_FG_LESEN / AIF_LESEN 等）。
         /// </summary>
-        /// <param name="forcedJob">--job 指定的 Job 名；非空时只执行该 Job。</param>
+        /// <param name="forcedJob">--job 指定的 Job 名；非空时只执行该 Job（不做 VIN 补齐）。</param>
         /// <param name="para">--para 指定的 Job 参数（识别类 Job 通常为空）。</param>
         /// <exception cref="EdiabasJobException">接口类（通信）错误直接抛出</exception>
-        /// <exception cref="NoIdentJobException">所有候选 Job 均不可用</exception>
+        /// <exception cref="NoIdentJobException">第 1 阶段所有候选 Job 均不可用</exception>
         public VehicleInfo Read(EdiabasClient client, string ecuName, string forcedJob, string para)
         {
-            var failures = new List<EdiabasJobException>();
+            var info = new VehicleInfo { SgbdName = ecuName };
+
+            // ---- 第 1 阶段：识别 Job ----
             IEnumerable<string> candidates = string.IsNullOrEmpty(forcedJob)
                 ? IdentJobCandidates
                 : new[] { forcedJob };
-
-            JobResult jobResult = null;
-            string usedJob = null;
+            var failures = new List<EdiabasJobException>();
             foreach (string job in candidates)
             {
-                try
+                JobResult result = TryRunJob(client, ecuName, job, para, failures);
+                if (result != null)
                 {
-                    JobResult candidate = client.RunJob(ecuName, job, para ?? string.Empty);
-
-                    // API 层成功还不够：ECU 拒绝服务时错误只体现在 JOB_STATUS 字段中
-                    string jobStatus = candidate.FindJobStatus();
-                    if (JobResult.IsErrorStatus(jobStatus))
-                    {
-                        failures.Add(EdiabasJobException.ForEcuRejection(ecuName, job, jobStatus));
-                        _log.Warn("Job {0} 被 ECU 拒绝（{1}），尝试下一个候选", job, jobStatus);
-                        continue;
-                    }
-
-                    jobResult = candidate;
-                    usedJob = job;
+                    info.Raws.Add(result);
                     break;
                 }
-                catch (EdiabasJobException ex)
-                {
-                    failures.Add(ex);
-                    if (ex.Category == EdiabasErrorCategory.Interface)
-                    {
-                        // 通信层失败：换 Job 无意义，直接上抛（由 Program 给出场景化提示）
-                        throw;
-                    }
-                    _log.Warn("Job {0} 不可用（错误码 {1}，类别 {2}），尝试下一个候选", job, ex.ErrorCode, ex.Category);
-                }
             }
-
-            if (jobResult == null)
+            if (info.Raws.Count == 0)
             {
                 throw new NoIdentJobException(ecuName, failures);
             }
-
-            var info = new VehicleInfo { SgbdName = ecuName, JobName = usedJob, Raw = jobResult };
             Extract(info);
+
+            // ---- 第 2 阶段：VIN 补齐（仅当未指定 --job 且 VIN 未命中；全部只读 Job） ----
+            if (!info.Vin.Found && string.IsNullOrEmpty(forcedJob))
+            {
+                foreach (string job in VinJobCandidates)
+                {
+                    JobResult result = TryRunJob(client, ecuName, job, para, null);
+                    if (result == null) continue;
+                    info.Raws.Add(result);
+                    Extract(info);
+                    if (info.Vin.Found) break;
+                }
+                if (!info.Vin.Found)
+                {
+                    _log.Warn("VIN 补齐 Job 均未获得 VIN（可用 Tool32 查 PRG 后 --job 指定其他只读 Job）");
+                }
+            }
+
             return info;
         }
 
-        /// <summary>在全部结果字段中按模式提取 MVP/可选字段（首个命中生效）。</summary>
+        /// <summary>
+        /// 执行单个只读 Job：成功且未被 ECU 拒绝时返回结果，否则返回 null
+        /// （接口类通信错误直接抛出，由 Program 给出场景化提示）。
+        /// </summary>
+        private JobResult TryRunJob(EdiabasClient client, string ecuName, string job, string para,
+            IList<EdiabasJobException> failures)
+        {
+            try
+            {
+                JobResult result = client.RunJob(ecuName, job, para ?? string.Empty);
+
+                // API 层成功还不够：ECU 拒绝服务时错误只体现在 JOB_STATUS 字段中
+                string jobStatus = result.FindJobStatus();
+                if (JobResult.IsErrorStatus(jobStatus))
+                {
+                    if (failures != null)
+                    {
+                        failures.Add(EdiabasJobException.ForEcuRejection(ecuName, job, jobStatus));
+                    }
+                    _log.Warn("Job {0} 被 ECU 拒绝（{1}），尝试下一个候选", job, jobStatus);
+                    return null;
+                }
+                _log.Info("Job {0} 执行成功（JOB_STATUS: {1}）", job,
+                    string.IsNullOrWhiteSpace(jobStatus) ? "正常" : jobStatus);
+                return result;
+            }
+            catch (EdiabasJobException ex)
+            {
+                if (ex.Category == EdiabasErrorCategory.Interface)
+                {
+                    // 通信层失败：换 Job 无意义，直接上抛
+                    throw;
+                }
+                if (failures != null) failures.Add(ex);
+                _log.Warn("Job {0} 不可用（错误码 {1}，类别 {2}），尝试下一个候选", job, ex.ErrorCode, ex.Category);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 在全部 Job 结果中按模式提取 MVP/可选字段。
+        /// 仅在未命中时填充：第 1 阶段（ident）的值优先于第 2 阶段补齐 Job 的同名字段。
+        /// </summary>
         private void Extract(VehicleInfo info)
         {
-            info.Vin = FindFirst(info, "VIN 车架号", VinPatterns);
-            info.EcuName = FindFirst(info, "ECU 名称/诊断标识", EcuPatterns);
-            info.HwVersion = FindFirst(info, "ECU 硬件号/版本", HwPatterns);
-            info.SwVersion = FindFirst(info, "ECU 软件号/版本", SwPatterns);
-            info.Ignition = FindFirst(info, "点火开关 (KL.15)", IgnitionPatterns);
-            info.Voltage = FindFirst(info, "蓄电池电压", VoltagePatterns);
+            if (!info.Vin.Found) info.Vin = FindFirst(info, "VIN 车架号", VinPatterns);
+            if (!info.EcuName.Found) info.EcuName = FindFirst(info, "ECU 名称/诊断标识", EcuPatterns);
+            if (!info.HwVersion.Found) info.HwVersion = FindFirst(info, "ECU 硬件号/版本", HwPatterns);
+            if (!info.SwVersion.Found) info.SwVersion = FindFirst(info, "ECU 软件号/版本", SwPatterns);
+            if (!info.Ignition.Found) info.Ignition = FindFirst(info, "点火开关 (KL.15)", IgnitionPatterns);
+            if (!info.Voltage.Found) info.Voltage = FindFirst(info, "蓄电池电压", VoltagePatterns);
 
             if (!info.AllMvpFound)
             {
@@ -126,16 +185,20 @@ namespace ObdLogger.Vehicle
             foreach (string pattern in patterns)
             {
                 var regex = new Regex(pattern, RegexOptions.IgnoreCase);
-                foreach (ResultField field in info.Raw.AllFields())
+                foreach (JobResult raw in info.Raws)
                 {
-                    if (regex.IsMatch(field.Name) && !string.IsNullOrWhiteSpace(field.Value))
+                    foreach (ResultField field in raw.AllFields())
                     {
-                        return new ExtractedField
+                        if (regex.IsMatch(field.Name) && !string.IsNullOrWhiteSpace(field.Value))
                         {
-                            Label = label,
-                            Value = field.Value.Trim(),
-                            SourceField = field.Name,
-                        };
+                            return new ExtractedField
+                            {
+                                Label = label,
+                                Value = field.Value.Trim(),
+                                SourceJob = raw.JobName,
+                                SourceField = field.Name,
+                            };
+                        }
                     }
                 }
             }
@@ -143,7 +206,7 @@ namespace ObdLogger.Vehicle
         }
     }
 
-    /// <summary>所有候选识别 Job 均执行失败（含各候选的错误明细）。</summary>
+    /// <summary>第 1 阶段所有候选识别 Job 均执行失败（含各候选的错误明细）。</summary>
     internal sealed class NoIdentJobException : System.Exception
     {
         public string EcuName { get; private set; }

@@ -108,7 +108,7 @@ namespace ObdLogger
 
                         PrintReport(info);
 
-                        if (info.Raw.TotalFieldCount == 0)
+                        if (info.TotalFieldCount == 0)
                         {
                             Console.WriteLine("[警告] Job 执行成功但未返回任何结果字段，请核对 ECU 与 Job 是否匹配。");
                         }
@@ -174,7 +174,7 @@ namespace ObdLogger
         {
             Console.WriteLine();
             Console.WriteLine("================ 车辆基础信息 ================");
-            Console.WriteLine("ECU (SGBD): {0}    识别 Job: {1}", info.SgbdName, info.JobName);
+            Console.WriteLine("ECU (SGBD): {0}    Job: {1}", info.SgbdName, info.JobNames);
             PrintMvp(info.Vin);
             PrintMvp(info.EcuName);
             PrintMvp(info.HwVersion);
@@ -185,14 +185,18 @@ namespace ObdLogger
             PrintOptional(info.Voltage, "V");
 
             Console.WriteLine("---------------- 原始结果 ------------------");
-            foreach (ResultSet set in info.Raw.Sets)
+            foreach (JobResult raw in info.Raws)
             {
-                Console.WriteLine("  [结果集 {0}]（{1} 个字段）", set.Index, set.Fields.Count);
-                int width = set.Fields.Count == 0 ? 0 : set.Fields.Max(f => f.Name.Length);
-                foreach (ResultField field in set.Fields)
+                Console.WriteLine("  [Job: {0}]", raw.JobName);
+                foreach (ResultSet set in raw.Sets)
                 {
-                    Console.WriteLine("    {0}  ({1})  =  {2}",
-                        field.Name.PadRight(width), EdiabasClient.FormatName(field.Format), field.Value);
+                    Console.WriteLine("    [结果集 {0}]（{1} 个字段）", set.Index, set.Fields.Count);
+                    int width = set.Fields.Count == 0 ? 0 : set.Fields.Max(f => f.Name.Length);
+                    foreach (ResultField field in set.Fields)
+                    {
+                        Console.WriteLine("      {0}  ({1})  =  {2}",
+                            field.Name.PadRight(width), EdiabasClient.FormatName(field.Format), field.Value);
+                    }
                 }
             }
             Console.WriteLine("============================================");
@@ -202,7 +206,7 @@ namespace ObdLogger
         {
             if (field.Found)
             {
-                Console.WriteLine("  {0,-18}: {1}    (来源字段: {2})", field.Label, field.Value, field.SourceField);
+                Console.WriteLine("  {0,-18}: {1}    (来源: {2} / {3})", field.Label, field.Value, field.SourceJob, field.SourceField);
             }
             else
             {
@@ -228,7 +232,7 @@ namespace ObdLogger
                     unit = " " + unitHint;
                 }
             }
-            Console.WriteLine("  {0,-18}: {1}{2}    (来源字段: {3})", field.Label, field.Value, unit, field.SourceField);
+            Console.WriteLine("  {0,-18}: {1}{2}    (来源: {3} / {4})", field.Label, field.Value, unit, field.SourceJob, field.SourceField);
         }
 
         // ---------- 错误场景化提示（FR-7） ----------

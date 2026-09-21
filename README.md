@@ -32,10 +32,12 @@ powershell -ExecutionPolicy Bypass -File build.ps1 -Configuration Debug
 接好 K+DCAN 线、打开点火开关 (KL.15)，然后：
 
 ```text
+ObdLogger.exe --ecu MEVD174K     # 本车（E84 N20，DME 8631730）推荐用法：一条命令输出全部 MVP
 ObdLogger.exe [选项]
 
-  --ecu <名称>     SGBD/PRG 名称（默认 mevd1724；实车 DME 不匹配时更换，风险项 R-1）
-  --job <名称>     强制使用指定只读 Job（跳过候选探测；Job 名可用 Tool32 查看）
+  --ecu <名称>     SGBD/PRG 名称（默认 mevd1724；本车实测应使用 MEVD174K）
+  --job <名称>     强制使用指定只读 Job（跳过两阶段候选探测）
+  --para <参数>    传给 Job 的参数（识别类 Job 通常留空）
   --verbose, -v    控制台输出 API 调用明细（日志文件始终记录）
   --help, -h       显示帮助
 ```
@@ -74,14 +76,16 @@ DME 自报（KWP2000 服务 0x1A 识别块 0x80，地址 0x12）：
 
 | 字段 | 值 |
 | ---- | -- |
+| **VIN 车架号 (AIF_FG_NR_LANG)** | **LBVUG7100EMD09858**（LBV=华晨宝马，E=2014 款；尾 7 位 MD09858 与 C_FG_LESEN 结果互证） |
 | BMW 零件号 (ID_BMW_NR) | **8631730**（DME 身份的权威标识，可在 realoem.com 查证对应型号） |
 | 硬件号 (ID_HW_NR) | 01 |
 | 供应商 (ID_LIEF_TEXT) | Bosch |
 | 数据日期 (ID_DATUM) | 05.07.2014 |
 | 软件号 FSV (ID_SW_NR_FSV) | 255.255.255（出厂原始软件，未被编程过） |
+| AIF 软件号 (AIF_SW_NR) / 组装号 (AIF_ZB_NR) | 8632977 / 8632976（编程日期 2014-07-19，编程次数 1） |
 
 - 被拒绝的 SGBD：mevd1724（默认 4.4MB E 系完整版）、mevd172y、mevd1725、mevd172、mevd172y_alt、mevd172_alt——其 `ident` 请求的子功能不被本 DME 软件支持（PRG 与 DME 软件版本不完全匹配，即风险项 R-1 的实际表现）。
-- 0x80 识别块**不含 VIN**；后续可用 `--ecu MEVD174K --job fin_lesen`（或 vin_lesen / fa_lesen / zcs_lesen，均为只读）尝试获取 VIN，尚未实车验证。
+- **VIN 由第 2 阶段 Job 自动补齐**：ident 结果（0x80 块）不含 VIN；程序在 VIN 未命中时自动按序尝试 `AIF_LESEN`（$23 读 AIF，17 位 VIN）→ `C_FG_LESEN`（$1A/$90，7 位）等只读 Job。Job 定义依据反编译文件 [doc/材料/MEVD174K.b1v](doc/材料/MEVD174K.b1v)（MEVD174K.prg 完整 BEST/2 源码，权威的 Job/参数/结果目录）。
 - **系统结果字段 -1 的含义**：UBATTCURRENT/IGNITIONCURRENT 等显示 -1 = “未定义”（0=关闭，1=开启）。原因是 EDIABAS.INI 中 `UbattHandling = 0` / `IgnitionHandling = 0`（电压/点火监测未启用）。如需实际值可将两项设为 1（程序不修改配置；廉价 FTDI 线可能未接状态线，设置后仍可能为 -1）。
 
 ## 排障指南
@@ -129,11 +133,11 @@ src/ObdLogger/
 | AC | 场景 | 状态 |
 | -- | ---- | ---- |
 | AC-1 | 接车+点火 ON：初始化成功、建立通信、退出码 0 | **已验证**（2026-09-21，`--ecu MEVD174K`，退出码 0；默认 mevd1724 被 ECU 拒绝，见“实车联调结论”） |
-| AC-2 | 打印全部 MVP 字段；VIN 与铭牌一致 | 部分验证：硬件号/软件号/BMW 零件号已读取；**VIN 待验证**（0x80 块不含 VIN，需试 fin_lesen 等 Job） |
-| AC-3 | 确认 E84 N20 实际 DME 型号 | 初步：Bosch MEVD17 家族，BMW 零件号 **8631730**（待 realoem 比对确认具体变体） |
+| AC-2 | 打印全部 MVP 字段；VIN 与铭牌一致 | **已验证**：VIN `LBVUG7100EMD09858`（AIF_LESEN）+ 零件号/硬件号/软件号全部输出（铭牌比对请人工确认） |
+| AC-3 | 确认 E84 N20 实际 DME 型号 | **已读取**：Bosch MEVD17 家族，BMW 零件号 **8631730**（realoem 反查确认具体变体即可归档） |
 | AC-4 | 未接车/点火 OFF：明确提示、正常退出 | **已验证**（IFH-0003/IFH-0009，退出码 3） |
 | AC-5 | COM6 被占用：明确提示、正常退出 | **已验证**（预检拦截，退出码 3） |
-| AC-6 | 全程仅只读 Job | **已验证**（代码评审：无写入/复位/编程调用；联调仅使用 ident 等只读 Job） |
+| AC-6 | 全程仅只读 Job | **已验证**（代码评审 + 联调仅使用 ident / C_FG_LESEN / AIF_LESEN 只读 Job；写/复位/编程类 Job 见 b1v 红线清单，从未调用） |
 
 ## 后续阶段（展望，非本期承诺）
 
