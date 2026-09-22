@@ -61,8 +61,11 @@ namespace ObdLogger.Logging
 
         /// <summary>
         /// 内置默认清单：二期需求文档 §3.3“已核实存在”的核心项（ARG 名引自 MESSWERTETAB，
-        /// 结果名/单位由目录解析）。控制在 20 项以内，单次调用即可（≤42），兼顾控制台紧凑显示。
-        /// 全 4 缸点火/爆震、燃油轨压、喷油量、Valvetronic、VANOS 位置等见 config\sample-extended.txt。
+        /// 结果名/单位由目录解析）。含喷油量（STAT_0x4522/4525/4523/4524）与失火计数（STAT_0x5B23/5B32/5B31/5B25），共 25 项。
+        /// （ITANS、4 缸点火角 IZWZ1~4、4 缸爆震 IUKZ1~4 已于 2026-09-22 临时屏蔽，见下方注释。）
+        /// 单次 Job 调用可携带 ≤42 项（<see cref="MaxArgsPerCall"/>），但本车 ECU 实测单块 $2C 定义上限为
+        /// 10 项，故运行期由 Sampler.Prime 发现上限后自动分为 3 组（每周期逐组 MODE=JA 重定义，速率相应下降）。
+        /// 燃油轨压、Valvetronic、VANOS 位置角等见 config\sample-extended.txt。
         /// </summary>
         private static readonly string[][] DefaultList =
         {
@@ -74,7 +77,7 @@ namespace ObdLogger.Logging
             new[] { "IWDKL", "ThrottlePosition" },
             new[] { "SWDKL", "ThrottleTarget" },
             new[] { "ITKUM", "ECT" },
-            new[] { "ITANS", "IAT" },
+            // new[] { "ITANS", "IAT" },   // 2026-09-22 临时屏蔽（控清单 ≤30 项）
             new[] { "ILMKG", "MAF" },
             new[] { "IPLAD", "BoostActual" },
             new[] { "IPUMG", "AmbientPressure" },
@@ -82,8 +85,28 @@ namespace ObdLogger.Logging
             new[] { "SINT1", "LambdaTarget" },
             new[] { "ILIN1", "LambdaIntegrator" },
             new[] { "ILAM1", "LambdaAdaption" },
-            new[] { "IZZY1", "IgnitionTiming" },
-            new[] { "ISKLO", "KnockStatus" },
+            // ——— 2026-09-22 临时屏蔽以下 8 项（4 缸点火角 IZWZ1~4 + 4 缸爆震 IUKZ1~4），把默认清单控制在 25 项/3 组；
+            //     启用时取消注释即可（对应扩展项亦见 config\sample-extended.txt）。IZZY 仅 1 缸条目，4 缸点火角实为 IZWZ1~4。
+            // 各缸点火角
+            // new[] { "IZWZ1", "IgnAngleCyl1" },
+            // new[] { "IZWZ2", "IgnAngleCyl2" },
+            // new[] { "IZWZ3", "IgnAngleCyl3" },
+            // new[] { "IZWZ4", "IgnAngleCyl4" },
+            // 各缸爆震参考电平（模拟）；ISKLO 的数字结果名 STAT_STATUS_KLOPFEN_WERT 被本 PRG 拒为 Resultname not valid（2026-09-22 实车）
+            // new[] { "IUKZ1", "KnockRefVoltCyl1" },
+            // new[] { "IUKZ2", "KnockRefVoltCyl2" },
+            // new[] { "IUKZ3", "KnockRefVoltCyl3" },
+            // new[] { "IUKZ4", "KnockRefVoltCyl4" },
+            // 各缸喷油量（目录表 Kraftstoff Einspritzzeit oder -menge，mg/Hub；ID→缸：0x4522/0x4525/0x4523/0x4524 = 1/2/3/4）
+            new[] { "STAT_0x4522_WERT", "InjQtyCyl1" },
+            new[] { "STAT_0x4525_WERT", "InjQtyCyl2" },
+            new[] { "STAT_0x4523_WERT", "InjQtyCyl3" },
+            new[] { "STAT_0x4524_WERT", "InjQtyCyl4" },
+            // 各缸失火计数（目录表 Aussetzerzaehler im Abgasintervall；ID→缸：0x5B23/0x5B32/0x5B31/0x5B25 = 1/2/3/4）
+            new[] { "STAT_0x5B23_WERT", "MisfireCyl1" },
+            new[] { "STAT_0x5B32_WERT", "MisfireCyl2" },
+            new[] { "STAT_0x5B31_WERT", "MisfireCyl3" },
+            new[] { "STAT_0x5B25_WERT", "MisfireCyl4" },
             new[] { "IAVEP", "VanosIntakePWM" },
             new[] { "IAVAP", "VanosExhaustPWM" },
         };

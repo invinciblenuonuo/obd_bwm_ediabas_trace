@@ -529,6 +529,7 @@ namespace ObdLogger
                     ParaSep = lo.ParaSep,
                     AllowModeJa = lo.AllowModeJa,
                     HandleQuitKey = lo.HandleQuitKey,
+                    MaxDurationSec = lo.DurationSec,
                 };
 
                 using (var client = new EdiabasClient(log))
@@ -725,6 +726,13 @@ namespace ObdLogger
                 sampler.NegotiatedParaSep,
                 sampler.NegotiatedModeDefine ?? "(未用 JA)",
                 sampler.NegotiatedModeRead);
+            Console.WriteLine("测量块   : 单次定义最大 {0} 项 → {1} 组（ECU 对过大的 $2C 定义返回 requestOutOfRange，已自动收缩）",
+                sampler.MaxBlockDiscovered, sampler.GroupCount);
+            if (sampler.ExcludedArgs != null && sampler.ExcludedArgs.Length > 0)
+            {
+                Console.WriteLine("已跳过项 : {0}（被 ECU 拒绝，如 Resultname not valid；其 CSV 列留空）",
+                    string.Join(", ", sampler.ExcludedArgs));
+            }
             if (stats.Gap > 0)
             {
                 Console.WriteLine("提示     : 存在数据缺口（CSV 中以空字段标记）；常见于点火 OFF/线缆松动，已自动退避重试并恢复（FR-2-8）。");
@@ -748,6 +756,7 @@ namespace ObdLogger
             public string ParaSep = ";";
             public bool AllowModeJa = true;
             public bool HandleQuitKey = true;
+            public double DurationSec = 0;
             public bool Verbose;
             public bool ShowHelp;
 
@@ -797,6 +806,16 @@ namespace ObdLogger
                         case "--no-hotkey":
                             o.HandleQuitKey = false;
                             break;
+                        case "--duration":
+                            if (++i >= args.Length) return false;
+                            double dur;
+                            if (!double.TryParse(args[i], System.Globalization.NumberStyles.Float, inv, out dur) || dur <= 0)
+                            {
+                                Console.Error.WriteLine("[错误] --duration 需为正数（秒）：" + args[i]);
+                                return false;
+                            }
+                            o.DurationSec = dur;
+                            break;
                         case "--verbose":
                         case "-v":
                             o.Verbose = true;
@@ -836,6 +855,7 @@ namespace ObdLogger
             Console.WriteLine("  --para-sep <c>   动态参数分隔符（默认 ';'；启动时自动协商 ';' 与 ','，风险项 R-2-1）");
             Console.WriteLine("  --no-ja          保守模式：仅用 MODE=NEIN 读 ECU 已存定义，不写 ECU RAM（§3.4）");
             Console.WriteLine("  --no-hotkey      不监听 q 键（无人值守/后台运行；Ctrl+C 仍可停止）");
+            Console.WriteLine("  --duration <秒>  运行指定秒数后优雅自停（无人值守定时录制；默认 0=直到手动停止）");
             Console.WriteLine("  --verbose, -v    控制台输出 API 明细（log 模式默认静默、仅文件，FR-2-3）");
             Console.WriteLine("  --help, -h       显示本帮助");
             Console.WriteLine();

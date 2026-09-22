@@ -19,8 +19,8 @@
 #       * 全 4 缸点火角 / 爆震参考电平
 #       * §3.3“待确认”项经 FR-2-9 全表定位后确认存在的条目（燃油轨压/低压、喷油量、
 #         Valvetronic 实际/目标、VANOS 位置实际/目标、失火相对扭矩）——见下方标注。
-#   - 未在实车逐项验证的条目若被 ECU 拒绝，会使整个测量块定义失败（JOB_STATUS=ERROR_ARGUMENT）；
-#     此时可从本文件删去相应行，或用内置默认清单。
+#   - 未在实车逐项验证的条目若被 ECU 拒绝，程序会在启动时自动定位并跳过该条（其 CSV 列留空、日志告警），
+#     不会因单个坏 ARG 而拖垮整组；也可手动删行。已知：ISKLO 的数字结果名不被本 PRG 接受。
 # ============================================================================
 
 # ---- 核心（§3.3 已核实） ----
@@ -41,7 +41,7 @@ SINT1,LambdaTarget
 ILIN1,LambdaIntegrator
 ILAM1,LambdaAdaption
 IZZY1,IgnitionTiming
-ISKLO,KnockStatus
+# ISKLO 已移除：其数字结果名 STAT_STATUS_KLOPFEN_WERT 被本 PRG 拒为“Resultname not valid”（2026-09-22 实车）；爆震改看下方 IUKZ1-4
 IAVEP,VanosIntakePWM
 IAVAP,VanosExhaustPWM
 

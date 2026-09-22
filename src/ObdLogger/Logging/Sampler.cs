@@ -50,6 +50,7 @@ namespace ObdLogger.Logging
         public bool AllowModeJa = true;         // false → 保守仅 NEIN（§3.4，不写 ECU RAM）
         public bool HandleQuitKey = true;       // 监听 q 键停止
         public int MaxBackoffMs = 5000;         // 缺口重试退避上限
+        public double MaxDurationSec = 0;       // >0 → 运行该秒数后优雅自停（无人值守定时录制）
     }
 
     /// <summary>
@@ -66,13 +67,9 @@ namespace ObdLogger.Logging
         private const int CsvQueueCapacity = 2000;   // 有界队列：背压保护，防内存无增长（NFR-2-1）
         private const int CsvAddTimeoutMs = 5000;    // 入队超时：CSV 线程卡死时丢弃并告警，绝不挂死采集
 
-        // MODE 值取自 b1v MESSWERTEMODE 表（ein/aus/ja/nein/yes→1/0）；大小写敏感性未知，故启动时按序自动协商。
-        private static readonly string[][] ModePairs =
-        {
-            new[] { "JA", "NEIN" },
-            new[] { "ja", "nein" },
-            new[] { "ein", "aus" },
-        };
+        // MODE 值取自 b1v MESSWERTEMODE 表（ein/aus/ja/nein/yes→1/0）。实车实测（2026-09-22）：
+        // 大小写不敏感（JA/ja/ein 等效），故固定用 JA/NEIN；para 分隔符实测为 ';'（',' 会 ERROR_ARGUMENT）。
+        // 单块测量值数上限因 ECU 而异（实测 20 项即 ERROR_ECU_REQUEST_OUT_OF_RANGE），故启动时自动发现。
 
         private readonly EdiabasClient _client;
         private readonly SampleConfig _config;
@@ -81,13 +78,14 @@ namespace ObdLogger.Logging
         private readonly AppLog _log;
         private readonly SamplerSettings _settings;
 
-        private readonly List<List<SampleItem>> _groups;
-        private readonly bool _singleGroup;
+        private List<List<SampleItem>> _groups;   // Prime 发现单块上限后可能重新分组
+        private bool _singleGroup;
         private readonly SamplerStats _stats;
         private readonly int _intervalMs;
 
         private bool[] _groupDefined;    // 该组是否已用 MODE=JA 定义过（单组 NEIN 复用前提）
         private bool[] _groupJaDisabled; // 该组 JA 被 ECU 拒绝（R-2-4）→ 后续只用 NEIN
+        private readonly HashSet<string> _excludedArgs = new HashSet<string>(StringComparer.OrdinalIgnoreCase); // 启动校验剔除的坏 ARG
 
         private BlockingCollection<SampleSnapshot> _csvQueue;
         private Thread _csvThread;
@@ -110,6 +108,12 @@ namespace ObdLogger.Logging
         public string NegotiatedParaSep { get { return _paraSep; } }
         public string NegotiatedModeDefine { get { return _modeDefine; } }
         public string NegotiatedModeRead { get { return _modeRead; } }
+        /// <summary>Prime 发现的 ECU 单次 $2C 定义块可容纳的最大测量值数（0=未发现）。</summary>
+        public int MaxBlockDiscovered { get; private set; }
+        /// <summary>Prime 后实际的分组数。</summary>
+        public int GroupCount { get { return _groups == null ? 0 : _groups.Count; } }
+        /// <summary>启动校验中被 ECU 拒绝（如 Resultname not valid）而自动跳过的 ARG（其 CSV 列留空）。</summary>
+        public string[] ExcludedArgs { get; private set; } = new string[0];
 
         public Sampler(EdiabasClient client, SampleConfig config, CsvWriter csv, LiveDisplay display,
             AppLog log, SamplerSettings settings, SamplerStats stats)
@@ -186,90 +190,292 @@ namespace ObdLogger.Logging
             }
         }
 
-        // ---------- 启动协商：确定 para 分隔符与 MODE 拼写，并确认连通（R-2-1 / R-2-4） ----------
+        // ---------- 启动协商：确定 para 分隔符 + 发现单块最大测量值数（R-2-1 / R-2-4） ----------
 
+        /// <summary>
+        /// 启动协商（实车 2026-09-22 实测结论驱动）：
+        ///   - 分隔符：';' 正确（',' → ERROR_ARGUMENT，PRG 未收到分立的动态参数）；仍保留 ',' 兜底。
+        ///   - MODE：大小写不敏感，固定 JA/NEIN。
+        ///   - 单块上限：20 项一次性 $2C 定义被 ECU 拒为 ERROR_ECU_REQUEST_OUT_OF_RANGE（NRC 0x31），
+        ///     故二分发现 ECU 接受的单次定义最大测量值数，并据此重新分组（多组每周期逐组 JA 重定义）。
+        /// 首帧连通失败（接口/超时）→ NoConnection 致命；$2C 定义整体被拒 → 提示 R-2-4/--no-ja。
+        /// </summary>
         private void Prime()
         {
-            List<SampleItem> group0 = _groups[0];
             List<string> separators = DistinctList(new[] { _settings.ParaSep, ";", "," });
+            string defineMode = _settings.AllowModeJa ? _modeDefine : _modeRead;
             string lastStatus = null;
+            string goodSep = null;
+            int discoveredMax = 0;
 
             foreach (string sep in separators)
             {
-                foreach (string[] pair in ModePairs)
+                if (_stop) throw new OperationCanceledException("启动阶段被中断");
+                int result = DiscoverMaxBlockSize(sep, defineMode, out lastStatus);
+                if (result == -1) { continue; }   // ERROR_ARGUMENT：分隔符/ARG 不被解析 → 换分隔符
+                if (result == -2)
                 {
-                    if (_stop) throw new OperationCanceledException("启动阶段被中断");
+                    throw new SamplerStartException(SamplerStartException.FailureKind.EcuRejected,
+                        "测量块定义被 ECU 拒绝：" + lastStatus, lastStatus);
+                }
+                if (result == 0)
+                {
+                    // 连单项 $2C 定义都越界：多为 ECU 当前状态拒绝动态定义（R-2-4）
+                    lastStatus = "ERROR_ECU_REQUEST_OUT_OF_RANGE（单项定义亦被拒）";
+                    continue;
+                }
+                goodSep = sep;
+                discoveredMax = result;
+                break;
+            }
 
-                    // 保守模式（不允许 JA）：用读取拼写直接试读 ECU 已存定义
-                    string defineMode = _settings.AllowModeJa ? pair[0] : pair[1];
-                    string para = BuildPara(defineMode, group0, sep);
-                    _log.Api("Prime 尝试：para=\"{0}\"", para);
+            if (goodSep == null || discoveredMax <= 0)
+            {
+                throw new SamplerStartException(
+                    SamplerStartException.FailureKind.BadArguments,
+                    "测量块首次定义被拒（已试分隔符 ';' 与 ','，并自动收缩单块测量值数至 1 项仍被拒）",
+                    string.IsNullOrEmpty(lastStatus) ? "(无 JOB_STATUS)" : ("最后 JOB_STATUS=" + lastStatus));
+            }
 
-                    JobResult res;
-                    try
-                    {
-                        res = _client.RunJob(_settings.Ecu, JobName, para);
-                    }
-                    catch (OperationCanceledException) { throw; }
-                    catch (EdiabasTimeoutException tex)
-                    {
-                        throw new SamplerStartException(SamplerStartException.FailureKind.NoConnection,
-                            "首次测量块读取超时，ECU 无响应", tex.Message);
-                    }
-                    catch (EdiabasJobException jex)
-                    {
-                        if (jex.Category == EdiabasErrorCategory.Interface)
-                        {
-                            throw new SamplerStartException(SamplerStartException.FailureKind.NoConnection,
-                                string.Format("无法与 DME 建立通信（接口错误 {0}: {1}）", jex.ErrorCode, jex.ErrorText),
-                                jex.ErrorText);
-                        }
-                        if (jex.Category == EdiabasErrorCategory.Bip || jex.Category == EdiabasErrorCategory.Sys)
-                        {
-                            // Job/SGBD 层错误（如 JOB NOT FOUND）：换拼写无意义，直接致命
-                            throw new SamplerStartException(SamplerStartException.FailureKind.EcuRejected,
-                                string.Format("SGBD/Job 层错误（{0}: {1}）——确认 --ecu 指定的 PRG 含 {2}",
-                                    jex.ErrorCode, jex.ErrorText, JobName),
-                                jex.ErrorText);
-                        }
-                        lastStatus = jex.ErrorText;
-                        continue;
-                    }
-                    catch (EdiabasException eex)
-                    {
-                        throw new SamplerStartException(SamplerStartException.FailureKind.Environment,
-                            "EDIABAS 环境错误：" + eex.Message, eex.Message);
-                    }
+            _paraSep = goodSep;
+            if (_settings.AllowModeJa) { _modeDefine = defineMode; _modeRead = "NEIN"; }
+            else { _modeDefine = null; _modeRead = defineMode; }
+            MaxBlockDiscovered = discoveredMax;
 
-                    string status = res.FindJobStatus();
-                    if (!JobResult.IsErrorStatus(status))
-                    {
-                        _paraSep = sep;
-                        if (_settings.AllowModeJa)
-                        {
-                            _modeDefine = pair[0];
-                            _modeRead = pair[1];
-                            _groupDefined[0] = _singleGroup; // 单组：本组已定义，后续 NEIN 复用
-                        }
-                        else
-                        {
-                            _modeDefine = null;
-                            _modeRead = defineMode;
-                        }
-                        _log.Info("Prime 成功：分隔符='{0}'，MODE='{1}'，JOB_STATUS={2}",
-                            sep, defineMode, string.IsNullOrEmpty(status) ? "OKAY" : status);
-                        return;
-                    }
+            // 依据发现的单块上限重新分组；各组定义状态复位，首周期由采集循环用 JA 正确定义
+            RegroupItems(discoveredMax);
 
-                    lastStatus = status;
-                    _log.Api("Prime 被拒（sep='{0}', MODE='{1}'）：JOB_STATUS={2}", sep, defineMode, status);
+            // 逐组校验并自愈：自动定位并跳过被 ECU 拒绝的 ARG（如 ISKLO → JOB_MESSAGE=Resultname not valid），
+            // 避免单个坏 ARG 拖垮整组（其 CSV 列留空，汇总中报告）。
+            string healMode = _settings.AllowModeJa ? _modeDefine : _modeRead;
+            List<string> dropped = HealGroups(_paraSep, healMode);
+            ExcludedArgs = dropped.ToArray();
+            if (_groups.Count == 0)
+            {
+                throw new SamplerStartException(SamplerStartException.FailureKind.BadArguments,
+                    "全部采样项均被 ECU 拒绝，无可采样项", string.Join(", ", ExcludedArgs));
+            }
+
+            // 剔除坏 ARG 后在“干净清单”上重新发现单块上限（此前坏 ARG 若靠前会把上限误缩），并据此重新分组
+            if (dropped.Count > 0)
+            {
+                string ls2;
+                int newMax = DiscoverMaxBlockSize(_paraSep, healMode, out ls2);
+                if (newMax > MaxBlockDiscovered)
+                {
+                    MaxBlockDiscovered = newMax;
+                    RegroupItems(newMax);
+                    _log.Info("剔除坏 ARG 后重新发现单块上限：{0} 项 → {1} 组", newMax, _groups.Count);
                 }
             }
 
-            throw new SamplerStartException(
-                SamplerStartException.FailureKind.BadArguments,
-                "测量块首次定义/读取被拒（已尝试分隔符 ';' 与 ',' 及多种 MODE 拼写）",
-                string.IsNullOrEmpty(lastStatus) ? "(无 JOB_STATUS)" : ("最后 JOB_STATUS=" + lastStatus));
+            _log.Info("Prime 成功：分隔符='{0}'，MODE 定义/读取='{1}'/'{2}'，单块最大 {3} 项 → {4} 组（共 {5} 项）",
+                _paraSep, _settings.AllowModeJa ? _modeDefine : "(不用JA)", _modeRead,
+                MaxBlockDiscovered, _groups.Count, _config.Count);
+            if (_groups.Count > 1)
+            {
+                _log.Info("采样项 {0} 超单块上限 {1}，分 {2} 组；每周期逐组 MODE=JA 重定义（$2C 单块语义），实际速率相应下降。",
+                    _config.Count, MaxBlockDiscovered, _groups.Count);
+            }
+        }
+
+        /// <summary>当前未被剔除（有效）的采样项数。</summary>
+        private int ActiveItemCount()
+        {
+            int n = 0;
+            foreach (SampleItem it in _config.Items) if (!_excludedArgs.Contains(it.Arg)) n++;
+            return n;
+        }
+
+        /// <summary>
+        /// 二分发现 ECU 接受的单次 $2C 定义块最大测量值数（O(log N) 次实车调用）。
+        /// 返回：>0 最大可用块大小；0 连单项都越界；-1 参数错误（分隔符/ARG）；-2 其他致命错误。
+        /// </summary>
+        private int DiscoverMaxBlockSize(string sep, string defineMode, out string lastStatus)
+        {
+            lastStatus = null;
+            int n = Math.Min(ActiveItemCount(), SampleConfig.MaxArgsPerCall);
+            if (n == 0) return 0;
+
+            string st1 = TryDefineStatus(sep, defineMode, 1, out lastStatus);
+            if (st1 == null) return -2;
+            if (IsArgumentError(st1)) return -1;
+            if (IsOutOfRange(st1)) return 0;
+            if (JobResult.IsErrorStatus(st1)) return -2;
+            if (n <= 1) return 1;
+
+            string stN = TryDefineStatus(sep, defineMode, n, out lastStatus);
+            if (stN == null) return -2;
+            if (!JobResult.IsErrorStatus(stN)) return n;
+
+            int lo = 1, hi = n - 1, best = 1;
+            while (lo <= hi)
+            {
+                if (_stop) throw new OperationCanceledException("启动阶段被中断");
+                int mid = lo + (hi - lo) / 2;
+                string st = TryDefineStatus(sep, defineMode, mid, out lastStatus);
+                if (st == null) return -2;
+                // OUT_OF_RANGE（超限）或 ERROR_ARGUMENT（该前缀含坏 ARG）均视为“收缩”；坏 ARG 交由 HealGroups 剔除
+                if (!JobResult.IsErrorStatus(st)) { best = mid; lo = mid + 1; }
+                else { hi = mid - 1; }
+            }
+            return best;
+        }
+
+        /// <summary>
+        /// 用前 <paramref name="size"/> 个采样项做一次 MODE 定义调用，返回 JOB_STATUS（OKAY 时空串）；
+        /// 连通/环境类致命错误直接抛 <see cref="SamplerStartException"/>；其他 Job 异常返回 null（交调用方判 -2）。
+        /// </summary>
+        private string TryDefineStatus(string sep, string defineMode, int size, out string lastStatus)
+        {
+            lastStatus = null;
+            var sb = new StringBuilder(defineMode ?? string.Empty);
+            int taken = 0;
+            foreach (SampleItem it in _config.Items)
+            {
+                if (taken >= size) break;
+                if (_excludedArgs.Contains(it.Arg)) continue;   // 仅用未被剔除的采样项做前缀探测
+                sb.Append(sep).Append(it.Arg);
+                taken++;
+            }
+            string para = sb.ToString();
+            _log.Api("Prime 探测：size={0}，para=\"{1}\"", size, para);
+
+            JobResult res;
+            try
+            {
+                res = _client.RunJob(_settings.Ecu, JobName, para);
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (EdiabasTimeoutException tex)
+            {
+                throw new SamplerStartException(SamplerStartException.FailureKind.NoConnection,
+                    "首次测量块读取超时，ECU 无响应", tex.Message);
+            }
+            catch (EdiabasJobException jex)
+            {
+                if (jex.Category == EdiabasErrorCategory.Interface)
+                {
+                    throw new SamplerStartException(SamplerStartException.FailureKind.NoConnection,
+                        string.Format("无法与 DME 建立通信（接口错误 {0}: {1}）", jex.ErrorCode, jex.ErrorText),
+                        jex.ErrorText);
+                }
+                if (jex.Category == EdiabasErrorCategory.Bip || jex.Category == EdiabasErrorCategory.Sys)
+                {
+                    throw new SamplerStartException(SamplerStartException.FailureKind.EcuRejected,
+                        string.Format("SGBD/Job 层错误（{0}: {1}）——确认 --ecu 指定的 PRG 含 {2}",
+                            jex.ErrorCode, jex.ErrorText, JobName),
+                        jex.ErrorText);
+                }
+                lastStatus = jex.ErrorText;
+                return null;
+            }
+            catch (EdiabasException eex)
+            {
+                throw new SamplerStartException(SamplerStartException.FailureKind.Environment,
+                    "EDIABAS 环境错误：" + eex.Message, eex.Message);
+            }
+
+            string status = res.FindJobStatus() ?? string.Empty;
+            if (JobResult.IsErrorStatus(status)) lastStatus = status;
+            return status;
+        }
+
+        /// <summary>按发现的单块上限重建分组，并复位各组定义状态。</summary>
+        private void RegroupItems(int maxBlock)
+        {
+            if (maxBlock < 1) maxBlock = 1;
+            if (maxBlock > SampleConfig.MaxArgsPerCall) maxBlock = SampleConfig.MaxArgsPerCall;
+            _groups = new List<List<SampleItem>>();
+            var current = new List<SampleItem>();
+            foreach (SampleItem item in _config.Items)
+            {
+                if (_excludedArgs.Contains(item.Arg)) continue;   // 跳过被 ECU 拒绝的 ARG（其 CSV 列留空）
+                current.Add(item);
+                if (current.Count >= maxBlock)
+                {
+                    _groups.Add(current);
+                    current = new List<SampleItem>();
+                }
+            }
+            if (current.Count > 0) _groups.Add(current);
+            _singleGroup = _groups.Count == 1;
+            _groupDefined = new bool[_groups.Count];
+            _groupJaDisabled = new bool[_groups.Count];
+        }
+
+        private static bool IsArgumentError(string status)
+        {
+            return status != null && status.IndexOf("ERROR_ARGUMENT", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static bool IsOutOfRange(string status)
+        {
+            return status != null && status.IndexOf("OUT_OF_RANGE", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        /// <summary>
+        /// 逐组校验并按需自愈：对每个分组做一次定义试探；若返回 ERROR_ARGUMENT
+        /// （典型 JOB_MESSAGE=Resultname not valid，如 ISKLO），二分定位并剔除坏 ARG，剔除后重新分组。
+        /// 返回被剔除的 ARG 列表（其 CSV 列保持空，汇总中报告）。
+        /// </summary>
+        private List<string> HealGroups(string sep, string defineMode)
+        {
+            var dropped = new List<string>();
+            for (int gi = 0; gi < _groups.Count; gi++)
+            {
+                if (_stop) break;
+                List<SampleItem> group = _groups[gi];
+                string st = TestDefine(group, sep, defineMode);
+                if (IsArgumentError(st))
+                {
+                    foreach (string a in FindBadArgs(group, sep, defineMode))
+                    {
+                        if (_excludedArgs.Add(a) && !dropped.Contains(a)) dropped.Add(a);
+                    }
+                }
+            }
+            if (dropped.Count > 0)
+            {
+                RegroupItems(MaxBlockDiscovered);   // 剔除坏 ARG 后重新分组
+                _log.Warn("以下采样项被 ECU 拒绝（JOB_MESSAGE 多为 Resultname not valid），已自动跳过，其 CSV 列留空：{0}",
+                    string.Join(", ", dropped.ToArray()));
+            }
+            return dropped;
+        }
+
+        /// <summary>对给定条目集合做一次 MODE 定义试探，返回 JOB_STATUS（通信异常时返回空串=视为通过，不因抖动误删）。</summary>
+        private string TestDefine(List<SampleItem> items, string sep, string defineMode)
+        {
+            var sb = new StringBuilder(defineMode ?? string.Empty);
+            foreach (SampleItem it in items) sb.Append(sep).Append(it.Arg);
+            string para = sb.ToString();
+            _log.Api("组校验：para=\"{0}\"", para);
+            try
+            {
+                JobResult res = _client.RunJob(_settings.Ecu, JobName, para);
+                return res.FindJobStatus() ?? string.Empty;
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (EdiabasException ex)
+            {
+                _log.Warn("组校验通信异常（跳过自愈，交运行期缺口处理）：{0}", ex.Message);
+                return string.Empty;
+            }
+        }
+
+        /// <summary>二分定位导致 ERROR_ARGUMENT 的坏 ARG（前提：整组定义已被拒）。</summary>
+        private List<string> FindBadArgs(List<SampleItem> items, string sep, string defineMode)
+        {
+            var bad = new List<string>();
+            if (items.Count == 0) return bad;
+            if (items.Count == 1) { bad.Add(items[0].Arg); return bad; }
+            int mid = items.Count / 2;
+            List<SampleItem> left = items.GetRange(0, mid);
+            List<SampleItem> right = items.GetRange(mid, items.Count - mid);
+            if (IsArgumentError(TestDefine(left, sep, defineMode))) bad.AddRange(FindBadArgs(left, sep, defineMode));
+            if (IsArgumentError(TestDefine(right, sep, defineMode))) bad.AddRange(FindBadArgs(right, sep, defineMode));
+            return bad;
         }
 
         // ---------- 稳态采集循环 ----------
@@ -279,6 +485,12 @@ namespace ObdLogger.Logging
             DateTime nextTick = DateTime.UtcNow;
             while (!_stop)
             {
+                if (_settings.MaxDurationSec > 0 &&
+                    (DateTime.UtcNow - _stats.StartTimeUtc).TotalSeconds >= _settings.MaxDurationSec)
+                {
+                    _log.Info("达到设定时长 {0:F0}s，优雅停止采样", _settings.MaxDurationSec);
+                    break;
+                }
                 DateTime nowUtc = DateTime.UtcNow;
                 if (nextTick > nowUtc)
                 {
