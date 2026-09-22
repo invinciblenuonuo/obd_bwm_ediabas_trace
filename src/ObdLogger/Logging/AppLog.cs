@@ -16,6 +16,18 @@ namespace ObdLogger.Logging
         private readonly StreamWriter _writer;
         private readonly bool _verbose;
         private readonly string _filePath;
+        private volatile bool _consoleEnabled = true;
+
+        /// <summary>
+        /// 控制台输出总开关（默认 true，保持一期行为不变）。
+        /// 二期 log 模式在就地刷新显示期间置 false，使 Warn/Error 仅落文件，
+        /// 避免与 <see cref="LiveDisplay"/> 抢占控制台而破坏“不滚动”布局（FR-2-3）。
+        /// </summary>
+        public bool ConsoleEnabled
+        {
+            get { return _consoleEnabled; }
+            set { _consoleEnabled = value; }
+        }
 
         private AppLog(StreamWriter writer, bool verbose, string filePath)
         {
@@ -104,7 +116,7 @@ namespace ObdLogger.Logging
                 {
                     try { _writer.WriteLine(line); } catch { /* 日志失败不影响主流程 */ }
                 }
-                if (console)
+                if (console && _consoleEnabled)
                 {
                     try { Console.Error.WriteLine(line); } catch { }
                 }

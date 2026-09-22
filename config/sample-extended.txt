@@ -1,0 +1,68 @@
+# ============================================================================
+# OBD Logger 二期 — 扩展采样清单示例（FR-2-4）
+# 用法:  ObdLogger.exe log --config config\sample-extended.txt
+#        （相对路径按“启动目录”解析；亦可用绝对路径）
+#
+# 格式:  每行一条  ARG,显示名[,单位]
+#   - ARG      : 传给 STATUS_MESSWERTBLOCK_LESEN 的测量值名，必须存在于
+#                doc\材料\messwertetab.csv 的 ARG 列（由 scripts\Export-Messwertetab.ps1
+#                从 MEVD174K.b1v 全量导出，FR-2-9）。程序据此自动解析结果字段名
+#                RESULTNAME 与缺省单位 EINHEIT，无需在此填写 STAT_* 结果名。
+#   - 显示名    : CSV 列名 / 控制台显示名，建议用 ASCII（Excel 兼容，§6）。留空则用 ARG。
+#   - 单位      : 可选；留空则取 messwertetab.csv 的 EINHEIT。
+#   - 以 # 或 ; 开头的行、空行忽略。
+#
+# 说明:
+#   - 单次 Job 调用最多 42 项；超过则自动分组轮询（多组时每周期都需 MODE=JA 重定义，较慢）。
+#     本示例 39 项，仍为单次调用。
+#   - 内置默认清单为需求文档 §3.3 的 20 项核心；本文件在其基础上补充：
+#       * 全 4 缸点火角 / 爆震参考电平
+#       * §3.3“待确认”项经 FR-2-9 全表定位后确认存在的条目（燃油轨压/低压、喷油量、
+#         Valvetronic 实际/目标、VANOS 位置实际/目标、失火相对扭矩）——见下方标注。
+#   - 未在实车逐项验证的条目若被 ECU 拒绝，会使整个测量块定义失败（JOB_STATUS=ERROR_ARGUMENT）；
+#     此时可从本文件删去相应行，或用内置默认清单。
+# ============================================================================
+
+# ---- 核心（§3.3 已核实） ----
+INMOT,RPM
+SNLLD,IdleTargetRPM
+IVKMH,VehicleSpeed
+SLAST,EngineLoad
+ILREL,EngineLoadRel
+IWDKL,ThrottlePosition
+SWDKL,ThrottleTarget
+ITKUM,ECT
+ITANS,IAT
+ILMKG,MAF
+IPLAD,BoostActual
+IPUMG,AmbientPressure
+ILAG1,LambdaActual
+SINT1,LambdaTarget
+ILIN1,LambdaIntegrator
+ILAM1,LambdaAdaption
+IZZY1,IgnitionTiming
+ISKLO,KnockStatus
+IAVEP,VanosIntakePWM
+IAVAP,VanosExhaustPWM
+
+# ---- 全 4 缸点火角 / 爆震参考电平（§3.3 附加，已核实） ----
+IZWZ1,IgnAngleCyl1
+IZWZ2,IgnAngleCyl2
+IZWZ3,IgnAngleCyl3
+IZWZ4,IgnAngleCyl4
+IUKZ1,KnockVoltCyl1
+IUKZ2,KnockVoltCyl2
+IUKZ3,KnockVoltCyl3
+IUKZ4,KnockVoltCyl4
+
+# ---- §3.3“待确认”项，经 FR-2-9 全表定位确认存在（ARG==RESULTNAME 的 STAT_0x* 条目） ----
+STAT_0x58EF_WERT,RailPressureActual,MPa     # 燃油轨压实际（Gefilterter Raildruck-Istwert）
+STAT_0x5837_WERT,RailPressureTarget,MPa     # 燃油轨压目标（Solldruck Hochdrucksystem）
+STAT_0x58F3_WERT,FuelLowPressure,kPa        # 燃油低压（Ungefilterter Niederdruck Rohwert）
+STAT_0x4522_WERT,InjQtyCyl1,mg/Hub          # 喷油量 缸1（Kraftstoff Einspritzmenge Zyl1）
+STAT_0x4602_WERT,ValvetronicActual,mm       # Valvetronic 进气门升程实际
+STAT_0x4603_WERT,ValvetronicTarget,mm       # Valvetronic 进气门升程目标
+SSPEI,VanosIntakeTarget                      # 进气 VANOS 目标角（Sollwinkel Einlass-VANOS）
+STAT_0x4506_WERT,VanosIntakePosActual        # 进气凸轮轴位置实际
+STAT_0x4507_WERT,VanosExhaustPosActual       # 排气凸轮轴位置实际
+STAT_0x5838_WERT,MisfireRelTorque,%          # 失火检测相对扭矩（近似失火判据）

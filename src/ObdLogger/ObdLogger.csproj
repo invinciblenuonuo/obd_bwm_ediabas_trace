@@ -9,8 +9,14 @@
     <LangVersion>7.3</LangVersion>
     <AssemblyName>ObdLogger</AssemblyName>
     <RootNamespace>ObdLogger</RootNamespace>
-    <Version>1.0.0</Version>
-    <Description>OBD Logger - EDIABAS/K+DCAN 车辆数据记录器（一期：链路打通 + 车辆基础信息）</Description>
+    <Version>2.0.0</Version>
+    <Description>OBD Logger - EDIABAS/K+DCAN 车辆数据记录器（一期：链路打通 + 车辆基础信息；二期：实时采样与 CSV 落盘）</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 测量值目录（FR-2-9：由 scripts/Export-Messwertetab.ps1 从 MEVD174K.b1v 导出）；
+         嵌入为运行期 ARG→RESULTNAME/EINHEIT 解析的权威数据源，保证单 exe 零安装（NFR-2-3） -->
+    <EmbeddedResource Include="Logging\messwertetab.csv" />
+  </ItemGroup>
 
 </Project>
