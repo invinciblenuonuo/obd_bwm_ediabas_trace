@@ -26,3 +26,10 @@ packages/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+doc/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
