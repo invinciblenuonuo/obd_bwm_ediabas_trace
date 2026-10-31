@@ -77,6 +77,10 @@ namespace ObdLogger.Logging
             new[] { "IWDKL", "ThrottlePosition" },
             new[] { "SWDKL", "ThrottleTarget" },
             new[] { "ITKUM", "ECT" },
+            // Pump target acknowledgement; thermostat PWM is heater control, not valve position.
+            new[] { "STAT_0x4306_WERT", "WaterPumpTargetAckRPM" },
+            new[] { "INWAP", "WaterPumpActualRPM" },
+            new[] { "IAKFT", "ThermostatHeaterPWM" },
             // new[] { "ITANS", "IAT" },   // 2026-09-22 临时屏蔽（控清单 ≤30 项）
             new[] { "ILMKG", "MAF" },
             new[] { "IPLAD", "BoostActual" },

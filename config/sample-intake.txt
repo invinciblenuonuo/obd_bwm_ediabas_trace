@@ -1,0 +1,11 @@
+# Intake, boost and throttle: 10 measurements. Units come from the catalog.
+INMOT,RPM
+ITKUM,ECT
+ITANS,IAT
+ILMKG,MAF
+IPLAD,BoostActual
+IPUMG,AmbientPressure
+IWDKL,ThrottlePosition
+SWDKL,ThrottleTarget
+SLAST,EngineLoad
+ILREL,EngineLoadRel

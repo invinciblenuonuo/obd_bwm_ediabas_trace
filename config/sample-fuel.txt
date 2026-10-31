@@ -1,0 +1,11 @@
+# Fuel pressure and mixture: 10 measurements. Units come from the catalog.
+INMOT,RPM
+ITKUM,ECT
+STAT_0x5837_WERT,RailPressureTarget
+STAT_0x58EF_WERT,RailPressureActual
+STAT_0x58F3_WERT,FuelLowPressure
+ILAG1,LambdaActual
+SINT1,LambdaTarget
+ILIN1,LambdaIntegrator
+ILAM1,LambdaAdaption
+ILMKG,MAF

@@ -72,6 +72,8 @@
 
 ## 🚀 快速上手
 
+按冷却系统、燃油系统或进气系统采集，可使用 `scripts/Start-Cooling.ps1`、`scripts/Start-Fuel.ps1`、`scripts/Start-Intake.ps1`。配置、启动命令和参数说明见 [分任务采集说明](scripts/README.md)。
+
 ### 1. 运行前提
 
 - **操作系统**：Windows 10 / 11（已配置 .NET Framework 4.8）

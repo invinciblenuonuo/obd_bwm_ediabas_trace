@@ -1,0 +1,13 @@
+# Cooling system only: 9 measurements. Units come from the embedded catalog.
+# Usage from repository root: ObdLogger.exe log --config config\sample-cooling.txt --rate 1
+# Target RPM is an acknowledgement; thermostat heater PWM is not valve position.
+# Pump status is the raw status byte, not decoded flags.
+STAT_0x4306_WERT,WaterPumpTargetAckRPM
+INWAP,WaterPumpActualRPM
+ITKUM,ECT
+STAT_0x4310_WERT,CoolantTargetTemperature
+IAKFT,ThermostatHeaterPWM
+IUWAP,WaterPumpVoltage
+IIWAP,WaterPumpCurrent
+ITWAE,WaterPumpElectronicsTemperature
+STAT_0x4307_WERT,WaterPumpStatus

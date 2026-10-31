@@ -32,6 +32,10 @@ ILREL,EngineLoadRel
 IWDKL,ThrottlePosition
 SWDKL,ThrottleTarget
 ITKUM,ECT
+# Cooling: target acknowledgement and heater PWM; PWM does not report valve open/closed.
+STAT_0x4306_WERT,WaterPumpTargetAckRPM
+INWAP,WaterPumpActualRPM
+IAKFT,ThermostatHeaterPWM
 ITANS,IAT
 ILMKG,MAF
 IPLAD,BoostActual
