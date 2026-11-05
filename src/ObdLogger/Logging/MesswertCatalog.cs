@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -7,28 +7,28 @@ using System.Text;
 namespace ObdLogger.Logging
 {
     /// <summary>
-    /// MESSWERTETAB ÖĞµÄÒ»Ìõ²âÁ¿Öµ¶¨Òå£¨À´Ô´£ºdoc/²ÄÁÏ/MEVD174K.b1v È«Á¿µ¼³ö£¬FR-2-9£©¡£
-    /// ¹Ø¼üÔ¼¶¨£ºÏò STATUS_MESSWERTBLOCK_LESEN ´«ÈëµÄ¶¯Ì¬²ÎÊıÃûÎª <see cref="Arg"/>£¬
-    /// Job ·µ»ØµÄ½á¹û×Ö¶ÎÃûÎª <see cref="ResultName"/>£¨b1v ÖĞ tabget "RESULTNAME" ¡ú ergs£©£¬
-    /// ¶şÕßÍ¨³£²»Í¬£¨Èç INMOT ¡ú STAT_MOTORDREHZAHL_WERT£©£¬¹Ê±ØĞë¾­±¾Ä¿Â¼½âÎö¡£
+    /// MESSWERTETAB ä¸­çš„ä¸€æ¡æµ‹é‡å€¼å®šä¹‰ï¼ˆæ¥æºï¼šdoc/ææ–™/MEVD174K.b1v å…¨é‡å¯¼å‡ºï¼ŒFR-2-9ï¼‰ã€‚
+    /// å…³é”®çº¦å®šï¼šå‘ STATUS_MESSWERTBLOCK_LESEN ä¼ å…¥çš„åŠ¨æ€å‚æ•°åä¸º <see cref="Arg"/>ï¼Œ
+    /// Job è¿”å›çš„ç»“æœå­—æ®µåä¸º <see cref="ResultName"/>ï¼ˆb1v ä¸­ tabget "RESULTNAME" â†’ ergsï¼‰ï¼Œ
+    /// äºŒè€…é€šå¸¸ä¸åŒï¼ˆå¦‚ INMOT â†’ STAT_MOTORDREHZAHL_WERTï¼‰ï¼Œæ•…å¿…é¡»ç»æœ¬ç›®å½•è§£æã€‚
     /// </summary>
     internal sealed class MesswertDef
     {
-        public string Arg;         // ´«¸ø Job µÄ¶¯Ì¬²ÎÊıÃû£¨MESSWERTETAB.ARG£©
-        public string Id;          // Êı¾İ±êÊ¶£¨0x....£©
-        public string ResultName;  // Job ·µ»ØµÄ½á¹û×Ö¶ÎÃû£¨MESSWERTETAB.RESULTNAME£¬STAT_*£©
-        public string Info;        // µÂÓïÃèÊö£¨MESSWERTETAB.INFO£©
-        public string Unit;        // µ¥Î»£¨MESSWERTETAB.EINHEIT£¬¿ÉÖ±½ÓĞ´Èë CSV µ¥Î»ĞĞ£©
-        public string Label;       // A2L Ãû£¨MESSWERTETAB.LABEL£©
-        public string DataType;    // Êı¾İÀàĞÍ£¨MESSWERTETAB.DATENTYP£©
+        public string Arg;         // ä¼ ç»™ Job çš„åŠ¨æ€å‚æ•°åï¼ˆMESSWERTETAB.ARGï¼‰
+        public string Id;          // æ•°æ®æ ‡è¯†ï¼ˆ0x....ï¼‰
+        public string ResultName;  // Job è¿”å›çš„ç»“æœå­—æ®µåï¼ˆMESSWERTETAB.RESULTNAMEï¼ŒSTAT_*ï¼‰
+        public string Info;        // å¾·è¯­æè¿°ï¼ˆMESSWERTETAB.INFOï¼‰
+        public string Unit;        // å•ä½ï¼ˆMESSWERTETAB.EINHEITï¼Œå¯ç›´æ¥å†™å…¥ CSV å•ä½è¡Œï¼‰
+        public string Label;       // A2L åï¼ˆMESSWERTETAB.LABELï¼‰
+        public string DataType;    // æ•°æ®ç±»å‹ï¼ˆMESSWERTETAB.DATENTYPï¼‰
     }
 
     /// <summary>
-    /// ²âÁ¿ÖµÄ¿Â¼£º´ÓÇ¶Èë×ÊÔ´ messwertetab.csv ¼ÓÔØ ARG ¡ú£¨RESULTNAME / EINHEIT / INFO£©Ó³Éä£¬
-    /// ×÷ÎªÔËĞĞÆÚ½âÎö²ÉÑùÏî¡°½á¹û×Ö¶ÎÃû / µ¥Î» / ÃèÊö¡±µÄÈ¨ÍşÊı¾İÔ´¡£
-    /// CSV ÓÉ scripts/Export-Messwertetab.ps1 ´Ó MEVD174K.b1v µ¼³ö£¨FR-2-9£©£¬Ëæ³ÌĞòÇ¶Èë£¬
-    /// ±£Ö¤µ¥ exe Áã°²×°£¨NFR-2-3£©ÇÒ²»ÒÀÀµÔËĞĞÆÚÍâ²¿ÎÄ¼ş¡£
-    /// Ïß³Ì°²È«£¨¹¹ÔìºóÖ»¶Á£©¡£
+    /// æµ‹é‡å€¼ç›®å½•ï¼šä»åµŒå…¥èµ„æº messwertetab.csv åŠ è½½ ARG â†’ï¼ˆRESULTNAME / EINHEIT / INFOï¼‰æ˜ å°„ï¼Œ
+    /// ä½œä¸ºè¿è¡ŒæœŸè§£æé‡‡æ ·é¡¹â€œç»“æœå­—æ®µå / å•ä½ / æè¿°â€çš„æƒå¨æ•°æ®æºã€‚
+    /// CSV ç”± scripts/Export-Messwertetab.ps1 ä» MEVD174K.b1v å¯¼å‡ºï¼ˆFR-2-9ï¼‰ï¼Œéšç¨‹åºåµŒå…¥ï¼Œ
+    /// ä¿è¯å• exe é›¶å®‰è£…ï¼ˆNFR-2-3ï¼‰ä¸”ä¸ä¾èµ–è¿è¡ŒæœŸå¤–éƒ¨æ–‡ä»¶ã€‚
+    /// çº¿ç¨‹å®‰å…¨ï¼ˆæ„é€ ååªè¯»ï¼‰ã€‚
     /// </summary>
     internal sealed class MesswertCatalog
     {
@@ -37,10 +37,10 @@ namespace ObdLogger.Logging
         private readonly Dictionary<string, MesswertDef> _byArg =
             new Dictionary<string, MesswertDef>(StringComparer.OrdinalIgnoreCase);
 
-        /// <summary>ÒÑ¼ÓÔØµÄÌõÄ¿Êı£¨0 ±íÊ¾×ÊÔ´È±Ê§/½âÎöÊ§°Ü£¬µ÷ÓÃ·½Ó¦½µ¼¶²¢¸æ¾¯£©¡£</summary>
+        /// <summary>å·²åŠ è½½çš„æ¡ç›®æ•°ï¼ˆ0 è¡¨ç¤ºèµ„æºç¼ºå¤±/è§£æå¤±è´¥ï¼Œè°ƒç”¨æ–¹åº”é™çº§å¹¶å‘Šè­¦ï¼‰ã€‚</summary>
         public int Count { get { return _byArg.Count; } }
 
-        /// <summary>´ÓÇ¶Èë×ÊÔ´¼ÓÔØÄ¿Â¼£»Ê§°ÜÊ±·µ»Ø¿ÕÄ¿Â¼£¨²»Å×³ö£¬½»ÓÉµ÷ÓÃ·½½µ¼¶£©¡£</summary>
+        /// <summary>ä»åµŒå…¥èµ„æºåŠ è½½ç›®å½•ï¼›å¤±è´¥æ—¶è¿”å›ç©ºç›®å½•ï¼ˆä¸æŠ›å‡ºï¼Œäº¤ç”±è°ƒç”¨æ–¹é™çº§ï¼‰ã€‚</summary>
         public static MesswertCatalog LoadEmbedded(AppLog log)
         {
             var catalog = new MesswertCatalog();
@@ -58,7 +58,7 @@ namespace ObdLogger.Logging
                 }
                 if (resName == null)
                 {
-                    log.Warn("Î´ÕÒµ½Ç¶Èë×ÊÔ´ {0}£¬²âÁ¿ÖµÄ¿Â¼Îª¿Õ£¨²ÉÑùÏî½á¹ûÃû½«ÍË»¯Îª°´ ARG ²Â²â£©", ResourceSuffix);
+                    log.Warn("æœªæ‰¾åˆ°åµŒå…¥èµ„æº {0}ï¼Œæµ‹é‡å€¼ç›®å½•ä¸ºç©ºï¼ˆé‡‡æ ·é¡¹ç»“æœåå°†é€€åŒ–ä¸ºæŒ‰ ARG çŒœæµ‹ï¼‰", ResourceSuffix);
                     return catalog;
                 }
 
@@ -67,11 +67,11 @@ namespace ObdLogger.Logging
                 {
                     catalog.Parse(reader, log);
                 }
-                log.Info("²âÁ¿ÖµÄ¿Â¼ÒÑ¼ÓÔØ£º{0} Ìõ£¨×ÊÔ´ {1}£©", catalog.Count, resName);
+                log.Info("æµ‹é‡å€¼ç›®å½•å·²åŠ è½½ï¼š{0} æ¡ï¼ˆèµ„æº {1}ï¼‰", catalog.Count, resName);
             }
             catch (Exception ex)
             {
-                log.Warn("¼ÓÔØ²âÁ¿ÖµÄ¿Â¼Ê§°Ü£¨½µ¼¶Îª°´ ARG ²Â²â½á¹ûÃû£©£º{0}", ex.Message);
+                log.Warn("åŠ è½½æµ‹é‡å€¼ç›®å½•å¤±è´¥ï¼ˆé™çº§ä¸ºæŒ‰ ARG çŒœæµ‹ç»“æœåï¼‰ï¼š{0}", ex.Message);
             }
             return catalog;
         }
@@ -90,10 +90,10 @@ namespace ObdLogger.Logging
                 {
                     for (int i = 0; i < fields.Count; i++) col[fields[i]] = i;
                     isHeader = false;
-                    // ±ØĞèÁĞĞ£Ñé
+                    // å¿…éœ€åˆ—æ ¡éªŒ
                     if (!col.ContainsKey("ARG") || !col.ContainsKey("RESULTNAME"))
                     {
-                        log.Warn("messwertetab.csv ±íÍ·È±ÉÙ ARG/RESULTNAME ÁĞ£¬Ä¿Â¼²»¿ÉÓÃ");
+                        log.Warn("messwertetab.csv è¡¨å¤´ç¼ºå°‘ ARG/RESULTNAME åˆ—ï¼Œç›®å½•ä¸å¯ç”¨");
                         return;
                     }
                     continue;
@@ -112,13 +112,13 @@ namespace ObdLogger.Logging
                     DataType = Get(fields, col, "DATENTYP"),
                 };
                 if (string.IsNullOrEmpty(def.ResultName)) def.ResultName = arg;
-                // ARG Î¨Ò»£»ÈôÖØ¸´±£ÁôÊ×Ìõ
+                // ARG å”¯ä¸€ï¼›è‹¥é‡å¤ä¿ç•™é¦–æ¡
                 if (!_byArg.ContainsKey(arg)) _byArg[arg] = def;
             }
-            if (badRows > 0) log.Warn("messwertetab.csv ÓĞ {0} ĞĞÈ± ARG ±»Ìø¹ı", badRows);
+            if (badRows > 0) log.Warn("messwertetab.csv æœ‰ {0} è¡Œç¼º ARG è¢«è·³è¿‡", badRows);
         }
 
-        /// <summary>µ¥Î»¹éÒ»£ºb1v ÖĞ "-" ±íÊ¾ÎŞµ¥Î»£»Í³Ò»Îª¿Õ´®ÒÔ±ã CSV µ¥Î»ĞĞÁô "[-]"¡£</summary>
+        /// <summary>å•ä½å½’ä¸€ï¼šb1v ä¸­ "-" è¡¨ç¤ºæ— å•ä½ï¼›ç»Ÿä¸€ä¸ºç©ºä¸²ä»¥ä¾¿ CSV å•ä½è¡Œç•™ "[-]"ã€‚</summary>
         private static string NormalizeUnit(string unit)
         {
             if (string.IsNullOrWhiteSpace(unit)) return string.Empty;
@@ -139,8 +139,8 @@ namespace ObdLogger.Logging
         }
 
         /// <summary>
-        /// ½âÎöÒ»ĞĞ CSV£¨×Ö¶Î¿Éº¬ÒıºÅ£»ÒıºÅÄÚ "" ±íÊ¾Ò»¸ö×ÖÃæÒıºÅ£»×Ö¶ÎÄÚ¶ººÅ°²È«£©¡£
-        /// Óë Export-Messwertetab.ps1 µÄ¡°Ê¼ÖÕ¼ÓÒıºÅ¡±Ğ´·¨¶ÔÓ¦¡£
+        /// è§£æä¸€è¡Œ CSVï¼ˆå­—æ®µå¯å«å¼•å·ï¼›å¼•å·å†… "" è¡¨ç¤ºä¸€ä¸ªå­—é¢å¼•å·ï¼›å­—æ®µå†…é€—å·å®‰å…¨ï¼‰ã€‚
+        /// ä¸ Export-Messwertetab.ps1 çš„â€œå§‹ç»ˆåŠ å¼•å·â€å†™æ³•å¯¹åº”ã€‚
         /// </summary>
         internal static List<string> ParseCsvLine(string line)
         {

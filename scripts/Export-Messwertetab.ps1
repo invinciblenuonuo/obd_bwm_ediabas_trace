@@ -1,22 +1,22 @@
-# ============================================================================
-# Export-Messwertetab.ps1  £¨FR-2-9£©
-# ´Ó MEVD174K.prg µÄ·´±àÒëÔ´Âë doc\²ÄÁÏ\MEVD174K.b1v ÖĞÈ«Á¿µ¼³ö MESSWERTETAB
-# ²âÁ¿ÖµÄ¿Â¼±íÎª CSV£¬¹©£º
-#   1) ÈË¹¤¶¨Î»¶şÆÚĞèÇóÎÄµµ ¡ì3.3 ¡°´ıÈ·ÈÏ¡±²ÉÑùÏî£»
-#   2) ×÷ÎªÔËĞĞÆÚ ARG ¡ú RESULTNAME / EINHEIT Ó³ÉäµÄÈ¨ÍşÊı¾İÔ´£¨Ç¶Èë ObdLogger.exe£©¡£
+ï»¿# ============================================================================
+# Export-Messwertetab.ps1  ï¼ˆFR-2-9ï¼‰
+# ä» MEVD174K.prg çš„åç¼–è¯‘æºç  doc\ææ–™\MEVD174K.b1v ä¸­å…¨é‡å¯¼å‡º MESSWERTETAB
+# æµ‹é‡å€¼ç›®å½•è¡¨ä¸º CSVï¼Œä¾›ï¼š
+#   1) äººå·¥å®šä½äºŒæœŸéœ€æ±‚æ–‡æ¡£ Â§3.3 â€œå¾…ç¡®è®¤â€é‡‡æ ·é¡¹ï¼›
+#   2) ä½œä¸ºè¿è¡ŒæœŸ ARG â†’ RESULTNAME / EINHEIT æ˜ å°„çš„æƒå¨æ•°æ®æºï¼ˆåµŒå…¥ ObdLogger.exeï¼‰ã€‚
 #
-# ±í½á¹¹£¨b1v ĞĞ 4900 Æğ£¬TBEG "MESSWERTETAB" ¡­ TEND£¬¹² 483 Ìõ LINE£©£º
+# è¡¨ç»“æ„ï¼ˆb1v è¡Œ 4900 èµ·ï¼ŒTBEG "MESSWERTETAB" â€¦ TENDï¼Œå…± 483 æ¡ LINEï¼‰ï¼š
 #   HEAD "ARG","ID","RESULTNAME","INFO","EINHEIT","LABEL","L/H","DATENTYP","NAME","MUL","DIV","ADD"
-#   »»Ëã£ºÎïÀíÖµ = Ô­Ê¼Öµ ¡Á MUL ¡Â DIV + ADD£¨Job ·µ»ØµÄÒÑÊÇ»»ËãºóÎïÀíÖµ£©¡£
+#   æ¢ç®—ï¼šç‰©ç†å€¼ = åŸå§‹å€¼ Ã— MUL Ã· DIV + ADDï¼ˆJob è¿”å›çš„å·²æ˜¯æ¢ç®—åç‰©ç†å€¼ï¼‰ã€‚
 #
-# b1v ÎªÒÅÁô±àÂë£¨µÂÓï±äÒô×Ö·û°´ Windows-1252 ´æ´¢£©£¬¹ÊÒÔ cp1252 Á÷Ê½¶ÁÈ¡£¬
-# Êä³öÎª UTF-8¡£ÎÄ¼ş >20MB£¬Ê¹ÓÃ StreamReader ÖğĞĞÁ÷Ê½´¦Àí£¬²»ÕûÌåÔØÈëÄÚ´æ¡£
+# b1v ä¸ºé—ç•™ç¼–ç ï¼ˆå¾·è¯­å˜éŸ³å­—ç¬¦æŒ‰ Windows-1252 å­˜å‚¨ï¼‰ï¼Œæ•…ä»¥ cp1252 æµå¼è¯»å–ï¼Œ
+# è¾“å‡ºä¸º UTF-8ã€‚æ–‡ä»¶ >20MBï¼Œä½¿ç”¨ StreamReader é€è¡Œæµå¼å¤„ç†ï¼Œä¸æ•´ä½“è½½å…¥å†…å­˜ã€‚
 #
-# ÓÃ·¨£º powershell -ExecutionPolicy Bypass -File scripts\Export-Messwertetab.ps1
+# ç”¨æ³•ï¼š powershell -ExecutionPolicy Bypass -File scripts\Export-Messwertetab.ps1
 # ============================================================================
 [CmdletBinding()]
 param(
-    # ²Ö¿â¸ùÄ¿Â¼£¨Ä¬ÈÏÓÉ½Å±¾Î»ÖÃÍÆ¶Ï£ºscripts\ µÄÉÏÒ»¼¶£©
+    # ä»“åº“æ ¹ç›®å½•ï¼ˆé»˜è®¤ç”±è„šæœ¬ä½ç½®æ¨æ–­ï¼šscripts\ çš„ä¸Šä¸€çº§ï¼‰
     [string]$RepoRoot
 )
 
@@ -26,13 +26,13 @@ if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
     $RepoRoot = Split-Path -Parent $PSScriptRoot
 }
 
-# ---- ¶¨Î» b1v£¨±ÜÃâÔÚÃüÁîĞĞÓ²±àÂëº¬ÖĞÎÄµÄÂ·¾¶£© ----
+# ---- å®šä½ b1vï¼ˆé¿å…åœ¨å‘½ä»¤è¡Œç¡¬ç¼–ç å«ä¸­æ–‡çš„è·¯å¾„ï¼‰ ----
 $b1v = Get-ChildItem -Path (Join-Path $RepoRoot "doc") -Recurse -Filter "MEVD174K.b1v" -ErrorAction SilentlyContinue |
        Select-Object -First 1
-if (-not $b1v) { throw "Î´ÕÒµ½ MEVD174K.b1v£¨Ó¦Î»ÓÚ doc\²ÄÁÏ\ ÏÂ£©" }
-Write-Host "== Ô´ÎÄ¼ş: $($b1v.FullName) ($([math]::Round($b1v.Length/1MB,1)) MB) =="
+if (-not $b1v) { throw "æœªæ‰¾åˆ° MEVD174K.b1vï¼ˆåº”ä½äº doc\ææ–™\ ä¸‹ï¼‰" }
+Write-Host "== æºæ–‡ä»¶: $($b1v.FullName) ($([math]::Round($b1v.Length/1MB,1)) MB) =="
 
-# ---- ½âÎöÒ»ĞĞ TBEG/HEAD/LINE ÖĞµÄÈ«²¿Ë«ÒıºÅ×Ö¶Î£¨×Ö¶ÎÄÚ¶ººÅ°²È«£»"" ÊÓÎª×ªÒåÒıºÅ£© ----
+# ---- è§£æä¸€è¡Œ TBEG/HEAD/LINE ä¸­çš„å…¨éƒ¨åŒå¼•å·å­—æ®µï¼ˆå­—æ®µå†…é€—å·å®‰å…¨ï¼›"" è§†ä¸ºè½¬ä¹‰å¼•å·ï¼‰ ----
 function Get-QuotedFields([string]$line) {
     $out = New-Object System.Collections.Generic.List[string]
     foreach ($m in [regex]::Matches($line, '"((?:[^"]|"")*)"')) {
@@ -42,7 +42,7 @@ function Get-QuotedFields([string]$line) {
     return ,$out.ToArray()
 }
 
-# ---- CSV ×Ö¶Î×ªÒå£¨Ê¼ÖÕ¼ÓÒıºÅ£¬ÄÚ²¿ÒıºÅ·­±¶£© ----
+# ---- CSV å­—æ®µè½¬ä¹‰ï¼ˆå§‹ç»ˆåŠ å¼•å·ï¼Œå†…éƒ¨å¼•å·ç¿»å€ï¼‰ ----
 function ConvertTo-CsvField([string]$v) {
     if ($null -eq $v) { $v = "" }
     return '"' + ($v -replace '"', '""') + '"'
@@ -78,11 +78,11 @@ try {
 }
 finally { $reader.Close() }
 
-if (-not $header) { throw "Î´ÄÜ¶¨Î» MESSWERTETAB ±íÍ·£¨HEAD ĞĞ£©" }
-Write-Host "== ±íÍ· ($($header.Count) ÁĞ): $($header -join ', ') =="
-Write-Host "== µ¼³öÌõÄ¿: $($rows.Count) Ìõ£»TEND ÓÚĞĞ $lineNo£»×Ö¶ÎÊıÒì³£ĞĞ: $badRows =="
+if (-not $header) { throw "æœªèƒ½å®šä½ MESSWERTETAB è¡¨å¤´ï¼ˆHEAD è¡Œï¼‰" }
+Write-Host "== è¡¨å¤´ ($($header.Count) åˆ—): $($header -join ', ') =="
+Write-Host "== å¯¼å‡ºæ¡ç›®: $($rows.Count) æ¡ï¼›TEND äºè¡Œ $lineNoï¼›å­—æ®µæ•°å¼‚å¸¸è¡Œ: $badRows =="
 
-# ---- ×é×° CSV ÎÄ±¾ ----
+# ---- ç»„è£… CSV æ–‡æœ¬ ----
 $sb = New-Object System.Text.StringBuilder
 [void]$sb.AppendLine((($header | ForEach-Object { ConvertTo-CsvField $_ }) -join ','))
 foreach ($r in $rows) {
@@ -90,19 +90,19 @@ foreach ($r in $rows) {
 }
 $csvText = $sb.ToString()
 
-# ---- Êä³ö 1£ºFR-2-9 ½»¸¶Îï doc\²ÄÁÏ\messwertetab.csv£¨UTF-8 with BOM£¬Excel Ö±½Ó´ò¿ªµÂÓï±äÒôÕıÈ·£© ----
+# ---- è¾“å‡º 1ï¼šFR-2-9 äº¤ä»˜ç‰© doc\ææ–™\messwertetab.csvï¼ˆUTF-8 with BOMï¼ŒExcel ç›´æ¥æ‰“å¼€å¾·è¯­å˜éŸ³æ­£ç¡®ï¼‰ ----
 $docDir = $b1v.Directory.FullName
 $docOut = Join-Path $docDir "messwertetab.csv"
 $utf8Bom = New-Object System.Text.UTF8Encoding($true)
 [System.IO.File]::WriteAllText($docOut, $csvText, $utf8Bom)
-Write-Host "== ÒÑĞ´³ö½»¸¶Îï: $docOut =="
+Write-Host "== å·²å†™å‡ºäº¤ä»˜ç‰©: $docOut =="
 
-# ---- Êä³ö 2£ºÔËĞĞÆÚÇ¶Èë×ÊÔ´ src\ObdLogger\Logging\messwertetab.csv£¨UTF-8 ÎŞ BOM£© ----
+# ---- è¾“å‡º 2ï¼šè¿è¡ŒæœŸåµŒå…¥èµ„æº src\ObdLogger\Logging\messwertetab.csvï¼ˆUTF-8 æ—  BOMï¼‰ ----
 $resOut = Join-Path $RepoRoot "src\ObdLogger\Logging\messwertetab.csv"
 $resDir = Split-Path -Parent $resOut
 if (-not (Test-Path $resDir)) { New-Item -ItemType Directory -Path $resDir -Force | Out-Null }
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText($resOut, $csvText, $utf8NoBom)
-Write-Host "== ÒÑĞ´³öÇ¶Èë×ÊÔ´: $resOut =="
+Write-Host "== å·²å†™å‡ºåµŒå…¥èµ„æº: $resOut =="
 
-Write-Host "== Íê³É£ºÁ½·İ CSV ÓÉÍ¬Ò»´Îµ¼³öÉú³É£¬ÄÚÈİÒ»ÖÂ£¨½ö BOM ²îÒì£©==" -ForegroundColor Green
+Write-Host "== å®Œæˆï¼šä¸¤ä»½ CSV ç”±åŒä¸€æ¬¡å¯¼å‡ºç”Ÿæˆï¼Œå†…å®¹ä¸€è‡´ï¼ˆä»… BOM å·®å¼‚ï¼‰==" -ForegroundColor Green

@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -6,40 +6,40 @@ using System.Text;
 namespace ObdLogger.Logging
 {
     /// <summary>
-    /// µ¥¸ö²ÉÑùÏî£ºARG£¨·¢¸ø Job µÄ¶¯Ì¬²ÎÊı£©¡ú RESULTNAME£¨¶Á»Ø½á¹û×Ö¶Î£©+ ÏÔÊ¾Ãû + µ¥Î»¡£
-    /// ½á¹ûÃû/µ¥Î»/ÃèÊöÓÅÏÈÈ¡×Ô <see cref="MesswertCatalog"/>£¨b1v È¨Íş£©£¬ÏÔÊ¾ÃûÎª ASCII£¨Excel ¼æÈİ£¬¡ì6£©¡£
+    /// å•ä¸ªé‡‡æ ·é¡¹ï¼šARGï¼ˆå‘ç»™ Job çš„åŠ¨æ€å‚æ•°ï¼‰â†’ RESULTNAMEï¼ˆè¯»å›ç»“æœå­—æ®µï¼‰+ æ˜¾ç¤ºå + å•ä½ã€‚
+    /// ç»“æœå/å•ä½/æè¿°ä¼˜å…ˆå–è‡ª <see cref="MesswertCatalog"/>ï¼ˆb1v æƒå¨ï¼‰ï¼Œæ˜¾ç¤ºåä¸º ASCIIï¼ˆExcel å…¼å®¹ï¼ŒÂ§6ï¼‰ã€‚
     /// </summary>
     internal sealed class SampleItem
     {
-        public int Index;            // ÔÚ¿ìÕÕÖµÊı×é / CSV ÁĞÖĞµÄÎ»ÖÃ£¨0 »ù£¬Î»ÓÚ Time ÁĞÖ®ºó£©
-        public string Arg;           // ´«¸ø STATUS_MESSWERTBLOCK_LESEN µÄ MESSWERT ¶¯Ì¬²ÎÊıÃû
-        public string ResultName;    // Job ·µ»Ø½á¹û×Ö¶ÎÃû£¨ÓÃÓÚ»Ø¶ÁÆ¥Åä£»Î´½âÎöÊ±Îª null£©
-        public string DisplayName;   // CSV ÁĞÃû / ¿ØÖÆÌ¨ÏÔÊ¾Ãû£¨ASCII£©
-        public string Unit;          // µ¥Î»£¨Ğ´Èë CSV µ¥Î»ĞĞ£©
-        public string Description;   // µÂÓïÃèÊö£¨À´×Ô b1v INFO£¬½öÈÕÖ¾/ÎÄµµÓÃ£©
-        public bool Resolved;        // ResultName ÊÇ·ñÒÑÓÉÄ¿Â¼½âÎö£¨·ñÔò»Ø¶ÁÊ±°´ ARG ¶µµ×Æ¥Åä£©
+        public int Index;            // åœ¨å¿«ç…§å€¼æ•°ç»„ / CSV åˆ—ä¸­çš„ä½ç½®ï¼ˆ0 åŸºï¼Œä½äº Time åˆ—ä¹‹åï¼‰
+        public string Arg;           // ä¼ ç»™ STATUS_MESSWERTBLOCK_LESEN çš„ MESSWERT åŠ¨æ€å‚æ•°å
+        public string ResultName;    // Job è¿”å›ç»“æœå­—æ®µåï¼ˆç”¨äºå›è¯»åŒ¹é…ï¼›æœªè§£ææ—¶ä¸º nullï¼‰
+        public string DisplayName;   // CSV åˆ—å / æ§åˆ¶å°æ˜¾ç¤ºåï¼ˆASCIIï¼‰
+        public string Unit;          // å•ä½ï¼ˆå†™å…¥ CSV å•ä½è¡Œï¼‰
+        public string Description;   // å¾·è¯­æè¿°ï¼ˆæ¥è‡ª b1v INFOï¼Œä»…æ—¥å¿—/æ–‡æ¡£ç”¨ï¼‰
+        public bool Resolved;        // ResultName æ˜¯å¦å·²ç”±ç›®å½•è§£æï¼ˆå¦åˆ™å›è¯»æ—¶æŒ‰ ARG å…œåº•åŒ¹é…ï¼‰
     }
 
     /// <summary>
-    /// ²ÉÑùÇåµ¥ÅäÖÃ£¨FR-2-4£©£ºÄÚÖÃ ¡ì3.3¡°ÒÑºËÊµ¡±Ä¬ÈÏÇåµ¥£¬»ò´ÓÍâ²¿ UTF-8 ÎÄ±¾ÎÄ¼ş¼ÓÔØ¡£
-    /// Íâ²¿ÎÄ¼şÃ¿ĞĞ£º<c>ARG,ÏÔÊ¾Ãû[,µ¥Î»]</c>£¨# »ò ; ¿ªÍ·Îª×¢ÊÍ£¬¿ÕĞĞºöÂÔ£©£»
-    /// ½á¹ûÃûÒ»ÂÉÓÉÇ¶ÈëµÄ MESSWERTETAB Ä¿Â¼°´ ARG ½âÎö£¬¹ÊÍâ²¿ÅäÖÃÎŞĞèÁË½â STAT_* ÃüÃû¡£
+    /// é‡‡æ ·æ¸…å•é…ç½®ï¼ˆFR-2-4ï¼‰ï¼šå†…ç½® Â§3.3â€œå·²æ ¸å®â€é»˜è®¤æ¸…å•ï¼Œæˆ–ä»å¤–éƒ¨ UTF-8 æ–‡æœ¬æ–‡ä»¶åŠ è½½ã€‚
+    /// å¤–éƒ¨æ–‡ä»¶æ¯è¡Œï¼š<c>ARG,æ˜¾ç¤ºå[,å•ä½]</c>ï¼ˆ# æˆ– ; å¼€å¤´ä¸ºæ³¨é‡Šï¼Œç©ºè¡Œå¿½ç•¥ï¼‰ï¼›
+    /// ç»“æœåä¸€å¾‹ç”±åµŒå…¥çš„ MESSWERTETAB ç›®å½•æŒ‰ ARG è§£æï¼Œæ•…å¤–éƒ¨é…ç½®æ— éœ€äº†è§£ STAT_* å‘½åã€‚
     /// </summary>
     internal sealed class SampleConfig
     {
-        /// <summary>µ¥´Î Job µ÷ÓÃ¿ÉĞ¯´øµÄ×î´ó¶¯Ì¬²ÎÊıÊı£¨b1v£ºbis zu 42 Argumente£©¡£</summary>
+        /// <summary>å•æ¬¡ Job è°ƒç”¨å¯æºå¸¦çš„æœ€å¤§åŠ¨æ€å‚æ•°æ•°ï¼ˆb1vï¼šbis zu 42 Argumenteï¼‰ã€‚</summary>
         public const int MaxArgsPerCall = 42;
 
         public readonly List<SampleItem> Items = new List<SampleItem>();
 
-        /// <summary>Çåµ¥À´Ô´ÃèÊö£¨¡°ÄÚÖÃÄ¬ÈÏ¡±»òÎÄ¼şÂ·¾¶£©£¬ÓÃÓÚÈÕÖ¾Óë CSV ×¢ÊÍĞĞ¡£</summary>
-        public string Source = "ÄÚÖÃÄ¬ÈÏ";
+        /// <summary>æ¸…å•æ¥æºæè¿°ï¼ˆâ€œå†…ç½®é»˜è®¤â€æˆ–æ–‡ä»¶è·¯å¾„ï¼‰ï¼Œç”¨äºæ—¥å¿—ä¸ CSV æ³¨é‡Šè¡Œã€‚</summary>
+        public string Source = "å†…ç½®é»˜è®¤";
 
         public int Count { get { return Items.Count; } }
 
         /// <summary>
-        /// °´ <see cref="MaxArgsPerCall"/> ½«²ÉÑùÏî·Ö×é£¨¡Ü42 ÏîÒ»´Îµ÷ÓÃ£»³¬³öÔò·Ö×éÂÖÑ¯£¬FR-2-2£©¡£
-        /// µ¥×éÊ±¿ÉÊ×Ñ­»· MODE=JA ¶¨Òå¡¢ºóĞø NEIN ¸´ÓÃ£»¶à×éÒò $2C µ¥¿éÓïÒåĞëÃ¿×éÃ¿Ñ­»·ÖØĞÂ JA ¶¨Òå¡£
+        /// æŒ‰ <see cref="MaxArgsPerCall"/> å°†é‡‡æ ·é¡¹åˆ†ç»„ï¼ˆâ‰¤42 é¡¹ä¸€æ¬¡è°ƒç”¨ï¼›è¶…å‡ºåˆ™åˆ†ç»„è½®è¯¢ï¼ŒFR-2-2ï¼‰ã€‚
+        /// å•ç»„æ—¶å¯é¦–å¾ªç¯ MODE=JA å®šä¹‰ã€åç»­ NEIN å¤ç”¨ï¼›å¤šç»„å›  $2C å•å—è¯­ä¹‰é¡»æ¯ç»„æ¯å¾ªç¯é‡æ–° JA å®šä¹‰ã€‚
         /// </summary>
         public List<List<SampleItem>> BuildGroups()
         {
@@ -60,12 +60,12 @@ namespace ObdLogger.Logging
         }
 
         /// <summary>
-        /// ÄÚÖÃÄ¬ÈÏÇåµ¥£º¶şÆÚĞèÇóÎÄµµ ¡ì3.3¡°ÒÑºËÊµ´æÔÚ¡±µÄºËĞÄÏî£¨ARG ÃûÒı×Ô MESSWERTETAB£¬
-        /// ½á¹ûÃû/µ¥Î»ÓÉÄ¿Â¼½âÎö£©¡£º¬ÅçÓÍÁ¿£¨STAT_0x4522/4525/4523/4524£©ÓëÊ§»ğ¼ÆÊı£¨STAT_0x5B23/5B32/5B31/5B25£©£¬¹² 25 Ïî¡£
-        /// £¨ITANS¡¢4 ¸×µã»ğ½Ç IZWZ1~4¡¢4 ¸×±¬Õğ IUKZ1~4 ÒÑÓÚ 2026-09-22 ÁÙÊ±ÆÁ±Î£¬¼ûÏÂ·½×¢ÊÍ¡££©
-        /// µ¥´Î Job µ÷ÓÃ¿ÉĞ¯´ø ¡Ü42 Ïî£¨<see cref="MaxArgsPerCall"/>£©£¬µ«±¾³µ ECU Êµ²âµ¥¿é $2C ¶¨ÒåÉÏÏŞÎª
-        /// 10 Ïî£¬¹ÊÔËĞĞÆÚÓÉ Sampler.Prime ·¢ÏÖÉÏÏŞºó×Ô¶¯·ÖÎª 3 ×é£¨Ã¿ÖÜÆÚÖğ×é MODE=JA ÖØ¶¨Òå£¬ËÙÂÊÏàÓ¦ÏÂ½µ£©¡£
-        /// È¼ÓÍ¹ìÑ¹¡¢Valvetronic¡¢VANOS Î»ÖÃ½ÇµÈ¼û config\sample-extended.txt¡£
+        /// å†…ç½®é»˜è®¤æ¸…å•ï¼šäºŒæœŸéœ€æ±‚æ–‡æ¡£ Â§3.3â€œå·²æ ¸å®å­˜åœ¨â€çš„æ ¸å¿ƒé¡¹ï¼ˆARG åå¼•è‡ª MESSWERTETABï¼Œ
+        /// ç»“æœå/å•ä½ç”±ç›®å½•è§£æï¼‰ã€‚å«å–·æ²¹é‡ï¼ˆSTAT_0x4522/4525/4523/4524ï¼‰ä¸å¤±ç«è®¡æ•°ï¼ˆSTAT_0x5B23/5B32/5B31/5B25ï¼‰ï¼Œå…± 25 é¡¹ã€‚
+        /// ï¼ˆITANSã€4 ç¼¸ç‚¹ç«è§’ IZWZ1~4ã€4 ç¼¸çˆ†éœ‡ IUKZ1~4 å·²äº 2026-09-22 ä¸´æ—¶å±è”½ï¼Œè§ä¸‹æ–¹æ³¨é‡Šã€‚ï¼‰
+        /// å•æ¬¡ Job è°ƒç”¨å¯æºå¸¦ â‰¤42 é¡¹ï¼ˆ<see cref="MaxArgsPerCall"/>ï¼‰ï¼Œä½†æœ¬è½¦ ECU å®æµ‹å•å— $2C å®šä¹‰ä¸Šé™ä¸º
+        /// 10 é¡¹ï¼Œæ•…è¿è¡ŒæœŸç”± Sampler.Prime å‘ç°ä¸Šé™åè‡ªåŠ¨åˆ†ä¸º 3 ç»„ï¼ˆæ¯å‘¨æœŸé€ç»„ MODE=JA é‡å®šä¹‰ï¼Œé€Ÿç‡ç›¸åº”ä¸‹é™ï¼‰ã€‚
+        /// ç‡ƒæ²¹è½¨å‹ã€Valvetronicã€VANOS ä½ç½®è§’ç­‰è§ config\sample-extended.txtã€‚
         /// </summary>
         private static readonly string[][] DefaultList =
         {
@@ -81,7 +81,7 @@ namespace ObdLogger.Logging
             new[] { "STAT_0x4306_WERT", "WaterPumpTargetAckRPM" },
             new[] { "INWAP", "WaterPumpActualRPM" },
             new[] { "IAKFT", "ThermostatHeaterPWM" },
-            // new[] { "ITANS", "IAT" },   // 2026-09-22 ÁÙÊ±ÆÁ±Î£¨¿ØÇåµ¥ ¡Ü30 Ïî£©
+            // new[] { "ITANS", "IAT" },   // 2026-09-22 ä¸´æ—¶å±è”½ï¼ˆæ§æ¸…å• â‰¤30 é¡¹ï¼‰
             new[] { "ILMKG", "MAF" },
             new[] { "IPLAD", "BoostActual" },
             new[] { "IPUMG", "AmbientPressure" },
@@ -89,24 +89,24 @@ namespace ObdLogger.Logging
             new[] { "SINT1", "LambdaTarget" },
             new[] { "ILIN1", "LambdaIntegrator" },
             new[] { "ILAM1", "LambdaAdaption" },
-            // ¡ª¡ª¡ª 2026-09-22 ÁÙÊ±ÆÁ±ÎÒÔÏÂ 8 Ïî£¨4 ¸×µã»ğ½Ç IZWZ1~4 + 4 ¸×±¬Õğ IUKZ1~4£©£¬°ÑÄ¬ÈÏÇåµ¥¿ØÖÆÔÚ 25 Ïî/3 ×é£»
-            //     ÆôÓÃÊ±È¡Ïû×¢ÊÍ¼´¿É£¨¶ÔÓ¦À©Õ¹ÏîÒà¼û config\sample-extended.txt£©¡£IZZY ½ö 1 ¸×ÌõÄ¿£¬4 ¸×µã»ğ½ÇÊµÎª IZWZ1~4¡£
-            // ¸÷¸×µã»ğ½Ç
+            // â€”â€”â€” 2026-09-22 ä¸´æ—¶å±è”½ä»¥ä¸‹ 8 é¡¹ï¼ˆ4 ç¼¸ç‚¹ç«è§’ IZWZ1~4 + 4 ç¼¸çˆ†éœ‡ IUKZ1~4ï¼‰ï¼ŒæŠŠé»˜è®¤æ¸…å•æ§åˆ¶åœ¨ 25 é¡¹/3 ç»„ï¼›
+            //     å¯ç”¨æ—¶å–æ¶ˆæ³¨é‡Šå³å¯ï¼ˆå¯¹åº”æ‰©å±•é¡¹äº¦è§ config\sample-extended.txtï¼‰ã€‚IZZY ä»… 1 ç¼¸æ¡ç›®ï¼Œ4 ç¼¸ç‚¹ç«è§’å®ä¸º IZWZ1~4ã€‚
+            // å„ç¼¸ç‚¹ç«è§’
             // new[] { "IZWZ1", "IgnAngleCyl1" },
             // new[] { "IZWZ2", "IgnAngleCyl2" },
             // new[] { "IZWZ3", "IgnAngleCyl3" },
             // new[] { "IZWZ4", "IgnAngleCyl4" },
-            // ¸÷¸×±¬Õğ²Î¿¼µçÆ½£¨Ä£Äâ£©£»ISKLO µÄÊı×Ö½á¹ûÃû STAT_STATUS_KLOPFEN_WERT ±»±¾ PRG ¾ÜÎª Resultname not valid£¨2026-09-22 Êµ³µ£©
+            // å„ç¼¸çˆ†éœ‡å‚è€ƒç”µå¹³ï¼ˆæ¨¡æ‹Ÿï¼‰ï¼›ISKLO çš„æ•°å­—ç»“æœå STAT_STATUS_KLOPFEN_WERT è¢«æœ¬ PRG æ‹’ä¸º Resultname not validï¼ˆ2026-09-22 å®è½¦ï¼‰
             // new[] { "IUKZ1", "KnockRefVoltCyl1" },
             // new[] { "IUKZ2", "KnockRefVoltCyl2" },
             // new[] { "IUKZ3", "KnockRefVoltCyl3" },
             // new[] { "IUKZ4", "KnockRefVoltCyl4" },
-            // ¸÷¸×ÅçÓÍÁ¿£¨Ä¿Â¼±í Kraftstoff Einspritzzeit oder -menge£¬mg/Hub£»ID¡ú¸×£º0x4522/0x4525/0x4523/0x4524 = 1/2/3/4£©
+            // å„ç¼¸å–·æ²¹é‡ï¼ˆç›®å½•è¡¨ Kraftstoff Einspritzzeit oder -mengeï¼Œmg/Hubï¼›IDâ†’ç¼¸ï¼š0x4522/0x4525/0x4523/0x4524 = 1/2/3/4ï¼‰
             new[] { "STAT_0x4522_WERT", "InjQtyCyl1" },
             new[] { "STAT_0x4525_WERT", "InjQtyCyl2" },
             new[] { "STAT_0x4523_WERT", "InjQtyCyl3" },
             new[] { "STAT_0x4524_WERT", "InjQtyCyl4" },
-            // ¸÷¸×Ê§»ğ¼ÆÊı£¨Ä¿Â¼±í Aussetzerzaehler im Abgasintervall£»ID¡ú¸×£º0x5B23/0x5B32/0x5B31/0x5B25 = 1/2/3/4£©
+            // å„ç¼¸å¤±ç«è®¡æ•°ï¼ˆç›®å½•è¡¨ Aussetzerzaehler im Abgasintervallï¼›IDâ†’ç¼¸ï¼š0x5B23/0x5B32/0x5B31/0x5B25 = 1/2/3/4ï¼‰
             new[] { "STAT_0x5B23_WERT", "MisfireCyl1" },
             new[] { "STAT_0x5B32_WERT", "MisfireCyl2" },
             new[] { "STAT_0x5B31_WERT", "MisfireCyl3" },
@@ -117,7 +117,7 @@ namespace ObdLogger.Logging
 
         public static SampleConfig LoadDefault(MesswertCatalog catalog, AppLog log)
         {
-            var cfg = new SampleConfig { Source = "ÄÚÖÃÄ¬ÈÏ" };
+            var cfg = new SampleConfig { Source = "å†…ç½®é»˜è®¤" };
             foreach (string[] pair in DefaultList)
             {
                 SampleItem item = BuildItem(cfg.Items.Count, pair[0], pair[1], null, catalog, log);
@@ -127,23 +127,23 @@ namespace ObdLogger.Logging
         }
 
         /// <summary>
-        /// ´ÓÍâ²¿ÎÄ¼ş¼ÓÔØ²ÉÑùÇåµ¥£¨FR-2-4£©¡£ÎÄ¼ş²»´æÔÚ/Îª¿Õ/È«²¿ÎŞĞ§Ê±Å×³ö <see cref="SampleConfigException"/>¡£
+        /// ä»å¤–éƒ¨æ–‡ä»¶åŠ è½½é‡‡æ ·æ¸…å•ï¼ˆFR-2-4ï¼‰ã€‚æ–‡ä»¶ä¸å­˜åœ¨/ä¸ºç©º/å…¨éƒ¨æ— æ•ˆæ—¶æŠ›å‡º <see cref="SampleConfigException"/>ã€‚
         /// </summary>
         public static SampleConfig LoadFile(string path, MesswertCatalog catalog, AppLog log)
         {
             if (!File.Exists(path))
             {
-                throw new SampleConfigException("²ÉÑùÅäÖÃÎÄ¼ş²»´æÔÚ: " + path);
+                throw new SampleConfigException("é‡‡æ ·é…ç½®æ–‡ä»¶ä¸å­˜åœ¨: " + path);
             }
             var cfg = new SampleConfig { Source = path };
             int unresolved = 0;
             foreach (string raw in File.ReadAllLines(path, Encoding.UTF8))
             {
-                string line = StripComment(raw);   // È¥ĞĞÄÚ×¢ÊÍ£¨# / ; Æğ£¬ÒıºÅÄÚ³ıÍâ£©+ trim
+                string line = StripComment(raw);   // å»è¡Œå†…æ³¨é‡Šï¼ˆ# / ; èµ·ï¼Œå¼•å·å†…é™¤å¤–ï¼‰+ trim
                 if (line.Length == 0) continue;
 
                 List<string> parts = MesswertCatalog.ParseCsvLine(line);
-                // Ò²ÔÊĞíÎ´¼ÓÒıºÅµÄ¼òµ¥¶ººÅ·Ö¸ô£¨ParseCsvLine ¶ÔÎŞÒıºÅĞĞÍ¬Ñù°´¶ººÅÇĞ·Ö£©
+                // ä¹Ÿå…è®¸æœªåŠ å¼•å·çš„ç®€å•é€—å·åˆ†éš”ï¼ˆParseCsvLine å¯¹æ— å¼•å·è¡ŒåŒæ ·æŒ‰é€—å·åˆ‡åˆ†ï¼‰
                 string arg = parts.Count > 0 ? parts[0].Trim() : string.Empty;
                 if (arg.Length == 0) continue;
                 string display = parts.Count > 1 ? parts[1].Trim() : string.Empty;
@@ -157,19 +157,19 @@ namespace ObdLogger.Logging
 
             if (cfg.Items.Count == 0)
             {
-                throw new SampleConfigException("²ÉÑùÅäÖÃÎÄ¼şÎŞÓĞĞ§ÌõÄ¿: " + path);
+                throw new SampleConfigException("é‡‡æ ·é…ç½®æ–‡ä»¶æ— æœ‰æ•ˆæ¡ç›®: " + path);
             }
             if (unresolved > 0)
             {
-                log.Warn("ÅäÖÃ {0} ÖĞÓĞ {1} ¸ö ARG Î´ÔÚ MESSWERTETAB ÃüÖĞ£¬»Ø¶Á½«°´ ARG Ãû¶µµ×Æ¥Åä£¨¿ÉÄÜ±» Job ¾Ü¾ø£©",
+                log.Warn("é…ç½® {0} ä¸­æœ‰ {1} ä¸ª ARG æœªåœ¨ MESSWERTETAB å‘½ä¸­ï¼Œå›è¯»å°†æŒ‰ ARG åå…œåº•åŒ¹é…ï¼ˆå¯èƒ½è¢« Job æ‹’ç»ï¼‰",
                     path, unresolved);
             }
             return cfg;
         }
 
         /// <summary>
-        /// È¥³ıĞĞÄÚ×¢ÊÍ£º´ÓµÚÒ»¸öÎ´±»Ë«ÒıºÅ°ü¹üµÄ '#' »ò ';' ´¦½Ø¶Ï£¬²¢ trim¡£
-        /// ÕûĞĞ×¢ÊÍ/¿ÕĞĞ·µ»Ø¿Õ´®£¨µ÷ÓÃ·½Ìø¹ı£©¡£
+        /// å»é™¤è¡Œå†…æ³¨é‡Šï¼šä»ç¬¬ä¸€ä¸ªæœªè¢«åŒå¼•å·åŒ…è£¹çš„ '#' æˆ– ';' å¤„æˆªæ–­ï¼Œå¹¶ trimã€‚
+        /// æ•´è¡Œæ³¨é‡Š/ç©ºè¡Œè¿”å›ç©ºä¸²ï¼ˆè°ƒç”¨æ–¹è·³è¿‡ï¼‰ã€‚
         /// </summary>
         private static string StripComment(string raw)
         {
@@ -184,7 +184,7 @@ namespace ObdLogger.Logging
             return raw.Trim();
         }
 
-        /// <summary>¹¹ÔìÒ»¸ö²ÉÑùÏî£ºÏÔÊ¾Ãû/µ¥Î»¿ÉÓÉÅäÖÃ¸²¸Ç£¬½á¹ûÃûÓëÈ±Ê¡µ¥Î»È¡×ÔÄ¿Â¼¡£</summary>
+        /// <summary>æ„é€ ä¸€ä¸ªé‡‡æ ·é¡¹ï¼šæ˜¾ç¤ºå/å•ä½å¯ç”±é…ç½®è¦†ç›–ï¼Œç»“æœåä¸ç¼ºçœå•ä½å–è‡ªç›®å½•ã€‚</summary>
         private static SampleItem BuildItem(int index, string arg, string displayName, string unitOverride,
             MesswertCatalog catalog, AppLog log)
         {
@@ -205,17 +205,17 @@ namespace ObdLogger.Logging
             }
             else
             {
-                // Ä¿Â¼Î´ÃüÖĞ£º½á¹ûÃûÍË»¯Îª ARG ±¾Éí£¨²¿·ÖÌõÄ¿ ARG==RESULTNAME£¬Èç STAT_0xXXXX_WERT£©
+                // ç›®å½•æœªå‘½ä¸­ï¼šç»“æœåé€€åŒ–ä¸º ARG æœ¬èº«ï¼ˆéƒ¨åˆ†æ¡ç›® ARG==RESULTNAMEï¼Œå¦‚ STAT_0xXXXX_WERTï¼‰
                 item.ResultName = arg;
                 item.Unit = unitOverride ?? string.Empty;
                 item.Resolved = false;
-                log.Warn("²ÉÑùÏî ARG={0} Î´ÔÚ MESSWERTETAB ÃüÖĞ£¬½á¹ûÃû°´ ARG ¶µµ×£¨{1}£©", arg, arg);
+                log.Warn("é‡‡æ ·é¡¹ ARG={0} æœªåœ¨ MESSWERTETAB å‘½ä¸­ï¼Œç»“æœåæŒ‰ ARG å…œåº•ï¼ˆ{1}ï¼‰", arg, arg);
             }
             if (string.IsNullOrEmpty(item.Unit)) item.Unit = "-";
             return item;
         }
 
-        /// <summary>ÁĞÃû¾»»¯£ºÈ¥³ı»áÆÆ»µ CSV/±íÍ·µÄ×Ö·û£¨¶ººÅ¡¢ÒıºÅ¡¢»»ĞĞ¡¢·½À¨ºÅ£©¡£</summary>
+        /// <summary>åˆ—åå‡€åŒ–ï¼šå»é™¤ä¼šç ´å CSV/è¡¨å¤´çš„å­—ç¬¦ï¼ˆé€—å·ã€å¼•å·ã€æ¢è¡Œã€æ–¹æ‹¬å·ï¼‰ã€‚</summary>
         private static string SanitizeColumn(string name)
         {
             if (string.IsNullOrEmpty(name)) return "col";
@@ -229,7 +229,7 @@ namespace ObdLogger.Logging
         }
     }
 
-    /// <summary>²ÉÑùÅäÖÃ¼ÓÔØÊ§°Ü£¨ÎÄ¼şÈ±Ê§/ÎŞÓĞĞ§ÌõÄ¿£©¡£</summary>
+    /// <summary>é‡‡æ ·é…ç½®åŠ è½½å¤±è´¥ï¼ˆæ–‡ä»¶ç¼ºå¤±/æ— æœ‰æ•ˆæ¡ç›®ï¼‰ã€‚</summary>
     internal sealed class SampleConfigException : Exception
     {
         public SampleConfigException(string message) : base(message) { }

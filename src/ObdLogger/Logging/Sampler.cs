@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +9,7 @@ using ObdLogger.Ediabas;
 
 namespace ObdLogger.Logging
 {
-    /// <summary>²ÉÑùÍ³¼Æ£¨FR-2-11£©£ºÏß³Ì°²È«£¨Interlocked£©£¬¹©²É¼¯Ïß³ÌĞ´¡¢ÏÔÊ¾Ïß³Ì¶Á¡£</summary>
+    /// <summary>é‡‡æ ·ç»Ÿè®¡ï¼ˆFR-2-11ï¼‰ï¼šçº¿ç¨‹å®‰å…¨ï¼ˆInterlockedï¼‰ï¼Œä¾›é‡‡é›†çº¿ç¨‹å†™ã€æ˜¾ç¤ºçº¿ç¨‹è¯»ã€‚</summary>
     internal sealed class SamplerStats
     {
         private long _ok, _gap;
@@ -26,7 +26,7 @@ namespace ObdLogger.Logging
         }
     }
 
-    /// <summary>²ÉÑùÆô¶¯½×¶ÎµÄÖÂÃüÊ§°Ü£¨Á¬½Ó/²ÎÊı/SGBD£©£¬ÓÉ Program Ó³ÉäÎªÍË³öÂëÓëÌáÊ¾¡£</summary>
+    /// <summary>é‡‡æ ·å¯åŠ¨é˜¶æ®µçš„è‡´å‘½å¤±è´¥ï¼ˆè¿æ¥/å‚æ•°/SGBDï¼‰ï¼Œç”± Program æ˜ å°„ä¸ºé€€å‡ºç ä¸æç¤ºã€‚</summary>
     internal sealed class SamplerStartException : Exception
     {
         public enum FailureKind { NoConnection, BadArguments, EcuRejected, Environment }
@@ -41,35 +41,35 @@ namespace ObdLogger.Logging
         }
     }
 
-    /// <summary>²ÉÑùÔËĞĞ²ÎÊı£¨ÓÉ Program ´Ó CLI ×é×°£©¡£</summary>
+    /// <summary>é‡‡æ ·è¿è¡Œå‚æ•°ï¼ˆç”± Program ä» CLI ç»„è£…ï¼‰ã€‚</summary>
     internal sealed class SamplerSettings
     {
         public string Ecu = "MEVD174K";
-        public double RateHz = 1.0;             // Ä¿±ê²ÉÑùÂÊ£¨clamp µ½ [0.1,5]£¬¡ì5£©
-        public string ParaSep = ";";            // ¶¯Ì¬²ÎÊı·Ö¸ô·û£¨R-2-1£»Æô¶¯Ê±×Ô¶¯Ğ­ÉÌ¶µµ× ,£©
-        public bool AllowModeJa = true;         // false ¡ú ±£ÊØ½ö NEIN£¨¡ì3.4£¬²»Ğ´ ECU RAM£©
-        public bool HandleQuitKey = true;       // ¼àÌı q ¼üÍ£Ö¹
-        public int MaxBackoffMs = 5000;         // È±¿ÚÖØÊÔÍË±ÜÉÏÏŞ
-        public double MaxDurationSec = 0;       // >0 ¡ú ÔËĞĞ¸ÃÃëÊıºóÓÅÑÅ×ÔÍ££¨ÎŞÈËÖµÊØ¶¨Ê±Â¼ÖÆ£©
+        public double RateHz = 1.0;             // ç›®æ ‡é‡‡æ ·ç‡ï¼ˆclamp åˆ° [0.1,5]ï¼ŒÂ§5ï¼‰
+        public string ParaSep = ";";            // åŠ¨æ€å‚æ•°åˆ†éš”ç¬¦ï¼ˆR-2-1ï¼›å¯åŠ¨æ—¶è‡ªåŠ¨åå•†å…œåº• ,ï¼‰
+        public bool AllowModeJa = true;         // false â†’ ä¿å®ˆä»… NEINï¼ˆÂ§3.4ï¼Œä¸å†™ ECU RAMï¼‰
+        public bool HandleQuitKey = true;       // ç›‘å¬ q é”®åœæ­¢
+        public int MaxBackoffMs = 5000;         // ç¼ºå£é‡è¯•é€€é¿ä¸Šé™
+        public double MaxDurationSec = 0;       // >0 â†’ è¿è¡Œè¯¥ç§’æ•°åä¼˜é›…è‡ªåœï¼ˆæ— äººå€¼å®ˆå®šæ—¶å½•åˆ¶ï¼‰
     }
 
     /// <summary>
-    /// ²ÉÑùÑ­»·£¨FR-2-2/6/7/8£©£º<b>Î¨Ò»³ÖÓĞ²¢µ÷ÓÃ <see cref="EdiabasClient"/> µÄÏß³Ì</b>£¨¡ì5 Ïß³ÌÄ£ĞÍ£©¡£
-    /// ²É¼¯ÔÚÖ÷Ïß³Ì´®ĞĞµ÷ÓÃ STATUS_MESSWERTBLOCK_LESEN£»ÏÔÊ¾¾­ <see cref="LiveDisplay"/> ¿ìÕÕºĞ½âñî£¬
-    /// CSV ¾­ÓĞ½ç <see cref="BlockingCollection{T}"/> ½»¸ø¶ÀÁ¢Ïû·ÑÏß³ÌÂäÅÌ¡ª¡ª²É¼¯²»±»ÏÔÊ¾/IO ×èÈû£¨NFR-2-1£©¡£
-    /// Í¨ĞÅÖĞ¶Ï ¡ú ±ê¼ÇÈ±¿Ú + Ö¸ÊıÍË±ÜÖØÊÔ£¬½ø³Ì²»±ÀÀ£²»¹ÒËÀ£¨FR-2-8£©£»Ctrl+C/q ¡ú ÖÃÍ£Ö¹±êÖ¾ + apiBreak¡£
+    /// é‡‡æ ·å¾ªç¯ï¼ˆFR-2-2/6/7/8ï¼‰ï¼š<b>å”¯ä¸€æŒæœ‰å¹¶è°ƒç”¨ <see cref="EdiabasClient"/> çš„çº¿ç¨‹</b>ï¼ˆÂ§5 çº¿ç¨‹æ¨¡å‹ï¼‰ã€‚
+    /// é‡‡é›†åœ¨ä¸»çº¿ç¨‹ä¸²è¡Œè°ƒç”¨ STATUS_MESSWERTBLOCK_LESENï¼›æ˜¾ç¤ºç» <see cref="LiveDisplay"/> å¿«ç…§ç›’è§£è€¦ï¼Œ
+    /// CSV ç»æœ‰ç•Œ <see cref="BlockingCollection{T}"/> äº¤ç»™ç‹¬ç«‹æ¶ˆè´¹çº¿ç¨‹è½ç›˜â€”â€”é‡‡é›†ä¸è¢«æ˜¾ç¤º/IO é˜»å¡ï¼ˆNFR-2-1ï¼‰ã€‚
+    /// é€šä¿¡ä¸­æ–­ â†’ æ ‡è®°ç¼ºå£ + æŒ‡æ•°é€€é¿é‡è¯•ï¼Œè¿›ç¨‹ä¸å´©æºƒä¸æŒ‚æ­»ï¼ˆFR-2-8ï¼‰ï¼›Ctrl+C/q â†’ ç½®åœæ­¢æ ‡å¿— + apiBreakã€‚
     /// </summary>
     internal sealed class Sampler : IDisposable
     {
-        /// <summary>ºËĞÄ²ÉÑù Job£¨b1v È¨Íş¶¨Òå£»Ö»¶Á±ß½ç¼û¶şÆÚĞèÇó ¡ì3.4£©¡£</summary>
+        /// <summary>æ ¸å¿ƒé‡‡æ · Jobï¼ˆb1v æƒå¨å®šä¹‰ï¼›åªè¯»è¾¹ç•Œè§äºŒæœŸéœ€æ±‚ Â§3.4ï¼‰ã€‚</summary>
         public const string JobName = "STATUS_MESSWERTBLOCK_LESEN";
 
-        private const int CsvQueueCapacity = 2000;   // ÓĞ½ç¶ÓÁĞ£º±³Ñ¹±£»¤£¬·ÀÄÚ´æÎŞÔö³¤£¨NFR-2-1£©
-        private const int CsvAddTimeoutMs = 5000;    // Èë¶Ó³¬Ê±£ºCSV Ïß³Ì¿¨ËÀÊ±¶ªÆú²¢¸æ¾¯£¬¾ø²»¹ÒËÀ²É¼¯
+        private const int CsvQueueCapacity = 2000;   // æœ‰ç•Œé˜Ÿåˆ—ï¼šèƒŒå‹ä¿æŠ¤ï¼Œé˜²å†…å­˜æ— å¢é•¿ï¼ˆNFR-2-1ï¼‰
+        private const int CsvAddTimeoutMs = 5000;    // å…¥é˜Ÿè¶…æ—¶ï¼šCSV çº¿ç¨‹å¡æ­»æ—¶ä¸¢å¼ƒå¹¶å‘Šè­¦ï¼Œç»ä¸æŒ‚æ­»é‡‡é›†
 
-        // MODE ÖµÈ¡×Ô b1v MESSWERTEMODE ±í£¨ein/aus/ja/nein/yes¡ú1/0£©¡£Êµ³µÊµ²â£¨2026-09-22£©£º
-        // ´óĞ¡Ğ´²»Ãô¸Ğ£¨JA/ja/ein µÈĞ§£©£¬¹Ê¹Ì¶¨ÓÃ JA/NEIN£»para ·Ö¸ô·ûÊµ²âÎª ';'£¨',' »á ERROR_ARGUMENT£©¡£
-        // µ¥¿é²âÁ¿ÖµÊıÉÏÏŞÒò ECU ¶øÒì£¨Êµ²â 20 Ïî¼´ ERROR_ECU_REQUEST_OUT_OF_RANGE£©£¬¹ÊÆô¶¯Ê±×Ô¶¯·¢ÏÖ¡£
+        // MODE å€¼å–è‡ª b1v MESSWERTEMODE è¡¨ï¼ˆein/aus/ja/nein/yesâ†’1/0ï¼‰ã€‚å®è½¦å®æµ‹ï¼ˆ2026-09-22ï¼‰ï¼š
+        // å¤§å°å†™ä¸æ•æ„Ÿï¼ˆJA/ja/ein ç­‰æ•ˆï¼‰ï¼Œæ•…å›ºå®šç”¨ JA/NEINï¼›para åˆ†éš”ç¬¦å®æµ‹ä¸º ';'ï¼ˆ',' ä¼š ERROR_ARGUMENTï¼‰ã€‚
+        // å•å—æµ‹é‡å€¼æ•°ä¸Šé™å›  ECU è€Œå¼‚ï¼ˆå®æµ‹ 20 é¡¹å³ ERROR_ECU_REQUEST_OUT_OF_RANGEï¼‰ï¼Œæ•…å¯åŠ¨æ—¶è‡ªåŠ¨å‘ç°ã€‚
 
         private readonly EdiabasClient _client;
         private readonly SampleConfig _config;
@@ -78,14 +78,14 @@ namespace ObdLogger.Logging
         private readonly AppLog _log;
         private readonly SamplerSettings _settings;
 
-        private List<List<SampleItem>> _groups;   // Prime ·¢ÏÖµ¥¿éÉÏÏŞºó¿ÉÄÜÖØĞÂ·Ö×é
+        private List<List<SampleItem>> _groups;   // Prime å‘ç°å•å—ä¸Šé™åå¯èƒ½é‡æ–°åˆ†ç»„
         private bool _singleGroup;
         private readonly SamplerStats _stats;
         private readonly int _intervalMs;
 
-        private bool[] _groupDefined;    // ¸Ã×éÊÇ·ñÒÑÓÃ MODE=JA ¶¨Òå¹ı£¨µ¥×é NEIN ¸´ÓÃÇ°Ìá£©
-        private bool[] _groupJaDisabled; // ¸Ã×é JA ±» ECU ¾Ü¾ø£¨R-2-4£©¡ú ºóĞøÖ»ÓÃ NEIN
-        private readonly HashSet<string> _excludedArgs = new HashSet<string>(StringComparer.OrdinalIgnoreCase); // Æô¶¯Ğ£ÑéÌŞ³ıµÄ»µ ARG
+        private bool[] _groupDefined;    // è¯¥ç»„æ˜¯å¦å·²ç”¨ MODE=JA å®šä¹‰è¿‡ï¼ˆå•ç»„ NEIN å¤ç”¨å‰æï¼‰
+        private bool[] _groupJaDisabled; // è¯¥ç»„ JA è¢« ECU æ‹’ç»ï¼ˆR-2-4ï¼‰â†’ åç»­åªç”¨ NEIN
+        private readonly HashSet<string> _excludedArgs = new HashSet<string>(StringComparer.OrdinalIgnoreCase); // å¯åŠ¨æ ¡éªŒå‰”é™¤çš„å ARG
 
         private BlockingCollection<SampleSnapshot> _csvQueue;
         private Thread _csvThread;
@@ -108,11 +108,11 @@ namespace ObdLogger.Logging
         public string NegotiatedParaSep { get { return _paraSep; } }
         public string NegotiatedModeDefine { get { return _modeDefine; } }
         public string NegotiatedModeRead { get { return _modeRead; } }
-        /// <summary>Prime ·¢ÏÖµÄ ECU µ¥´Î $2C ¶¨Òå¿é¿ÉÈİÄÉµÄ×î´ó²âÁ¿ÖµÊı£¨0=Î´·¢ÏÖ£©¡£</summary>
+        /// <summary>Prime å‘ç°çš„ ECU å•æ¬¡ $2C å®šä¹‰å—å¯å®¹çº³çš„æœ€å¤§æµ‹é‡å€¼æ•°ï¼ˆ0=æœªå‘ç°ï¼‰ã€‚</summary>
         public int MaxBlockDiscovered { get; private set; }
-        /// <summary>Prime ºóÊµ¼ÊµÄ·Ö×éÊı¡£</summary>
+        /// <summary>Prime åå®é™…çš„åˆ†ç»„æ•°ã€‚</summary>
         public int GroupCount { get { return _groups == null ? 0 : _groups.Count; } }
-        /// <summary>Æô¶¯Ğ£ÑéÖĞ±» ECU ¾Ü¾ø£¨Èç Resultname not valid£©¶ø×Ô¶¯Ìø¹ıµÄ ARG£¨Æä CSV ÁĞÁô¿Õ£©¡£</summary>
+        /// <summary>å¯åŠ¨æ ¡éªŒä¸­è¢« ECU æ‹’ç»ï¼ˆå¦‚ Resultname not validï¼‰è€Œè‡ªåŠ¨è·³è¿‡çš„ ARGï¼ˆå…¶ CSV åˆ—ç•™ç©ºï¼‰ã€‚</summary>
         public string[] ExcludedArgs { get; private set; } = new string[0];
 
         public Sampler(EdiabasClient client, SampleConfig config, CsvWriter csv, LiveDisplay display,
@@ -126,7 +126,7 @@ namespace ObdLogger.Logging
             _settings = settings ?? new SamplerSettings();
             _stats = stats ?? new SamplerStats();
 
-            if (_config.Count == 0) throw new SampleConfigException("²ÉÑùÇåµ¥Îª¿Õ£¬ÎŞ·¨Æô¶¯ log Ä£Ê½");
+            if (_config.Count == 0) throw new SampleConfigException("é‡‡æ ·æ¸…å•ä¸ºç©ºï¼Œæ— æ³•å¯åŠ¨ log æ¨¡å¼");
 
             _groups = _config.BuildGroups();
             _singleGroup = _groups.Count == 1;
@@ -135,33 +135,33 @@ namespace ObdLogger.Logging
 
             double rate = _settings.RateHz;
             if (rate < 0.1) rate = 0.1;
-            if (rate > 5.0) rate = 5.0;   // ¡ì5 ÉÏÏŞ 5 Hz
+            if (rate > 5.0) rate = 5.0;   // Â§5 ä¸Šé™ 5 Hz
             if (Math.Abs(rate - _settings.RateHz) > 1e-9)
             {
-                _log.Warn("Ä¿±êËÙÂÊ {0}Hz ³¬³ö [0.1,5] ·¶Î§£¬ÒÑ clamp Îª {1}Hz", _settings.RateHz, rate);
+                _log.Warn("ç›®æ ‡é€Ÿç‡ {0}Hz è¶…å‡º [0.1,5] èŒƒå›´ï¼Œå·² clamp ä¸º {1}Hz", _settings.RateHz, rate);
             }
             _intervalMs = Math.Max(1, (int)Math.Round(1000.0 / rate));
             _paraSep = string.IsNullOrEmpty(_settings.ParaSep) ? ";" : _settings.ParaSep;
         }
 
-        /// <summary>ÇëÇóÍ£Ö¹£¨Ctrl+C / q ¼ü£¬¿É¿çÏß³Ìµ÷ÓÃ£©£ºÖÃ±êÖ¾ + apiBreak ÖĞ¶ÏÔÚÍ¾ Job¡£</summary>
+        /// <summary>è¯·æ±‚åœæ­¢ï¼ˆCtrl+C / q é”®ï¼Œå¯è·¨çº¿ç¨‹è°ƒç”¨ï¼‰ï¼šç½®æ ‡å¿— + apiBreak ä¸­æ–­åœ¨é€” Jobã€‚</summary>
         public void RequestStop()
         {
             _stopRequested = true;
             _stop = true;
-            try { _client.RequestBreak(); } catch { /* ºöÂÔ */ }
+            try { _client.RequestBreak(); } catch { /* å¿½ç•¥ */ }
         }
 
         /// <summary>
-        /// Ö÷Á÷³Ì£¨Ö÷Ïß³Ì£©£ºÏÈĞ­ÉÌ²ÎÊı²¢È·ÈÏÁ¬Í¨£¨Ê§°ÜÖÂÃüÅ×³ö£¬²»Áô¿Õ CSV£©£¬
-        /// ÔÙ´ò¿ª CSV¡¢Æô¶¯Ïû·Ñ/ÏÔÊ¾/°´¼üÏß³Ì£¬½øÈëÎÈÌ¬²É¼¯Ñ­»·£¬×îºóÊÕÎ²¡£
+        /// ä¸»æµç¨‹ï¼ˆä¸»çº¿ç¨‹ï¼‰ï¼šå…ˆåå•†å‚æ•°å¹¶ç¡®è®¤è¿é€šï¼ˆå¤±è´¥è‡´å‘½æŠ›å‡ºï¼Œä¸ç•™ç©º CSVï¼‰ï¼Œ
+        /// å†æ‰“å¼€ CSVã€å¯åŠ¨æ¶ˆè´¹/æ˜¾ç¤º/æŒ‰é”®çº¿ç¨‹ï¼Œè¿›å…¥ç¨³æ€é‡‡é›†å¾ªç¯ï¼Œæœ€åæ”¶å°¾ã€‚
         /// </summary>
         public void Run()
         {
             _stats.StartTimeUtc = DateTime.UtcNow;
 
-            Prime();                 // ÖÂÃü´íÎóÔÚ´ËÅ×³ö£¨Program Ó³ÉäÍË³öÂë£©
-            _csv.Open();             // Á¬Í¨ÒÑÈ·ÈÏ£¬Ğ´Í·²¿
+            Prime();                 // è‡´å‘½é”™è¯¯åœ¨æ­¤æŠ›å‡ºï¼ˆProgram æ˜ å°„é€€å‡ºç ï¼‰
+            _csv.Open();             // è¿é€šå·²ç¡®è®¤ï¼Œå†™å¤´éƒ¨
             _display.SetCsvPath(_csv.CurrentPath);
 
             _csvQueue = new BlockingCollection<SampleSnapshot>(CsvQueueCapacity);
@@ -176,9 +176,9 @@ namespace ObdLogger.Logging
                 _inputThread.Start();
             }
 
-            _log.Info("²ÉÑùÆô¶¯£º{0} Ïî / {1} ×é£¬Ä¿±ê {2} Hz£¬·Ö¸ô·û='{3}'£¬MODE ¶¨Òå/¶ÁÈ¡='{4}'/'{5}'£¬CSV={6}",
+            _log.Info("é‡‡æ ·å¯åŠ¨ï¼š{0} é¡¹ / {1} ç»„ï¼Œç›®æ ‡ {2} Hzï¼Œåˆ†éš”ç¬¦='{3}'ï¼ŒMODE å®šä¹‰/è¯»å–='{4}'/'{5}'ï¼ŒCSV={6}",
                 _config.Count, _groups.Count, EffectiveRateHz.ToString("0.##", CultureInfo.InvariantCulture),
-                _paraSep, _settings.AllowModeJa ? _modeDefine : "(²»ÓÃJA)", _modeRead, _csv.CurrentPath);
+                _paraSep, _settings.AllowModeJa ? _modeDefine : "(ä¸ç”¨JA)", _modeRead, _csv.CurrentPath);
 
             try
             {
@@ -190,15 +190,15 @@ namespace ObdLogger.Logging
             }
         }
 
-        // ---------- Æô¶¯Ğ­ÉÌ£ºÈ·¶¨ para ·Ö¸ô·û + ·¢ÏÖµ¥¿é×î´ó²âÁ¿ÖµÊı£¨R-2-1 / R-2-4£© ----------
+        // ---------- å¯åŠ¨åå•†ï¼šç¡®å®š para åˆ†éš”ç¬¦ + å‘ç°å•å—æœ€å¤§æµ‹é‡å€¼æ•°ï¼ˆR-2-1 / R-2-4ï¼‰ ----------
 
         /// <summary>
-        /// Æô¶¯Ğ­ÉÌ£¨Êµ³µ 2026-09-22 Êµ²â½áÂÛÇı¶¯£©£º
-        ///   - ·Ö¸ô·û£º';' ÕıÈ·£¨',' ¡ú ERROR_ARGUMENT£¬PRG Î´ÊÕµ½·ÖÁ¢µÄ¶¯Ì¬²ÎÊı£©£»ÈÔ±£Áô ',' ¶µµ×¡£
-        ///   - MODE£º´óĞ¡Ğ´²»Ãô¸Ğ£¬¹Ì¶¨ JA/NEIN¡£
-        ///   - µ¥¿éÉÏÏŞ£º20 ÏîÒ»´ÎĞÔ $2C ¶¨Òå±» ECU ¾ÜÎª ERROR_ECU_REQUEST_OUT_OF_RANGE£¨NRC 0x31£©£¬
-        ///     ¹Ê¶ş·Ö·¢ÏÖ ECU ½ÓÊÜµÄµ¥´Î¶¨Òå×î´ó²âÁ¿ÖµÊı£¬²¢¾İ´ËÖØĞÂ·Ö×é£¨¶à×éÃ¿ÖÜÆÚÖğ×é JA ÖØ¶¨Òå£©¡£
-        /// Ê×Ö¡Á¬Í¨Ê§°Ü£¨½Ó¿Ú/³¬Ê±£©¡ú NoConnection ÖÂÃü£»$2C ¶¨ÒåÕûÌå±»¾Ü ¡ú ÌáÊ¾ R-2-4/--no-ja¡£
+        /// å¯åŠ¨åå•†ï¼ˆå®è½¦ 2026-09-22 å®æµ‹ç»“è®ºé©±åŠ¨ï¼‰ï¼š
+        ///   - åˆ†éš”ç¬¦ï¼š';' æ­£ç¡®ï¼ˆ',' â†’ ERROR_ARGUMENTï¼ŒPRG æœªæ”¶åˆ°åˆ†ç«‹çš„åŠ¨æ€å‚æ•°ï¼‰ï¼›ä»ä¿ç•™ ',' å…œåº•ã€‚
+        ///   - MODEï¼šå¤§å°å†™ä¸æ•æ„Ÿï¼Œå›ºå®š JA/NEINã€‚
+        ///   - å•å—ä¸Šé™ï¼š20 é¡¹ä¸€æ¬¡æ€§ $2C å®šä¹‰è¢« ECU æ‹’ä¸º ERROR_ECU_REQUEST_OUT_OF_RANGEï¼ˆNRC 0x31ï¼‰ï¼Œ
+        ///     æ•…äºŒåˆ†å‘ç° ECU æ¥å—çš„å•æ¬¡å®šä¹‰æœ€å¤§æµ‹é‡å€¼æ•°ï¼Œå¹¶æ®æ­¤é‡æ–°åˆ†ç»„ï¼ˆå¤šç»„æ¯å‘¨æœŸé€ç»„ JA é‡å®šä¹‰ï¼‰ã€‚
+        /// é¦–å¸§è¿é€šå¤±è´¥ï¼ˆæ¥å£/è¶…æ—¶ï¼‰â†’ NoConnection è‡´å‘½ï¼›$2C å®šä¹‰æ•´ä½“è¢«æ‹’ â†’ æç¤º R-2-4/--no-jaã€‚
         /// </summary>
         private void Prime()
         {
@@ -210,18 +210,18 @@ namespace ObdLogger.Logging
 
             foreach (string sep in separators)
             {
-                if (_stop) throw new OperationCanceledException("Æô¶¯½×¶Î±»ÖĞ¶Ï");
+                if (_stop) throw new OperationCanceledException("å¯åŠ¨é˜¶æ®µè¢«ä¸­æ–­");
                 int result = DiscoverMaxBlockSize(sep, defineMode, out lastStatus);
-                if (result == -1) { continue; }   // ERROR_ARGUMENT£º·Ö¸ô·û/ARG ²»±»½âÎö ¡ú »»·Ö¸ô·û
+                if (result == -1) { continue; }   // ERROR_ARGUMENTï¼šåˆ†éš”ç¬¦/ARG ä¸è¢«è§£æ â†’ æ¢åˆ†éš”ç¬¦
                 if (result == -2)
                 {
                     throw new SamplerStartException(SamplerStartException.FailureKind.EcuRejected,
-                        "²âÁ¿¿é¶¨Òå±» ECU ¾Ü¾ø£º" + lastStatus, lastStatus);
+                        "æµ‹é‡å—å®šä¹‰è¢« ECU æ‹’ç»ï¼š" + lastStatus, lastStatus);
                 }
                 if (result == 0)
                 {
-                    // Á¬µ¥Ïî $2C ¶¨Òå¶¼Ô½½ç£º¶àÎª ECU µ±Ç°×´Ì¬¾Ü¾ø¶¯Ì¬¶¨Òå£¨R-2-4£©
-                    lastStatus = "ERROR_ECU_REQUEST_OUT_OF_RANGE£¨µ¥Ïî¶¨ÒåÒà±»¾Ü£©";
+                    // è¿å•é¡¹ $2C å®šä¹‰éƒ½è¶Šç•Œï¼šå¤šä¸º ECU å½“å‰çŠ¶æ€æ‹’ç»åŠ¨æ€å®šä¹‰ï¼ˆR-2-4ï¼‰
+                    lastStatus = "ERROR_ECU_REQUEST_OUT_OF_RANGEï¼ˆå•é¡¹å®šä¹‰äº¦è¢«æ‹’ï¼‰";
                     continue;
                 }
                 goodSep = sep;
@@ -233,8 +233,8 @@ namespace ObdLogger.Logging
             {
                 throw new SamplerStartException(
                     SamplerStartException.FailureKind.BadArguments,
-                    "²âÁ¿¿éÊ×´Î¶¨Òå±»¾Ü£¨ÒÑÊÔ·Ö¸ô·û ';' Óë ','£¬²¢×Ô¶¯ÊÕËõµ¥¿é²âÁ¿ÖµÊıÖÁ 1 ÏîÈÔ±»¾Ü£©",
-                    string.IsNullOrEmpty(lastStatus) ? "(ÎŞ JOB_STATUS)" : ("×îºó JOB_STATUS=" + lastStatus));
+                    "æµ‹é‡å—é¦–æ¬¡å®šä¹‰è¢«æ‹’ï¼ˆå·²è¯•åˆ†éš”ç¬¦ ';' ä¸ ','ï¼Œå¹¶è‡ªåŠ¨æ”¶ç¼©å•å—æµ‹é‡å€¼æ•°è‡³ 1 é¡¹ä»è¢«æ‹’ï¼‰",
+                    string.IsNullOrEmpty(lastStatus) ? "(æ—  JOB_STATUS)" : ("æœ€å JOB_STATUS=" + lastStatus));
             }
 
             _paraSep = goodSep;
@@ -242,21 +242,21 @@ namespace ObdLogger.Logging
             else { _modeDefine = null; _modeRead = defineMode; }
             MaxBlockDiscovered = discoveredMax;
 
-            // ÒÀ¾İ·¢ÏÖµÄµ¥¿éÉÏÏŞÖØĞÂ·Ö×é£»¸÷×é¶¨Òå×´Ì¬¸´Î»£¬Ê×ÖÜÆÚÓÉ²É¼¯Ñ­»·ÓÃ JA ÕıÈ·¶¨Òå
+            // ä¾æ®å‘ç°çš„å•å—ä¸Šé™é‡æ–°åˆ†ç»„ï¼›å„ç»„å®šä¹‰çŠ¶æ€å¤ä½ï¼Œé¦–å‘¨æœŸç”±é‡‡é›†å¾ªç¯ç”¨ JA æ­£ç¡®å®šä¹‰
             RegroupItems(discoveredMax);
 
-            // Öğ×éĞ£Ñé²¢×ÔÓú£º×Ô¶¯¶¨Î»²¢Ìø¹ı±» ECU ¾Ü¾øµÄ ARG£¨Èç ISKLO ¡ú JOB_MESSAGE=Resultname not valid£©£¬
-            // ±ÜÃâµ¥¸ö»µ ARG ÍÏ¿åÕû×é£¨Æä CSV ÁĞÁô¿Õ£¬»ã×ÜÖĞ±¨¸æ£©¡£
+            // é€ç»„æ ¡éªŒå¹¶è‡ªæ„ˆï¼šè‡ªåŠ¨å®šä½å¹¶è·³è¿‡è¢« ECU æ‹’ç»çš„ ARGï¼ˆå¦‚ ISKLO â†’ JOB_MESSAGE=Resultname not validï¼‰ï¼Œ
+            // é¿å…å•ä¸ªå ARG æ‹–å®æ•´ç»„ï¼ˆå…¶ CSV åˆ—ç•™ç©ºï¼Œæ±‡æ€»ä¸­æŠ¥å‘Šï¼‰ã€‚
             string healMode = _settings.AllowModeJa ? _modeDefine : _modeRead;
             List<string> dropped = HealGroups(_paraSep, healMode);
             ExcludedArgs = dropped.ToArray();
             if (_groups.Count == 0)
             {
                 throw new SamplerStartException(SamplerStartException.FailureKind.BadArguments,
-                    "È«²¿²ÉÑùÏî¾ù±» ECU ¾Ü¾ø£¬ÎŞ¿É²ÉÑùÏî", string.Join(", ", ExcludedArgs));
+                    "å…¨éƒ¨é‡‡æ ·é¡¹å‡è¢« ECU æ‹’ç»ï¼Œæ— å¯é‡‡æ ·é¡¹", string.Join(", ", ExcludedArgs));
             }
 
-            // ÌŞ³ı»µ ARG ºóÔÚ¡°¸É¾»Çåµ¥¡±ÉÏÖØĞÂ·¢ÏÖµ¥¿éÉÏÏŞ£¨´ËÇ°»µ ARG Èô¿¿Ç°»á°ÑÉÏÏŞÎóËõ£©£¬²¢¾İ´ËÖØĞÂ·Ö×é
+            // å‰”é™¤å ARG ååœ¨â€œå¹²å‡€æ¸…å•â€ä¸Šé‡æ–°å‘ç°å•å—ä¸Šé™ï¼ˆæ­¤å‰å ARG è‹¥é å‰ä¼šæŠŠä¸Šé™è¯¯ç¼©ï¼‰ï¼Œå¹¶æ®æ­¤é‡æ–°åˆ†ç»„
             if (dropped.Count > 0)
             {
                 string ls2;
@@ -265,21 +265,21 @@ namespace ObdLogger.Logging
                 {
                     MaxBlockDiscovered = newMax;
                     RegroupItems(newMax);
-                    _log.Info("ÌŞ³ı»µ ARG ºóÖØĞÂ·¢ÏÖµ¥¿éÉÏÏŞ£º{0} Ïî ¡ú {1} ×é", newMax, _groups.Count);
+                    _log.Info("å‰”é™¤å ARG åé‡æ–°å‘ç°å•å—ä¸Šé™ï¼š{0} é¡¹ â†’ {1} ç»„", newMax, _groups.Count);
                 }
             }
 
-            _log.Info("Prime ³É¹¦£º·Ö¸ô·û='{0}'£¬MODE ¶¨Òå/¶ÁÈ¡='{1}'/'{2}'£¬µ¥¿é×î´ó {3} Ïî ¡ú {4} ×é£¨¹² {5} Ïî£©",
-                _paraSep, _settings.AllowModeJa ? _modeDefine : "(²»ÓÃJA)", _modeRead,
+            _log.Info("Prime æˆåŠŸï¼šåˆ†éš”ç¬¦='{0}'ï¼ŒMODE å®šä¹‰/è¯»å–='{1}'/'{2}'ï¼Œå•å—æœ€å¤§ {3} é¡¹ â†’ {4} ç»„ï¼ˆå…± {5} é¡¹ï¼‰",
+                _paraSep, _settings.AllowModeJa ? _modeDefine : "(ä¸ç”¨JA)", _modeRead,
                 MaxBlockDiscovered, _groups.Count, _config.Count);
             if (_groups.Count > 1)
             {
-                _log.Info("²ÉÑùÏî {0} ³¬µ¥¿éÉÏÏŞ {1}£¬·Ö {2} ×é£»Ã¿ÖÜÆÚÖğ×é MODE=JA ÖØ¶¨Òå£¨$2C µ¥¿éÓïÒå£©£¬Êµ¼ÊËÙÂÊÏàÓ¦ÏÂ½µ¡£",
+                _log.Info("é‡‡æ ·é¡¹ {0} è¶…å•å—ä¸Šé™ {1}ï¼Œåˆ† {2} ç»„ï¼›æ¯å‘¨æœŸé€ç»„ MODE=JA é‡å®šä¹‰ï¼ˆ$2C å•å—è¯­ä¹‰ï¼‰ï¼Œå®é™…é€Ÿç‡ç›¸åº”ä¸‹é™ã€‚",
                     _config.Count, MaxBlockDiscovered, _groups.Count);
             }
         }
 
-        /// <summary>µ±Ç°Î´±»ÌŞ³ı£¨ÓĞĞ§£©µÄ²ÉÑùÏîÊı¡£</summary>
+        /// <summary>å½“å‰æœªè¢«å‰”é™¤ï¼ˆæœ‰æ•ˆï¼‰çš„é‡‡æ ·é¡¹æ•°ã€‚</summary>
         private int ActiveItemCount()
         {
             int n = 0;
@@ -288,8 +288,8 @@ namespace ObdLogger.Logging
         }
 
         /// <summary>
-        /// ¶ş·Ö·¢ÏÖ ECU ½ÓÊÜµÄµ¥´Î $2C ¶¨Òå¿é×î´ó²âÁ¿ÖµÊı£¨O(log N) ´ÎÊµ³µµ÷ÓÃ£©¡£
-        /// ·µ»Ø£º>0 ×î´ó¿ÉÓÃ¿é´óĞ¡£»0 Á¬µ¥Ïî¶¼Ô½½ç£»-1 ²ÎÊı´íÎó£¨·Ö¸ô·û/ARG£©£»-2 ÆäËûÖÂÃü´íÎó¡£
+        /// äºŒåˆ†å‘ç° ECU æ¥å—çš„å•æ¬¡ $2C å®šä¹‰å—æœ€å¤§æµ‹é‡å€¼æ•°ï¼ˆO(log N) æ¬¡å®è½¦è°ƒç”¨ï¼‰ã€‚
+        /// è¿”å›ï¼š>0 æœ€å¤§å¯ç”¨å—å¤§å°ï¼›0 è¿å•é¡¹éƒ½è¶Šç•Œï¼›-1 å‚æ•°é”™è¯¯ï¼ˆåˆ†éš”ç¬¦/ARGï¼‰ï¼›-2 å…¶ä»–è‡´å‘½é”™è¯¯ã€‚
         /// </summary>
         private int DiscoverMaxBlockSize(string sep, string defineMode, out string lastStatus)
         {
@@ -311,11 +311,11 @@ namespace ObdLogger.Logging
             int lo = 1, hi = n - 1, best = 1;
             while (lo <= hi)
             {
-                if (_stop) throw new OperationCanceledException("Æô¶¯½×¶Î±»ÖĞ¶Ï");
+                if (_stop) throw new OperationCanceledException("å¯åŠ¨é˜¶æ®µè¢«ä¸­æ–­");
                 int mid = lo + (hi - lo) / 2;
                 string st = TryDefineStatus(sep, defineMode, mid, out lastStatus);
                 if (st == null) return -2;
-                // OUT_OF_RANGE£¨³¬ÏŞ£©»ò ERROR_ARGUMENT£¨¸ÃÇ°×ºº¬»µ ARG£©¾ùÊÓÎª¡°ÊÕËõ¡±£»»µ ARG ½»ÓÉ HealGroups ÌŞ³ı
+                // OUT_OF_RANGEï¼ˆè¶…é™ï¼‰æˆ– ERROR_ARGUMENTï¼ˆè¯¥å‰ç¼€å«å ARGï¼‰å‡è§†ä¸ºâ€œæ”¶ç¼©â€ï¼›å ARG äº¤ç”± HealGroups å‰”é™¤
                 if (!JobResult.IsErrorStatus(st)) { best = mid; lo = mid + 1; }
                 else { hi = mid - 1; }
             }
@@ -323,8 +323,8 @@ namespace ObdLogger.Logging
         }
 
         /// <summary>
-        /// ÓÃÇ° <paramref name="size"/> ¸ö²ÉÑùÏî×öÒ»´Î MODE ¶¨Òåµ÷ÓÃ£¬·µ»Ø JOB_STATUS£¨OKAY Ê±¿Õ´®£©£»
-        /// Á¬Í¨/»·¾³ÀàÖÂÃü´íÎóÖ±½ÓÅ× <see cref="SamplerStartException"/>£»ÆäËû Job Òì³£·µ»Ø null£¨½»µ÷ÓÃ·½ÅĞ -2£©¡£
+        /// ç”¨å‰ <paramref name="size"/> ä¸ªé‡‡æ ·é¡¹åšä¸€æ¬¡ MODE å®šä¹‰è°ƒç”¨ï¼Œè¿”å› JOB_STATUSï¼ˆOKAY æ—¶ç©ºä¸²ï¼‰ï¼›
+        /// è¿é€š/ç¯å¢ƒç±»è‡´å‘½é”™è¯¯ç›´æ¥æŠ› <see cref="SamplerStartException"/>ï¼›å…¶ä»– Job å¼‚å¸¸è¿”å› nullï¼ˆäº¤è°ƒç”¨æ–¹åˆ¤ -2ï¼‰ã€‚
         /// </summary>
         private string TryDefineStatus(string sep, string defineMode, int size, out string lastStatus)
         {
@@ -334,12 +334,12 @@ namespace ObdLogger.Logging
             foreach (SampleItem it in _config.Items)
             {
                 if (taken >= size) break;
-                if (_excludedArgs.Contains(it.Arg)) continue;   // ½öÓÃÎ´±»ÌŞ³ıµÄ²ÉÑùÏî×öÇ°×ºÌ½²â
+                if (_excludedArgs.Contains(it.Arg)) continue;   // ä»…ç”¨æœªè¢«å‰”é™¤çš„é‡‡æ ·é¡¹åšå‰ç¼€æ¢æµ‹
                 sb.Append(sep).Append(it.Arg);
                 taken++;
             }
             string para = sb.ToString();
-            _log.Api("Prime Ì½²â£ºsize={0}£¬para=\"{1}\"", size, para);
+            _log.Api("Prime æ¢æµ‹ï¼šsize={0}ï¼Œpara=\"{1}\"", size, para);
 
             JobResult res;
             try
@@ -350,20 +350,20 @@ namespace ObdLogger.Logging
             catch (EdiabasTimeoutException tex)
             {
                 throw new SamplerStartException(SamplerStartException.FailureKind.NoConnection,
-                    "Ê×´Î²âÁ¿¿é¶ÁÈ¡³¬Ê±£¬ECU ÎŞÏìÓ¦", tex.Message);
+                    "é¦–æ¬¡æµ‹é‡å—è¯»å–è¶…æ—¶ï¼ŒECU æ— å“åº”", tex.Message);
             }
             catch (EdiabasJobException jex)
             {
                 if (jex.Category == EdiabasErrorCategory.Interface)
                 {
                     throw new SamplerStartException(SamplerStartException.FailureKind.NoConnection,
-                        string.Format("ÎŞ·¨Óë DME ½¨Á¢Í¨ĞÅ£¨½Ó¿Ú´íÎó {0}: {1}£©", jex.ErrorCode, jex.ErrorText),
+                        string.Format("æ— æ³•ä¸ DME å»ºç«‹é€šä¿¡ï¼ˆæ¥å£é”™è¯¯ {0}: {1}ï¼‰", jex.ErrorCode, jex.ErrorText),
                         jex.ErrorText);
                 }
                 if (jex.Category == EdiabasErrorCategory.Bip || jex.Category == EdiabasErrorCategory.Sys)
                 {
                     throw new SamplerStartException(SamplerStartException.FailureKind.EcuRejected,
-                        string.Format("SGBD/Job ²ã´íÎó£¨{0}: {1}£©¡ª¡ªÈ·ÈÏ --ecu Ö¸¶¨µÄ PRG º¬ {2}",
+                        string.Format("SGBD/Job å±‚é”™è¯¯ï¼ˆ{0}: {1}ï¼‰â€”â€”ç¡®è®¤ --ecu æŒ‡å®šçš„ PRG å« {2}",
                             jex.ErrorCode, jex.ErrorText, JobName),
                         jex.ErrorText);
                 }
@@ -373,7 +373,7 @@ namespace ObdLogger.Logging
             catch (EdiabasException eex)
             {
                 throw new SamplerStartException(SamplerStartException.FailureKind.Environment,
-                    "EDIABAS »·¾³´íÎó£º" + eex.Message, eex.Message);
+                    "EDIABAS ç¯å¢ƒé”™è¯¯ï¼š" + eex.Message, eex.Message);
             }
 
             string status = res.FindJobStatus() ?? string.Empty;
@@ -381,7 +381,7 @@ namespace ObdLogger.Logging
             return status;
         }
 
-        /// <summary>°´·¢ÏÖµÄµ¥¿éÉÏÏŞÖØ½¨·Ö×é£¬²¢¸´Î»¸÷×é¶¨Òå×´Ì¬¡£</summary>
+        /// <summary>æŒ‰å‘ç°çš„å•å—ä¸Šé™é‡å»ºåˆ†ç»„ï¼Œå¹¶å¤ä½å„ç»„å®šä¹‰çŠ¶æ€ã€‚</summary>
         private void RegroupItems(int maxBlock)
         {
             if (maxBlock < 1) maxBlock = 1;
@@ -390,7 +390,7 @@ namespace ObdLogger.Logging
             var current = new List<SampleItem>();
             foreach (SampleItem item in _config.Items)
             {
-                if (_excludedArgs.Contains(item.Arg)) continue;   // Ìø¹ı±» ECU ¾Ü¾øµÄ ARG£¨Æä CSV ÁĞÁô¿Õ£©
+                if (_excludedArgs.Contains(item.Arg)) continue;   // è·³è¿‡è¢« ECU æ‹’ç»çš„ ARGï¼ˆå…¶ CSV åˆ—ç•™ç©ºï¼‰
                 current.Add(item);
                 if (current.Count >= maxBlock)
                 {
@@ -415,9 +415,9 @@ namespace ObdLogger.Logging
         }
 
         /// <summary>
-        /// Öğ×éĞ£Ñé²¢°´Ğè×ÔÓú£º¶ÔÃ¿¸ö·Ö×é×öÒ»´Î¶¨ÒåÊÔÌ½£»Èô·µ»Ø ERROR_ARGUMENT
-        /// £¨µäĞÍ JOB_MESSAGE=Resultname not valid£¬Èç ISKLO£©£¬¶ş·Ö¶¨Î»²¢ÌŞ³ı»µ ARG£¬ÌŞ³ıºóÖØĞÂ·Ö×é¡£
-        /// ·µ»Ø±»ÌŞ³ıµÄ ARG ÁĞ±í£¨Æä CSV ÁĞ±£³Ö¿Õ£¬»ã×ÜÖĞ±¨¸æ£©¡£
+        /// é€ç»„æ ¡éªŒå¹¶æŒ‰éœ€è‡ªæ„ˆï¼šå¯¹æ¯ä¸ªåˆ†ç»„åšä¸€æ¬¡å®šä¹‰è¯•æ¢ï¼›è‹¥è¿”å› ERROR_ARGUMENT
+        /// ï¼ˆå…¸å‹ JOB_MESSAGE=Resultname not validï¼Œå¦‚ ISKLOï¼‰ï¼ŒäºŒåˆ†å®šä½å¹¶å‰”é™¤å ARGï¼Œå‰”é™¤åé‡æ–°åˆ†ç»„ã€‚
+        /// è¿”å›è¢«å‰”é™¤çš„ ARG åˆ—è¡¨ï¼ˆå…¶ CSV åˆ—ä¿æŒç©ºï¼Œæ±‡æ€»ä¸­æŠ¥å‘Šï¼‰ã€‚
         /// </summary>
         private List<string> HealGroups(string sep, string defineMode)
         {
@@ -437,20 +437,20 @@ namespace ObdLogger.Logging
             }
             if (dropped.Count > 0)
             {
-                RegroupItems(MaxBlockDiscovered);   // ÌŞ³ı»µ ARG ºóÖØĞÂ·Ö×é
-                _log.Warn("ÒÔÏÂ²ÉÑùÏî±» ECU ¾Ü¾ø£¨JOB_MESSAGE ¶àÎª Resultname not valid£©£¬ÒÑ×Ô¶¯Ìø¹ı£¬Æä CSV ÁĞÁô¿Õ£º{0}",
+                RegroupItems(MaxBlockDiscovered);   // å‰”é™¤å ARG åé‡æ–°åˆ†ç»„
+                _log.Warn("ä»¥ä¸‹é‡‡æ ·é¡¹è¢« ECU æ‹’ç»ï¼ˆJOB_MESSAGE å¤šä¸º Resultname not validï¼‰ï¼Œå·²è‡ªåŠ¨è·³è¿‡ï¼Œå…¶ CSV åˆ—ç•™ç©ºï¼š{0}",
                     string.Join(", ", dropped.ToArray()));
             }
             return dropped;
         }
 
-        /// <summary>¶Ô¸ø¶¨ÌõÄ¿¼¯ºÏ×öÒ»´Î MODE ¶¨ÒåÊÔÌ½£¬·µ»Ø JOB_STATUS£¨Í¨ĞÅÒì³£Ê±·µ»Ø¿Õ´®=ÊÓÎªÍ¨¹ı£¬²»Òò¶¶¶¯ÎóÉ¾£©¡£</summary>
+        /// <summary>å¯¹ç»™å®šæ¡ç›®é›†åˆåšä¸€æ¬¡ MODE å®šä¹‰è¯•æ¢ï¼Œè¿”å› JOB_STATUSï¼ˆé€šä¿¡å¼‚å¸¸æ—¶è¿”å›ç©ºä¸²=è§†ä¸ºé€šè¿‡ï¼Œä¸å› æŠ–åŠ¨è¯¯åˆ ï¼‰ã€‚</summary>
         private string TestDefine(List<SampleItem> items, string sep, string defineMode)
         {
             var sb = new StringBuilder(defineMode ?? string.Empty);
             foreach (SampleItem it in items) sb.Append(sep).Append(it.Arg);
             string para = sb.ToString();
-            _log.Api("×éĞ£Ñé£ºpara=\"{0}\"", para);
+            _log.Api("ç»„æ ¡éªŒï¼špara=\"{0}\"", para);
             try
             {
                 JobResult res = _client.RunJob(_settings.Ecu, JobName, para);
@@ -459,12 +459,12 @@ namespace ObdLogger.Logging
             catch (OperationCanceledException) { throw; }
             catch (EdiabasException ex)
             {
-                _log.Warn("×éĞ£ÑéÍ¨ĞÅÒì³££¨Ìø¹ı×ÔÓú£¬½»ÔËĞĞÆÚÈ±¿Ú´¦Àí£©£º{0}", ex.Message);
+                _log.Warn("ç»„æ ¡éªŒé€šä¿¡å¼‚å¸¸ï¼ˆè·³è¿‡è‡ªæ„ˆï¼Œäº¤è¿è¡ŒæœŸç¼ºå£å¤„ç†ï¼‰ï¼š{0}", ex.Message);
                 return string.Empty;
             }
         }
 
-        /// <summary>¶ş·Ö¶¨Î»µ¼ÖÂ ERROR_ARGUMENT µÄ»µ ARG£¨Ç°Ìá£ºÕû×é¶¨ÒåÒÑ±»¾Ü£©¡£</summary>
+        /// <summary>äºŒåˆ†å®šä½å¯¼è‡´ ERROR_ARGUMENT çš„å ARGï¼ˆå‰æï¼šæ•´ç»„å®šä¹‰å·²è¢«æ‹’ï¼‰ã€‚</summary>
         private List<string> FindBadArgs(List<SampleItem> items, string sep, string defineMode)
         {
             var bad = new List<string>();
@@ -478,7 +478,7 @@ namespace ObdLogger.Logging
             return bad;
         }
 
-        // ---------- ÎÈÌ¬²É¼¯Ñ­»· ----------
+        // ---------- ç¨³æ€é‡‡é›†å¾ªç¯ ----------
 
         private void AcquisitionLoop()
         {
@@ -488,7 +488,7 @@ namespace ObdLogger.Logging
                 if (_settings.MaxDurationSec > 0 &&
                     (DateTime.UtcNow - _stats.StartTimeUtc).TotalSeconds >= _settings.MaxDurationSec)
                 {
-                    _log.Info("´ïµ½Éè¶¨Ê±³¤ {0:F0}s£¬ÓÅÑÅÍ£Ö¹²ÉÑù", _settings.MaxDurationSec);
+                    _log.Info("è¾¾åˆ°è®¾å®šæ—¶é•¿ {0:F0}sï¼Œä¼˜é›…åœæ­¢é‡‡æ ·", _settings.MaxDurationSec);
                     break;
                 }
                 DateTime nowUtc = DateTime.UtcNow;
@@ -496,10 +496,10 @@ namespace ObdLogger.Logging
                 {
                     if (SleepInterruptible((int)(nextTick - nowUtc).TotalMilliseconds)) break;
                 }
-                // Âäºó²»×·¸Ï£¨²»¶Ñ»ı¡¢²»Í»·¢£¬¡ì5£©£ºÒÔÏÂÒ»ÖÜÆÚÎª»ù×¼ÖØÅÅ
+                // è½åä¸è¿½èµ¶ï¼ˆä¸å †ç§¯ã€ä¸çªå‘ï¼ŒÂ§5ï¼‰ï¼šä»¥ä¸‹ä¸€å‘¨æœŸä¸ºåŸºå‡†é‡æ’
                 nextTick = DateTime.UtcNow + TimeSpan.FromMilliseconds(_intervalMs);
 
-                DateTime ts = DateTime.Now; // ²ÉÑù·¢ÆğÊ±¿Ì£¨±¾µØ£¬º¬ºÁÃë£¬¡ì5£©
+                DateTime ts = DateTime.Now; // é‡‡æ ·å‘èµ·æ—¶åˆ»ï¼ˆæœ¬åœ°ï¼Œå«æ¯«ç§’ï¼ŒÂ§5ï¼‰
                 SampleSnapshot snap;
                 try
                 {
@@ -507,7 +507,7 @@ namespace ObdLogger.Logging
                 }
                 catch (OperationCanceledException)
                 {
-                    break; // apiBreak£¨Ctrl+C/q£©
+                    break; // apiBreakï¼ˆCtrl+C/qï¼‰
                 }
 
                 if (snap.IsGap)
@@ -522,7 +522,7 @@ namespace ObdLogger.Logging
                 {
                     if (_consecutiveFailures > 0)
                     {
-                        _log.Info("Í¨ĞÅ»Ö¸´£¨´ËÇ°Á¬Ğø {0} ´ÎÈ±¿Ú£©", _consecutiveFailures);
+                        _log.Info("é€šä¿¡æ¢å¤ï¼ˆæ­¤å‰è¿ç»­ {0} æ¬¡ç¼ºå£ï¼‰", _consecutiveFailures);
                         ClearThrottle("comm");
                     }
                     _consecutiveFailures = 0;
@@ -535,7 +535,7 @@ namespace ObdLogger.Logging
             }
         }
 
-        /// <summary>¶ÁÈ¡Ò»¸öÖÜÆÚµÄÈ«²¿×é£»Í¨ĞÅÀàÊ§°Ü ¡ú ÕûÖ¡È±¿Ú£¨²»ÖÂÃü£©¡£</summary>
+        /// <summary>è¯»å–ä¸€ä¸ªå‘¨æœŸçš„å…¨éƒ¨ç»„ï¼›é€šä¿¡ç±»å¤±è´¥ â†’ æ•´å¸§ç¼ºå£ï¼ˆä¸è‡´å‘½ï¼‰ã€‚</summary>
         private SampleSnapshot AcquireOnce(DateTime ts)
         {
             var snap = new SampleSnapshot(ts, _config.Count);
@@ -558,10 +558,10 @@ namespace ObdLogger.Logging
 
                     if (JobResult.IsErrorStatus(status))
                     {
-                        // R-2-4£ºMODE=JA ±»¾Ü£¨Èç·¢¶¯»úÔË×ªÖĞ£©¡ú »ØÍË NEIN ÊÔÒ»´Î£¬²¢½ûÓÃ¸Ã×éºóĞø JA
+                        // R-2-4ï¼šMODE=JA è¢«æ‹’ï¼ˆå¦‚å‘åŠ¨æœºè¿è½¬ä¸­ï¼‰â†’ å›é€€ NEIN è¯•ä¸€æ¬¡ï¼Œå¹¶ç¦ç”¨è¯¥ç»„åç»­ JA
                         if (useJa && _settings.AllowModeJa)
                         {
-                            _log.Api("×é{0} MODE=JA ±»¾Ü£¨{1}£©£¬»ØÍË NEIN ÖØÊÔ", gi, status);
+                            _log.Api("ç»„{0} MODE=JA è¢«æ‹’ï¼ˆ{1}ï¼‰ï¼Œå›é€€ NEIN é‡è¯•", gi, status);
                             string para2 = BuildPara(_modeRead, group, _paraSep);
                             JobResult res2 = _client.RunJob(_settings.Ecu, JobName, para2);
                             string status2 = res2.FindJobStatus();
@@ -572,18 +572,18 @@ namespace ObdLogger.Logging
                                 _groupJaDisabled[gi] = true;
                                 _groupDefined[gi] = false;
                                 LogThrottled("ja" + gi, string.Format(
-                                    "×é{0} ¾Ü¾ø MODE=JA£¬ÒÑ½µ¼¶Îª NEIN ¶ÁÈ¡£¨Öµ¿ÉÄÜ¶ÔÓ¦ ECU ÒÑ´æ¶¨Òå£©", gi));
+                                    "ç»„{0} æ‹’ç» MODE=JAï¼Œå·²é™çº§ä¸º NEIN è¯»å–ï¼ˆå€¼å¯èƒ½å¯¹åº” ECU å·²å­˜å®šä¹‰ï¼‰", gi));
                                 continue;
                             }
                             status = status2;
                         }
                         else if (_singleGroup)
                         {
-                            // ÓÃ NEIN ¶ÁÊ§°Ü ¡ú ¶¨Òå¿ÉÄÜÒÑ¶ªÊ§£¨Èçµã»ğÑ­»·ºó£©£¬ÏÂ¸öÖÜÆÚÇ¿ÖÆ JA ÖØ¶¨Òå
+                            // ç”¨ NEIN è¯»å¤±è´¥ â†’ å®šä¹‰å¯èƒ½å·²ä¸¢å¤±ï¼ˆå¦‚ç‚¹ç«å¾ªç¯åï¼‰ï¼Œä¸‹ä¸ªå‘¨æœŸå¼ºåˆ¶ JA é‡å®šä¹‰
                             _groupDefined[gi] = false;
                         }
                         note = status;
-                        LogThrottled("grp" + gi, string.Format("×é{0} JOB_STATUS={1}", gi, status));
+                        LogThrottled("grp" + gi, string.Format("ç»„{0} JOB_STATUS={1}", gi, status));
                         continue;
                     }
 
@@ -594,35 +594,35 @@ namespace ObdLogger.Logging
                 catch (OperationCanceledException) { throw; }
                 catch (EdiabasTimeoutException tex)
                 {
-                    commFail = true; note = "³¬Ê±ÎŞÏìÓ¦";
-                    LogThrottled("comm", "Í¨ĞÅ³¬Ê±£º" + tex.Message);
+                    commFail = true; note = "è¶…æ—¶æ— å“åº”";
+                    LogThrottled("comm", "é€šä¿¡è¶…æ—¶ï¼š" + tex.Message);
                     break;
                 }
                 catch (EdiabasJobException jex)
                 {
                     if (jex.Category == EdiabasErrorCategory.Interface)
                     {
-                        commFail = true; note = "½Ó¿Ú/Í¨ĞÅÖĞ¶Ï";
-                        LogThrottled("comm", string.Format("½Ó¿Ú´íÎó {0}£º{1}", jex.ErrorCode, jex.ErrorText));
+                        commFail = true; note = "æ¥å£/é€šä¿¡ä¸­æ–­";
+                        LogThrottled("comm", string.Format("æ¥å£é”™è¯¯ {0}ï¼š{1}", jex.ErrorCode, jex.ErrorText));
                     }
                     else
                     {
                         note = jex.ErrorText;
-                        LogThrottled("job", string.Format("Job ´íÎó {0}£º{1}", jex.ErrorCode, jex.ErrorText));
+                        LogThrottled("job", string.Format("Job é”™è¯¯ {0}ï¼š{1}", jex.ErrorCode, jex.ErrorText));
                     }
                     break;
                 }
                 catch (EdiabasException eex)
                 {
-                    commFail = true; note = "EDIABAS ´íÎó";
-                    LogThrottled("comm", "EDIABAS£º" + eex.Message);
+                    commFail = true; note = "EDIABAS é”™è¯¯";
+                    LogThrottled("comm", "EDIABASï¼š" + eex.Message);
                     break;
                 }
                 catch (Exception ex)
                 {
-                    // Î´Ô¤ÆÚµÄÄÚ²¿´íÎóÒ²²»µÃÍÏ¿åÎŞÈËÖµÊØ³¤Ê±¼ä²É¼¯£¨FR-2-8 / NFR-2-1£©
-                    commFail = true; note = "ÄÚ²¿´íÎó";
-                    LogThrottled("internal", "²É¼¯ÄÚ²¿´íÎó£º" + ex.Message);
+                    // æœªé¢„æœŸçš„å†…éƒ¨é”™è¯¯ä¹Ÿä¸å¾—æ‹–å®æ— äººå€¼å®ˆé•¿æ—¶é—´é‡‡é›†ï¼ˆFR-2-8 / NFR-2-1ï¼‰
+                    commFail = true; note = "å†…éƒ¨é”™è¯¯";
+                    LogThrottled("internal", "é‡‡é›†å†…éƒ¨é”™è¯¯ï¼š" + ex.Message);
                     break;
                 }
             }
@@ -636,8 +636,8 @@ namespace ObdLogger.Logging
         {
             if (!_settings.AllowModeJa) return false;
             if (_groupJaDisabled[gi]) return false;
-            if (!_singleGroup) return true;   // ¶à×é£º$2C µ¥¿éÓïÒå ¡ú Ã¿×éÃ¿ÖÜÆÚÖØĞÂ¶¨Òå
-            return !_groupDefined[gi];        // µ¥×é£º¶¨ÒåÒ»´Îºó NEIN ¸´ÓÃ£¨¸ü¿ì£©
+            if (!_singleGroup) return true;   // å¤šç»„ï¼š$2C å•å—è¯­ä¹‰ â†’ æ¯ç»„æ¯å‘¨æœŸé‡æ–°å®šä¹‰
+            return !_groupDefined[gi];        // å•ç»„ï¼šå®šä¹‰ä¸€æ¬¡å NEIN å¤ç”¨ï¼ˆæ›´å¿«ï¼‰
         }
 
         private void ExtractValues(JobResult res, List<SampleItem> group, SampleSnapshot snap)
@@ -667,7 +667,7 @@ namespace ObdLogger.Logging
             return sb.ToString();
         }
 
-        // ---------- CSV Ïû·ÑÏß³Ì ----------
+        // ---------- CSV æ¶ˆè´¹çº¿ç¨‹ ----------
 
         private void CsvConsumeLoop()
         {
@@ -681,7 +681,7 @@ namespace ObdLogger.Logging
             catch (Exception ex)
             {
                 _csvFaulted = true;
-                _log.Error("CSV Ğ´ÈëÏß³ÌÒì³££¨Í£Ö¹ÂäÅÌ£¬²É¼¯ÓëÏÔÊ¾¼ÌĞø£©£º{0}", ex);
+                _log.Error("CSV å†™å…¥çº¿ç¨‹å¼‚å¸¸ï¼ˆåœæ­¢è½ç›˜ï¼Œé‡‡é›†ä¸æ˜¾ç¤ºç»§ç»­ï¼‰ï¼š{0}", ex);
             }
             finally
             {
@@ -699,21 +699,21 @@ namespace ObdLogger.Logging
                     if (_csvThread == null || !_csvThread.IsAlive)
                     {
                         _csvFaulted = true;
-                        _log.Error("CSV Ğ´ÈëÏß³ÌÒÑÍ£Ö¹£¨´ÅÅÌÂú/È¨ÏŞ£¿£©£¬ºóĞøÑù±¾½öÊµÊ±ÏÔÊ¾²»ÂäÅÌ");
-                        _display.SetStatus("[!] CSV Ğ´ÈëÊ§°Ü£¬½öÊµÊ±ÏÔÊ¾");
+                        _log.Error("CSV å†™å…¥çº¿ç¨‹å·²åœæ­¢ï¼ˆç£ç›˜æ»¡/æƒé™ï¼Ÿï¼‰ï¼Œåç»­æ ·æœ¬ä»…å®æ—¶æ˜¾ç¤ºä¸è½ç›˜");
+                        _display.SetStatus("[!] CSV å†™å…¥å¤±è´¥ï¼Œä»…å®æ—¶æ˜¾ç¤º");
                     }
                     else
                     {
-                        // ¼«¶Ë IO ¿¨¶Ù£º¶ªÆú 1 Ö¡ÒÔ±£»¤²É¼¯²»¹ÒËÀ£¨NFR-2-1 ²»¹ÒËÀÓÅÏÈ£©
-                        _log.Warn("CSV ¶ÓÁĞ»ıÑ¹³¬Ê±£¨>{0}s£©£¬¶ªÆú 1 Ö¡ÒÔ±£»¤²É¼¯Ïß³Ì", CsvAddTimeoutMs / 1000);
+                        // æç«¯ IO å¡é¡¿ï¼šä¸¢å¼ƒ 1 å¸§ä»¥ä¿æŠ¤é‡‡é›†ä¸æŒ‚æ­»ï¼ˆNFR-2-1 ä¸æŒ‚æ­»ä¼˜å…ˆï¼‰
+                        _log.Warn("CSV é˜Ÿåˆ—ç§¯å‹è¶…æ—¶ï¼ˆ>{0}sï¼‰ï¼Œä¸¢å¼ƒ 1 å¸§ä»¥ä¿æŠ¤é‡‡é›†çº¿ç¨‹", CsvAddTimeoutMs / 1000);
                     }
                 }
             }
-            catch (InvalidOperationException) { /* ¶ÓÁĞÒÑ CompleteAdding */ }
-            catch (Exception ex) { _log.Warn("Èë¶Ó CSV Òì³££º{0}", ex.Message); }
+            catch (InvalidOperationException) { /* é˜Ÿåˆ—å·² CompleteAdding */ }
+            catch (Exception ex) { _log.Warn("å…¥é˜Ÿ CSV å¼‚å¸¸ï¼š{0}", ex.Message); }
         }
 
-        // ---------- °´¼üÊäÈëÏß³Ì£¨q Í£Ö¹£© ----------
+        // ---------- æŒ‰é”®è¾“å…¥çº¿ç¨‹ï¼ˆq åœæ­¢ï¼‰ ----------
 
         private void InputLoop()
         {
@@ -726,13 +726,13 @@ namespace ObdLogger.Logging
                         ConsoleKeyInfo k = Console.ReadKey(true);
                         if (k.Key == ConsoleKey.Q || char.ToLowerInvariant(k.KeyChar) == 'q')
                         {
-                            _log.Info("¼ì²âµ½ q ¼ü£¬ÇëÇóÍ£Ö¹²ÉÑù");
+                            _log.Info("æ£€æµ‹åˆ° q é”®ï¼Œè¯·æ±‚åœæ­¢é‡‡æ ·");
                             RequestStop();
                             break;
                         }
                     }
                 }
-                catch { break; } // ÎŞ¿ØÖÆÌ¨ÊäÈë
+                catch { break; } // æ— æ§åˆ¶å°è¾“å…¥
                 if (SleepInterruptible(80)) break;
             }
         }
@@ -743,7 +743,7 @@ namespace ObdLogger.Logging
             catch { return true; }
         }
 
-        // ---------- ÊÕÎ² ----------
+        // ---------- æ”¶å°¾ ----------
 
         private void Shutdown()
         {
@@ -754,7 +754,7 @@ namespace ObdLogger.Logging
             }
             if (_csvThread != null)
             {
-                try { _csvThread.Join(15000); } catch { }  // ÅÅ¿ÕÊ£ÓàÑù±¾²¢¹Ø±Õ CSV
+                try { _csvThread.Join(15000); } catch { }  // æ’ç©ºå‰©ä½™æ ·æœ¬å¹¶å…³é—­ CSV
                 _csvThread = null;
             }
             _display.Stop();
@@ -770,9 +770,9 @@ namespace ObdLogger.Logging
             Shutdown();
         }
 
-        // ---------- ¹¤¾ß ----------
+        // ---------- å·¥å…· ----------
 
-        /// <summary>¿ÉÖĞ¶ÏĞİÃß£º·µ»Ø true ±íÊ¾ÒòÍ£Ö¹±êÖ¾ÌáÇ°ÍË³ö¡£</summary>
+        /// <summary>å¯ä¸­æ–­ä¼‘çœ ï¼šè¿”å› true è¡¨ç¤ºå› åœæ­¢æ ‡å¿—æå‰é€€å‡ºã€‚</summary>
         private bool SleepInterruptible(int ms)
         {
             if (ms <= 0) return _stop;
@@ -791,7 +791,7 @@ namespace ObdLogger.Logging
         private int ComputeBackoff(int failures)
         {
             int f = Math.Min(Math.Max(failures, 0), 5);
-            long ms = (long)_intervalMs * (1L << f); // interval ¡Á 2^failures
+            long ms = (long)_intervalMs * (1L << f); // interval Ã— 2^failures
             if (ms > _settings.MaxBackoffMs) ms = _settings.MaxBackoffMs;
             if (ms < _intervalMs) ms = _intervalMs;
             return (int)ms;
@@ -799,8 +799,8 @@ namespace ObdLogger.Logging
 
         private string BuildGapStatus(SampleSnapshot snap)
         {
-            string note = string.IsNullOrEmpty(snap.Note) ? "ÎŞÊı¾İ" : snap.Note;
-            return string.Format("Êı¾İÈ±¿Ú£º{0}£¨Á¬Ğø {1} ´Î£¬ÍË±ÜÖØÊÔÖĞ¡­£©", note, _consecutiveFailures);
+            string note = string.IsNullOrEmpty(snap.Note) ? "æ— æ•°æ®" : snap.Note;
+            return string.Format("æ•°æ®ç¼ºå£ï¼š{0}ï¼ˆè¿ç»­ {1} æ¬¡ï¼Œé€€é¿é‡è¯•ä¸­â€¦ï¼‰", note, _consecutiveFailures);
         }
 
         private void LogThrottled(string key, string message)
@@ -809,7 +809,7 @@ namespace ObdLogger.Logging
             _throttle.TryGetValue(key, out n);
             _throttle[key] = n + 1;
             if (n == 0) _log.Warn("{0}", message);
-            else if (n % 100 == 0) _log.Warn("{0}£¨ÀÛ¼Æ {1} ´Î£©", message, n + 1);
+            else if (n % 100 == 0) _log.Warn("{0}ï¼ˆç´¯è®¡ {1} æ¬¡ï¼‰", message, n + 1);
         }
 
         private void ClearThrottle(string key)
@@ -817,7 +817,7 @@ namespace ObdLogger.Logging
             int n;
             if (_throttle.TryGetValue(key, out n) && n > 1)
             {
-                _log.Info("'{0}' ÀÛ¼Æ {1} ´ÎºóÒÑ»Ö¸´", key, n);
+                _log.Info("'{0}' ç´¯è®¡ {1} æ¬¡åå·²æ¢å¤", key, n);
             }
             _throttle.Remove(key);
         }

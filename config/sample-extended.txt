@@ -1,29 +1,29 @@
-# ============================================================================
-# OBD Logger ¶þÆÚ ¡ª À©Õ¹²ÉÑùÇåµ¥Ê¾Àý£¨FR-2-4£©
-# ÓÃ·¨:  ObdLogger.exe log --config config\sample-extended.txt
-#        £¨Ïà¶ÔÂ·¾¶°´¡°Æô¶¯Ä¿Â¼¡±½âÎö£»Òà¿ÉÓÃ¾ø¶ÔÂ·¾¶£©
+ï»¿# ============================================================================
+# OBD Logger äºŒæœŸ â€” æ‰©å±•é‡‡æ ·æ¸…å•ç¤ºä¾‹ï¼ˆFR-2-4ï¼‰
+# ç”¨æ³•:  ObdLogger.exe log --config config\sample-extended.txt
+#        ï¼ˆç›¸å¯¹è·¯å¾„æŒ‰â€œå¯åŠ¨ç›®å½•â€è§£æžï¼›äº¦å¯ç”¨ç»å¯¹è·¯å¾„ï¼‰
 #
-# ¸ñÊ½:  Ã¿ÐÐÒ»Ìõ  ARG,ÏÔÊ¾Ãû[,µ¥Î»]
-#   - ARG      : ´«¸ø STATUS_MESSWERTBLOCK_LESEN µÄ²âÁ¿ÖµÃû£¬±ØÐë´æÔÚÓÚ
-#                doc\²ÄÁÏ\messwertetab.csv µÄ ARG ÁÐ£¨ÓÉ scripts\Export-Messwertetab.ps1
-#                ´Ó MEVD174K.b1v È«Á¿µ¼³ö£¬FR-2-9£©¡£³ÌÐò¾Ý´Ë×Ô¶¯½âÎö½á¹û×Ö¶ÎÃû
-#                RESULTNAME ÓëÈ±Ê¡µ¥Î» EINHEIT£¬ÎÞÐèÔÚ´ËÌîÐ´ STAT_* ½á¹ûÃû¡£
-#   - ÏÔÊ¾Ãû    : CSV ÁÐÃû / ¿ØÖÆÌ¨ÏÔÊ¾Ãû£¬½¨ÒéÓÃ ASCII£¨Excel ¼æÈÝ£¬¡ì6£©¡£Áô¿ÕÔòÓÃ ARG¡£
-#   - µ¥Î»      : ¿ÉÑ¡£»Áô¿ÕÔòÈ¡ messwertetab.csv µÄ EINHEIT¡£
-#   - ÒÔ # »ò ; ¿ªÍ·µÄÐÐ¡¢¿ÕÐÐºöÂÔ¡£
+# æ ¼å¼:  æ¯è¡Œä¸€æ¡  ARG,æ˜¾ç¤ºå[,å•ä½]
+#   - ARG      : ä¼ ç»™ STATUS_MESSWERTBLOCK_LESEN çš„æµ‹é‡å€¼åï¼Œå¿…é¡»å­˜åœ¨äºŽ
+#                doc\ææ–™\messwertetab.csv çš„ ARG åˆ—ï¼ˆç”± scripts\Export-Messwertetab.ps1
+#                ä»Ž MEVD174K.b1v å…¨é‡å¯¼å‡ºï¼ŒFR-2-9ï¼‰ã€‚ç¨‹åºæ®æ­¤è‡ªåŠ¨è§£æžç»“æžœå­—æ®µå
+#                RESULTNAME ä¸Žç¼ºçœå•ä½ EINHEITï¼Œæ— éœ€åœ¨æ­¤å¡«å†™ STAT_* ç»“æžœåã€‚
+#   - æ˜¾ç¤ºå    : CSV åˆ—å / æŽ§åˆ¶å°æ˜¾ç¤ºåï¼Œå»ºè®®ç”¨ ASCIIï¼ˆExcel å…¼å®¹ï¼ŒÂ§6ï¼‰ã€‚ç•™ç©ºåˆ™ç”¨ ARGã€‚
+#   - å•ä½      : å¯é€‰ï¼›ç•™ç©ºåˆ™å– messwertetab.csv çš„ EINHEITã€‚
+#   - ä»¥ # æˆ– ; å¼€å¤´çš„è¡Œã€ç©ºè¡Œå¿½ç•¥ã€‚
 #
-# ËµÃ÷:
-#   - µ¥´Î Job µ÷ÓÃ×î¶à 42 Ïî£»³¬¹ýÔò×Ô¶¯·Ö×éÂÖÑ¯£¨¶à×éÊ±Ã¿ÖÜÆÚ¶¼Ðè MODE=JA ÖØ¶¨Òå£¬½ÏÂý£©¡£
-#     ±¾Ê¾Àý 39 Ïî£¬ÈÔÎªµ¥´Îµ÷ÓÃ¡£
-#   - ÄÚÖÃÄ¬ÈÏÇåµ¥ÎªÐèÇóÎÄµµ ¡ì3.3 µÄ 20 ÏîºËÐÄ£»±¾ÎÄ¼þÔÚÆä»ù´¡ÉÏ²¹³ä£º
-#       * È« 4 ¸×µã»ð½Ç / ±¬Õð²Î¿¼µçÆ½
-#       * ¡ì3.3¡°´ýÈ·ÈÏ¡±Ïî¾­ FR-2-9 È«±í¶¨Î»ºóÈ·ÈÏ´æÔÚµÄÌõÄ¿£¨È¼ÓÍ¹ìÑ¹/µÍÑ¹¡¢ÅçÓÍÁ¿¡¢
-#         Valvetronic Êµ¼Ê/Ä¿±ê¡¢VANOS Î»ÖÃÊµ¼Ê/Ä¿±ê¡¢Ê§»ðÏà¶ÔÅ¤¾Ø£©¡ª¡ª¼ûÏÂ·½±ê×¢¡£
-#   - Î´ÔÚÊµ³µÖðÏîÑéÖ¤µÄÌõÄ¿Èô±» ECU ¾Ü¾ø£¬³ÌÐò»áÔÚÆô¶¯Ê±×Ô¶¯¶¨Î»²¢Ìø¹ý¸ÃÌõ£¨Æä CSV ÁÐÁô¿Õ¡¢ÈÕÖ¾¸æ¾¯£©£¬
-#     ²»»áÒòµ¥¸ö»µ ARG ¶øÍÏ¿åÕû×é£»Ò²¿ÉÊÖ¶¯É¾ÐÐ¡£ÒÑÖª£ºISKLO µÄÊý×Ö½á¹ûÃû²»±»±¾ PRG ½ÓÊÜ¡£
+# è¯´æ˜Ž:
+#   - å•æ¬¡ Job è°ƒç”¨æœ€å¤š 42 é¡¹ï¼›è¶…è¿‡åˆ™è‡ªåŠ¨åˆ†ç»„è½®è¯¢ï¼ˆå¤šç»„æ—¶æ¯å‘¨æœŸéƒ½éœ€ MODE=JA é‡å®šä¹‰ï¼Œè¾ƒæ…¢ï¼‰ã€‚
+#     æœ¬ç¤ºä¾‹ 39 é¡¹ï¼Œä»ä¸ºå•æ¬¡è°ƒç”¨ã€‚
+#   - å†…ç½®é»˜è®¤æ¸…å•ä¸ºéœ€æ±‚æ–‡æ¡£ Â§3.3 çš„ 20 é¡¹æ ¸å¿ƒï¼›æœ¬æ–‡ä»¶åœ¨å…¶åŸºç¡€ä¸Šè¡¥å……ï¼š
+#       * å…¨ 4 ç¼¸ç‚¹ç«è§’ / çˆ†éœ‡å‚è€ƒç”µå¹³
+#       * Â§3.3â€œå¾…ç¡®è®¤â€é¡¹ç» FR-2-9 å…¨è¡¨å®šä½åŽç¡®è®¤å­˜åœ¨çš„æ¡ç›®ï¼ˆç‡ƒæ²¹è½¨åŽ‹/ä½ŽåŽ‹ã€å–·æ²¹é‡ã€
+#         Valvetronic å®žé™…/ç›®æ ‡ã€VANOS ä½ç½®å®žé™…/ç›®æ ‡ã€å¤±ç«ç›¸å¯¹æ‰­çŸ©ï¼‰â€”â€”è§ä¸‹æ–¹æ ‡æ³¨ã€‚
+#   - æœªåœ¨å®žè½¦é€é¡¹éªŒè¯çš„æ¡ç›®è‹¥è¢« ECU æ‹’ç»ï¼Œç¨‹åºä¼šåœ¨å¯åŠ¨æ—¶è‡ªåŠ¨å®šä½å¹¶è·³è¿‡è¯¥æ¡ï¼ˆå…¶ CSV åˆ—ç•™ç©ºã€æ—¥å¿—å‘Šè­¦ï¼‰ï¼Œ
+#     ä¸ä¼šå› å•ä¸ªå ARG è€Œæ‹–åž®æ•´ç»„ï¼›ä¹Ÿå¯æ‰‹åŠ¨åˆ è¡Œã€‚å·²çŸ¥ï¼šISKLO çš„æ•°å­—ç»“æžœåä¸è¢«æœ¬ PRG æŽ¥å—ã€‚
 # ============================================================================
 
-# ---- ºËÐÄ£¨¡ì3.3 ÒÑºËÊµ£© ----
+# ---- æ ¸å¿ƒï¼ˆÂ§3.3 å·²æ ¸å®žï¼‰ ----
 INMOT,RPM
 SNLLD,IdleTargetRPM
 IVKMH,VehicleSpeed
@@ -45,11 +45,11 @@ SINT1,LambdaTarget
 ILIN1,LambdaIntegrator
 ILAM1,LambdaAdaption
 IZZY1,IgnitionTiming
-# ISKLO ÒÑÒÆ³ý£ºÆäÊý×Ö½á¹ûÃû STAT_STATUS_KLOPFEN_WERT ±»±¾ PRG ¾ÜÎª¡°Resultname not valid¡±£¨2026-09-22 Êµ³µ£©£»±¬Õð¸Ä¿´ÏÂ·½ IUKZ1-4
+# ISKLO å·²ç§»é™¤ï¼šå…¶æ•°å­—ç»“æžœå STAT_STATUS_KLOPFEN_WERT è¢«æœ¬ PRG æ‹’ä¸ºâ€œResultname not validâ€ï¼ˆ2026-09-22 å®žè½¦ï¼‰ï¼›çˆ†éœ‡æ”¹çœ‹ä¸‹æ–¹ IUKZ1-4
 IAVEP,VanosIntakePWM
 IAVAP,VanosExhaustPWM
 
-# ---- È« 4 ¸×µã»ð½Ç / ±¬Õð²Î¿¼µçÆ½£¨¡ì3.3 ¸½¼Ó£¬ÒÑºËÊµ£© ----
+# ---- å…¨ 4 ç¼¸ç‚¹ç«è§’ / çˆ†éœ‡å‚è€ƒç”µå¹³ï¼ˆÂ§3.3 é™„åŠ ï¼Œå·²æ ¸å®žï¼‰ ----
 IZWZ1,IgnAngleCyl1
 IZWZ2,IgnAngleCyl2
 IZWZ3,IgnAngleCyl3
@@ -59,14 +59,14 @@ IUKZ2,KnockVoltCyl2
 IUKZ3,KnockVoltCyl3
 IUKZ4,KnockVoltCyl4
 
-# ---- ¡ì3.3¡°´ýÈ·ÈÏ¡±Ïî£¬¾­ FR-2-9 È«±í¶¨Î»È·ÈÏ´æÔÚ£¨ARG==RESULTNAME µÄ STAT_0x* ÌõÄ¿£© ----
-STAT_0x58EF_WERT,RailPressureActual,MPa     # È¼ÓÍ¹ìÑ¹Êµ¼Ê£¨Gefilterter Raildruck-Istwert£©
-STAT_0x5837_WERT,RailPressureTarget,MPa     # È¼ÓÍ¹ìÑ¹Ä¿±ê£¨Solldruck Hochdrucksystem£©
-STAT_0x58F3_WERT,FuelLowPressure,kPa        # È¼ÓÍµÍÑ¹£¨Ungefilterter Niederdruck Rohwert£©
-STAT_0x4522_WERT,InjQtyCyl1,mg/Hub          # ÅçÓÍÁ¿ ¸×1£¨Kraftstoff Einspritzmenge Zyl1£©
-STAT_0x4602_WERT,ValvetronicActual,mm       # Valvetronic ½øÆøÃÅÉý³ÌÊµ¼Ê
-STAT_0x4603_WERT,ValvetronicTarget,mm       # Valvetronic ½øÆøÃÅÉý³ÌÄ¿±ê
-SSPEI,VanosIntakeTarget                      # ½øÆø VANOS Ä¿±ê½Ç£¨Sollwinkel Einlass-VANOS£©
-STAT_0x4506_WERT,VanosIntakePosActual        # ½øÆøÍ¹ÂÖÖáÎ»ÖÃÊµ¼Ê
-STAT_0x4507_WERT,VanosExhaustPosActual       # ÅÅÆøÍ¹ÂÖÖáÎ»ÖÃÊµ¼Ê
-STAT_0x5838_WERT,MisfireRelTorque,%          # Ê§»ð¼ì²âÏà¶ÔÅ¤¾Ø£¨½üËÆÊ§»ðÅÐ¾Ý£©
+# ---- Â§3.3â€œå¾…ç¡®è®¤â€é¡¹ï¼Œç» FR-2-9 å…¨è¡¨å®šä½ç¡®è®¤å­˜åœ¨ï¼ˆARG==RESULTNAME çš„ STAT_0x* æ¡ç›®ï¼‰ ----
+STAT_0x58EF_WERT,RailPressureActual,MPa     # ç‡ƒæ²¹è½¨åŽ‹å®žé™…ï¼ˆGefilterter Raildruck-Istwertï¼‰
+STAT_0x5837_WERT,RailPressureTarget,MPa     # ç‡ƒæ²¹è½¨åŽ‹ç›®æ ‡ï¼ˆSolldruck Hochdrucksystemï¼‰
+STAT_0x58F3_WERT,FuelLowPressure,kPa        # ç‡ƒæ²¹ä½ŽåŽ‹ï¼ˆUngefilterter Niederdruck Rohwertï¼‰
+STAT_0x4522_WERT,InjQtyCyl1,mg/Hub          # å–·æ²¹é‡ ç¼¸1ï¼ˆKraftstoff Einspritzmenge Zyl1ï¼‰
+STAT_0x4602_WERT,ValvetronicActual,mm       # Valvetronic è¿›æ°”é—¨å‡ç¨‹å®žé™…
+STAT_0x4603_WERT,ValvetronicTarget,mm       # Valvetronic è¿›æ°”é—¨å‡ç¨‹ç›®æ ‡
+SSPEI,VanosIntakeTarget                      # è¿›æ°” VANOS ç›®æ ‡è§’ï¼ˆSollwinkel Einlass-VANOSï¼‰
+STAT_0x4506_WERT,VanosIntakePosActual        # è¿›æ°”å‡¸è½®è½´ä½ç½®å®žé™…
+STAT_0x4507_WERT,VanosExhaustPosActual       # æŽ’æ°”å‡¸è½®è½´ä½ç½®å®žé™…
+STAT_0x5838_WERT,MisfireRelTorque,%          # å¤±ç«æ£€æµ‹ç›¸å¯¹æ‰­çŸ©ï¼ˆè¿‘ä¼¼å¤±ç«åˆ¤æ®ï¼‰

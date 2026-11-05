@@ -74,7 +74,7 @@ def to_float(v: str | None) -> float | None:
 
 def load_csv(path: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    with open(path, encoding="utf-8") as f:
+    with open(path, encoding="utf-8-sig") as f:
         header = None
         for line in f:
             if line.startswith("#"):

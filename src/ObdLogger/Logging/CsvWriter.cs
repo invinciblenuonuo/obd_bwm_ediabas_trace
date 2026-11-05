@@ -1,37 +1,37 @@
-using System;
+ï»¿using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
 
 namespace ObdLogger.Logging
 {
-    /// <summary>CSV Í·²¿ÔªĞÅÏ¢£¨Ğ´ÈëÎÄ¼şÍ·Á½ĞĞ # ×¢ÊÍ£¬¡ì6£©¡£</summary>
+    /// <summary>CSV å¤´éƒ¨å…ƒä¿¡æ¯ï¼ˆå†™å…¥æ–‡ä»¶å¤´ä¸¤è¡Œ # æ³¨é‡Šï¼ŒÂ§6ï¼‰ã€‚</summary>
     internal sealed class CsvHeaderInfo
     {
         public string Vehicle = "E84 N20";
         public string Sgbd = "MEVD174K";
-        public string Vin = string.Empty;   // Ò»ÆÚÁ½½×¶Î¶ÁÈ¡£»Ê§°ÜÁô¿Õ
+        public string Vin = string.Empty;   // ä¸€æœŸä¸¤é˜¶æ®µè¯»å–ï¼›å¤±è´¥ç•™ç©º
         public DateTime StartTime;
         public double RateHz;
-        public string ConfigSource = "ÄÚÖÃÄ¬ÈÏ";
+        public string ConfigSource = "å†…ç½®é»˜è®¤";
     }
 
     /// <summary>
-    /// CSV ÂäÅÌ£¨FR-2-5 / NFR-2-4£©£º
-    /// - Í·Á½ĞĞ # ×¢ÊÍ£¨³µÁ¾/SGBD/VIN/¿ªÊ¼ + ÅäÖÃÔªĞÅÏ¢£©£¬µÚÈıĞĞÏÔÊ¾Ãû±íÍ·£¬µÚËÄĞĞµ¥Î»ĞĞ£»
-    /// - Ã¿ĞĞÒ»´Î²ÉÑù£ºTime + ¸÷²ÉÑùÏîÒ»ÁĞ£»È±Ê§Ğ´¿Õ×Ö¶Î£»¶ººÅ·Ö¸ô£»Ğ¡ÊıµãÓÃµã£¨InvariantCulture£©£»UTF-8 ÎŞ BOM£»
-    /// - ÖğĞĞ flush ·À¶ª£»µ¥ÎÄ¼ş ¡İ 1 GB »ò¿çÌì×Ô¶¯¹ö¶¯ĞÂÎÄ¼ş£¨¹ö¶¯²»¶ªÑù±¾£©¡£
-    /// ½öÓÉ CSV Ïû·ÑÏß³Ì·ÃÎÊ£¨Open ÔÚÖ÷Ïß³ÌÏÈĞĞÍê³É£¬¾­Ïß³ÌÆô¶¯/Join ĞÎ³ÉÄÚ´æÆÁÕÏ£©£¬¹ÊÄÚ²¿ÎŞĞè¼ÓËø¡£
+    /// CSV è½ç›˜ï¼ˆFR-2-5 / NFR-2-4ï¼‰ï¼š
+    /// - å¤´ä¸¤è¡Œ # æ³¨é‡Šï¼ˆè½¦è¾†/SGBD/VIN/å¼€å§‹ + é…ç½®å…ƒä¿¡æ¯ï¼‰ï¼Œç¬¬ä¸‰è¡Œæ˜¾ç¤ºåè¡¨å¤´ï¼Œç¬¬å››è¡Œå•ä½è¡Œï¼›
+    /// - æ¯è¡Œä¸€æ¬¡é‡‡æ ·ï¼šTime + å„é‡‡æ ·é¡¹ä¸€åˆ—ï¼›ç¼ºå¤±å†™ç©ºå­—æ®µï¼›é€—å·åˆ†éš”ï¼›å°æ•°ç‚¹ç”¨ç‚¹ï¼ˆInvariantCultureï¼‰ï¼›UTF-8 å¸¦ BOMï¼Œä¾¿äº Excel è¯†åˆ«ï¼›
+    /// - é€è¡Œ flush é˜²ä¸¢ï¼›å•æ–‡ä»¶ â‰¥ 1 GB æˆ–è·¨å¤©è‡ªåŠ¨æ»šåŠ¨æ–°æ–‡ä»¶ï¼ˆæ»šåŠ¨ä¸ä¸¢æ ·æœ¬ï¼‰ã€‚
+    /// ä»…ç”± CSV æ¶ˆè´¹çº¿ç¨‹è®¿é—®ï¼ˆOpen åœ¨ä¸»çº¿ç¨‹å…ˆè¡Œå®Œæˆï¼Œç»çº¿ç¨‹å¯åŠ¨/Join å½¢æˆå†…å­˜å±éšœï¼‰ï¼Œæ•…å†…éƒ¨æ— éœ€åŠ é”ã€‚
     /// </summary>
     internal sealed class CsvWriter : IDisposable
     {
-        private const long MaxFileBytes = 1024L * 1024L * 1024L; // 1 GB ¹ö¶¯ãĞÖµ£¨NFR-2-4£©
+        private const long MaxFileBytes = 1024L * 1024L * 1024L; // 1 GB æ»šåŠ¨é˜ˆå€¼ï¼ˆNFR-2-4ï¼‰
 
         private readonly SampleConfig _config;
         private readonly CsvHeaderInfo _meta;
         private readonly AppLog _log;
         private readonly string _baseDir;
-        private readonly string _explicitFileName; // --out Ö¸¶¨ÁË¾ßÌåÎÄ¼şÃûÊ±ÓÃÓÚ¹ö¶¯ÅÉÉú£»·ñÔòÎª null
+        private readonly string _explicitFileName; // --out æŒ‡å®šäº†å…·ä½“æ–‡ä»¶åæ—¶ç”¨äºæ»šåŠ¨æ´¾ç”Ÿï¼›å¦åˆ™ä¸º null
 
         private StreamWriter _writer;
         private string _currentPath;
@@ -40,10 +40,10 @@ namespace ObdLogger.Logging
 
         public string CurrentPath { get { return _currentPath; } }
 
-        /// <summary>ÒÑĞ´ÈëµÄÊı¾İĞĞÊı£¨¿ç¹ö¶¯ÀÛ¼Æ£¬ÓÃÓÚÍ³¼Æ£©¡£</summary>
+        /// <summary>å·²å†™å…¥çš„æ•°æ®è¡Œæ•°ï¼ˆè·¨æ»šåŠ¨ç´¯è®¡ï¼Œç”¨äºç»Ÿè®¡ï¼‰ã€‚</summary>
         public long RowsWritten { get; private set; }
 
-        /// <summary>¹ö¶¯´ÎÊı£¨ÓÃÓÚÍ³¼Æ£©¡£</summary>
+        /// <summary>æ»šåŠ¨æ¬¡æ•°ï¼ˆç”¨äºç»Ÿè®¡ï¼‰ã€‚</summary>
         public int RollCount { get; private set; }
 
         public CsvWriter(string outputPath, SampleConfig config, CsvHeaderInfo meta, AppLog log)
@@ -59,7 +59,7 @@ namespace ObdLogger.Logging
             _explicitFileName = explicitName;
         }
 
-        /// <summary>½âÎöÊä³öÄ¿±ê£ºnull¡ú exe Ä¿Â¼\log\obdlog_&lt;ts&gt;.csv£»Ä¿Â¼¡úÆäÄÚÉú³É£»ÎÄ¼ş¡úÔ­Ãû£¨¹ö¶¯ÅÉÉú£©¡£</summary>
+        /// <summary>è§£æè¾“å‡ºç›®æ ‡ï¼šnullâ†’ exe ç›®å½•\log\obdlog_&lt;ts&gt;.csvï¼›ç›®å½•â†’å…¶å†…ç”Ÿæˆï¼›æ–‡ä»¶â†’åŸåï¼ˆæ»šåŠ¨æ´¾ç”Ÿï¼‰ã€‚</summary>
         private static void ResolveOutput(string outputPath, DateTime start, out string dir, out string explicitName)
         {
             string defaultName = "obdlog_" + start.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".csv";
@@ -69,13 +69,13 @@ namespace ObdLogger.Logging
                 explicitName = null;
                 return;
             }
-            // ÒÑ´æÔÚµÄÄ¿Â¼£¬»òÒÔ·Ö¸ô·û½áÎ² ¡ú ÊÓÎªÄ¿Â¼
+            // å·²å­˜åœ¨çš„ç›®å½•ï¼Œæˆ–ä»¥åˆ†éš”ç¬¦ç»“å°¾ â†’ è§†ä¸ºç›®å½•
             bool looksLikeDir = outputPath.EndsWith("\\", StringComparison.Ordinal) ||
                                 outputPath.EndsWith("/", StringComparison.Ordinal);
             if (!looksLikeDir)
             {
                 try { if (Directory.Exists(outputPath)) looksLikeDir = true; }
-                catch { /* ºöÂÔ£¬°´ÎÄ¼ş´¦Àí */ }
+                catch { /* å¿½ç•¥ï¼ŒæŒ‰æ–‡ä»¶å¤„ç† */ }
             }
             if (looksLikeDir)
             {
@@ -90,7 +90,7 @@ namespace ObdLogger.Logging
             }
         }
 
-        /// <summary>´´½¨Ê×¸ö CSV ÎÄ¼ş²¢Ğ´ÈëÍ·²¿£¨Ê§°ÜÅ×³ö£¬ÓÉÉÏ²ã¸ø³öÃ÷È·ÌáÊ¾²¢ÍË³ö£©¡£</summary>
+        /// <summary>åˆ›å»ºé¦–ä¸ª CSV æ–‡ä»¶å¹¶å†™å…¥å¤´éƒ¨ï¼ˆå¤±è´¥æŠ›å‡ºï¼Œç”±ä¸Šå±‚ç»™å‡ºæ˜ç¡®æç¤ºå¹¶é€€å‡ºï¼‰ã€‚</summary>
         public void Open()
         {
             string path = NextPath(true);
@@ -122,29 +122,29 @@ namespace ObdLogger.Logging
         private void OpenFile(string path)
         {
             Directory.CreateDirectory(_baseDir);
-            var encoding = new UTF8Encoding(false); // ÎŞ BOM£¨¡ì6£¬Excel ¼æÈİ£©
+            var encoding = new UTF8Encoding(true); // UTF-8 BOM for Excel encoding detection
             _writer = new StreamWriter(path, false, encoding) { AutoFlush = false };
             _currentPath = path;
             _currentFileDate = DateTime.Now.Date;
 
             WriteHeaders();
             _writer.Flush();
-            _log.Info("CSV ÒÑ´´½¨: {0}", path);
+            _log.Info("CSV å·²åˆ›å»º: {0}", path);
         }
 
         private void WriteHeaders()
         {
             CultureInfo inv = CultureInfo.InvariantCulture;
-            // ×¢ÊÍĞĞ 1£º³µÁ¾/SGBD/VIN/¿ªÊ¼
-            _writer.WriteLine("# OBD Logger ¶şÆÚ  ³µÁ¾: {0}  SGBD: {1}  VIN: {2}  ¿ªÊ¼: {3}",
+            // æ³¨é‡Šè¡Œ 1ï¼šè½¦è¾†/SGBD/VIN/å¼€å§‹
+            _writer.WriteLine("# OBD Logger äºŒæœŸ  è½¦è¾†: {0}  SGBD: {1}  VIN: {2}  å¼€å§‹: {3}",
                 _meta.Vehicle, _meta.Sgbd,
-                string.IsNullOrEmpty(_meta.Vin) ? "(Î´¶ÁÈ¡µ½)" : _meta.Vin,
+                string.IsNullOrEmpty(_meta.Vin) ? "(æœªè¯»å–åˆ°)" : _meta.Vin,
                 _meta.StartTime.ToString("yyyy-MM-dd HH:mm:ss", inv));
-            // ×¢ÊÍĞĞ 2£º²ÉÑùÅäÖÃÔªĞÅÏ¢
-            _writer.WriteLine("# ²ÉÑùÏî: {0}  Ä¿±êËÙÂÊ: {1}Hz  ÅäÖÃ: {2}  Ê±¼ä´Á: ±¾µØÊ±¼ä(ºÁÃë)  ·Ö¸ô·û: ,  Ğ¡Êıµã: .  ±àÂë: UTF-8",
+            // æ³¨é‡Šè¡Œ 2ï¼šé‡‡æ ·é…ç½®å…ƒä¿¡æ¯
+            _writer.WriteLine("# é‡‡æ ·é¡¹: {0}  ç›®æ ‡é€Ÿç‡: {1}Hz  é…ç½®: {2}  æ—¶é—´æˆ³: æœ¬åœ°æ—¶é—´(æ¯«ç§’)  åˆ†éš”ç¬¦: ,  å°æ•°ç‚¹: .  ç¼–ç : UTF-8",
                 _config.Count, _meta.RateHz.ToString("0.##", inv), _meta.ConfigSource);
 
-            // ±íÍ·ĞĞ£ºTime + ÏÔÊ¾Ãû
+            // è¡¨å¤´è¡Œï¼šTime + æ˜¾ç¤ºå
             var header = new StringBuilder();
             header.Append("Time");
             foreach (SampleItem item in _config.Items)
@@ -153,7 +153,7 @@ namespace ObdLogger.Logging
             }
             _writer.WriteLine(header.ToString());
 
-            // µ¥Î»ĞĞ£º[ms] + [µ¥Î»]
+            // å•ä½è¡Œï¼š[ms] + [å•ä½]
             var units = new StringBuilder();
             units.Append("[ms]");
             foreach (SampleItem item in _config.Items)
@@ -164,12 +164,12 @@ namespace ObdLogger.Logging
             _writer.WriteLine(units.ToString());
         }
 
-        /// <summary>Ğ´ÈëÒ»Ö¡²ÉÑù£¨±ØÒªÊ±ÏÈ¹ö¶¯£©£¬ÖğĞĞ flush ·À¶ª£¨FR-2-5£©¡£</summary>
+        /// <summary>å†™å…¥ä¸€å¸§é‡‡æ ·ï¼ˆå¿…è¦æ—¶å…ˆæ»šåŠ¨ï¼‰ï¼Œé€è¡Œ flush é˜²ä¸¢ï¼ˆFR-2-5ï¼‰ã€‚</summary>
         public void Write(SampleSnapshot s)
         {
-            if (_writer == null) throw new InvalidOperationException("CsvWriter Î´´ò¿ª");
+            if (_writer == null) throw new InvalidOperationException("CsvWriter æœªæ‰“å¼€");
 
-            // ¿çÌì¹ö¶¯£¨NFR-2-4£©
+            // è·¨å¤©æ»šåŠ¨ï¼ˆNFR-2-4ï¼‰
             if (s.Timestamp.Date != _currentFileDate)
             {
                 Roll();
@@ -177,7 +177,7 @@ namespace ObdLogger.Logging
 
             string line = BuildLine(s);
 
-            // ³¬´óĞ¡¹ö¶¯£ºÈôĞ´Èë±¾ĞĞ½«³¬¹ıãĞÖµÇÒµ±Ç°ÎÄ¼ş·Ç¿Õ£¬ÔòÏÈ¹ö¶¯
+            // è¶…å¤§å°æ»šåŠ¨ï¼šè‹¥å†™å…¥æœ¬è¡Œå°†è¶…è¿‡é˜ˆå€¼ä¸”å½“å‰æ–‡ä»¶éç©ºï¼Œåˆ™å…ˆæ»šåŠ¨
             if (_writer.BaseStream.Position > 0 &&
                 _writer.BaseStream.Position + line.Length > MaxFileBytes)
             {
@@ -185,7 +185,7 @@ namespace ObdLogger.Logging
             }
 
             _writer.WriteLine(line);
-            _writer.Flush(); // ÖğĞĞ flush ·À¶ª
+            _writer.Flush(); // é€è¡Œ flush é˜²ä¸¢
             RowsWritten++;
         }
 
@@ -212,10 +212,10 @@ namespace ObdLogger.Logging
             }
             catch (Exception ex)
             {
-                _log.Warn("¹ö¶¯Ê±¹Ø±Õ¾É CSV Òì³££¨ºöÂÔ£©£º{0}", ex.Message);
+                _log.Warn("æ»šåŠ¨æ—¶å…³é—­æ—§ CSV å¼‚å¸¸ï¼ˆå¿½ç•¥ï¼‰ï¼š{0}", ex.Message);
             }
             string path = NextPath(false);
-            // ±ÜÃâÍ¬Ãû¸²¸Ç£¨¼«¶Ë£ºÍ¬Ò»ÃëÄÚ¶à´Î¹ö¶¯£©
+            // é¿å…åŒåè¦†ç›–ï¼ˆæç«¯ï¼šåŒä¸€ç§’å†…å¤šæ¬¡æ»šåŠ¨ï¼‰
             int guard = 1;
             while (File.Exists(path) && guard < 1000)
             {
@@ -226,10 +226,10 @@ namespace ObdLogger.Logging
             }
             OpenFile(path);
             RollCount++;
-            _log.Info("CSV ¹ö¶¯£º{0} ¡ú {1}£¨ÀÛ¼Æ {2} ĞĞ£©", old, path, RowsWritten);
+            _log.Info("CSV æ»šåŠ¨ï¼š{0} â†’ {1}ï¼ˆç´¯è®¡ {2} è¡Œï¼‰", old, path, RowsWritten);
         }
 
-        /// <summary>CSV ×Ö¶Î×ªÒå£º½öµ±º¬¶ººÅ/ÒıºÅ/»»ĞĞÊ±¼ÓÒıºÅ£¨Êı×ÖÓë³£¹æÁĞÃû±£³ÖÂãÖµ£¬Excel ÓÑºÃ£©¡£</summary>
+        /// <summary>CSV å­—æ®µè½¬ä¹‰ï¼šä»…å½“å«é€—å·/å¼•å·/æ¢è¡Œæ—¶åŠ å¼•å·ï¼ˆæ•°å­—ä¸å¸¸è§„åˆ—åä¿æŒè£¸å€¼ï¼ŒExcel å‹å¥½ï¼‰ã€‚</summary>
         private static string Quote(string field)
         {
             if (string.IsNullOrEmpty(field)) return string.Empty;
@@ -247,11 +247,11 @@ namespace ObdLogger.Logging
                 {
                     _writer.Flush();
                     _writer.Dispose();
-                    _log.Info("CSV ÒÑ¹Ø±Õ: {0}£¨¹² {1} ĞĞ£¬¹ö¶¯ {2} ´Î£©", _currentPath, RowsWritten, RollCount);
+                    _log.Info("CSV å·²å…³é—­: {0}ï¼ˆå…± {1} è¡Œï¼Œæ»šåŠ¨ {2} æ¬¡ï¼‰", _currentPath, RowsWritten, RollCount);
                 }
                 catch (Exception ex)
                 {
-                    _log.Warn("¹Ø±Õ CSV Òì³££¨ºöÂÔ£©£º{0}", ex.Message);
+                    _log.Warn("å…³é—­ CSV å¼‚å¸¸ï¼ˆå¿½ç•¥ï¼‰ï¼š{0}", ex.Message);
                 }
                 finally
                 {

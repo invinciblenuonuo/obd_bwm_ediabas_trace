@@ -1,37 +1,37 @@
-using System;
+ï»¿using System;
 
 namespace ObdLogger.Ediabas
 {
-    /// <summary>´íÎóÀà±ğ£¨°´ Api.h ´íÎóÂëÇø¼ä»®·Ö£¬ÓÃÓÚÉú³É³¡¾°»¯ÌáÊ¾£©¡£</summary>
+    /// <summary>é”™è¯¯ç±»åˆ«ï¼ˆæŒ‰ Api.h é”™è¯¯ç åŒºé—´åˆ’åˆ†ï¼Œç”¨äºç”Ÿæˆåœºæ™¯åŒ–æç¤ºï¼‰ã€‚</summary>
     internal enum EdiabasErrorCategory
     {
         None = 0,
-        Interface,  // IFH 10-59 / 200-249£º½Ó¿Ú/Í¨ĞÅ£¨ÏßÀÂ¡¢¶Ë¿ÚÕ¼ÓÃ¡¢ECU ÎŞÏìÓ¦£©
-        Bip,        // BIP 60-89£ºBEST/2 ½âÊÍÆ÷£¨SGBD ÎÄ¼ş»ò Job ²»´æÔÚµÈ£©
-        Sys,        // SYS 90-119£ºEDIABAS ÏµÍ³´íÎó
-        Api,        // API 120-149£ºAPI µ÷ÓÃ·½Ê½´íÎó
-        Net,        // NET 150-199£ºÍøÂç½Ó¿Ú´íÎó
-        Run,        // RUN 250-349£ºJob ÔËĞĞÊ±´íÎó£¨ECU ¾Ü¾ø/¸ºÏìÓ¦µÈ£©
+        Interface,  // IFH 10-59 / 200-249ï¼šæ¥å£/é€šä¿¡ï¼ˆçº¿ç¼†ã€ç«¯å£å ç”¨ã€ECU æ— å“åº”ï¼‰
+        Bip,        // BIP 60-89ï¼šBEST/2 è§£é‡Šå™¨ï¼ˆSGBD æ–‡ä»¶æˆ– Job ä¸å­˜åœ¨ç­‰ï¼‰
+        Sys,        // SYS 90-119ï¼šEDIABAS ç³»ç»Ÿé”™è¯¯
+        Api,        // API 120-149ï¼šAPI è°ƒç”¨æ–¹å¼é”™è¯¯
+        Net,        // NET 150-199ï¼šç½‘ç»œæ¥å£é”™è¯¯
+        Run,        // RUN 250-349ï¼šJob è¿è¡Œæ—¶é”™è¯¯ï¼ˆECU æ‹’ç»/è´Ÿå“åº”ç­‰ï¼‰
         Unknown,
     }
 
-    /// <summary>EDIABAS »·¾³/³õÊ¼»¯Àà´íÎó£¨ÎŞ¿ÉÓÃµÄ´íÎóÂëÉÏÏÂÎÄ£©¡£</summary>
+    /// <summary>EDIABAS ç¯å¢ƒ/åˆå§‹åŒ–ç±»é”™è¯¯ï¼ˆæ— å¯ç”¨çš„é”™è¯¯ç ä¸Šä¸‹æ–‡ï¼‰ã€‚</summary>
     internal sealed class EdiabasException : Exception
     {
         public EdiabasException(string message) : base(message) { }
         public EdiabasException(string message, Exception inner) : base(message, inner) { }
     }
 
-    /// <summary>Job µÈ´ı³¬Ê±£¨·À¹ÒËÀ¶µµ×£¬FR-7£©¡£</summary>
+    /// <summary>Job ç­‰å¾…è¶…æ—¶ï¼ˆé˜²æŒ‚æ­»å…œåº•ï¼ŒFR-7ï¼‰ã€‚</summary>
     internal sealed class EdiabasTimeoutException : Exception
     {
         public EdiabasTimeoutException(string job, int seconds)
-            : base(string.Format("Job {0} Ö´ĞĞ³¬¹ı {1} ÃëÈÔÎ´½áÊø£¬ÒÑÖĞÖ¹£¨ECU ÎŞÏìÓ¦»òÏßÀÂ/Ê±ĞòÒì³££©", job, seconds))
+            : base(string.Format("Job {0} æ‰§è¡Œè¶…è¿‡ {1} ç§’ä»æœªç»“æŸï¼Œå·²ä¸­æ­¢ï¼ˆECU æ— å“åº”æˆ–çº¿ç¼†/æ—¶åºå¼‚å¸¸ï¼‰", job, seconds))
         {
         }
     }
 
-    /// <summary>Job Ö´ĞĞÊ§°Ü£ºĞ¯´ø EDIABAS ´íÎóÂë¡¢´íÎóÎÄ±¾Óë JobInfo¡£</summary>
+    /// <summary>Job æ‰§è¡Œå¤±è´¥ï¼šæºå¸¦ EDIABAS é”™è¯¯ç ã€é”™è¯¯æ–‡æœ¬ä¸ JobInfoã€‚</summary>
     internal sealed class EdiabasJobException : Exception
     {
         public string Ecu { get; private set; }
@@ -42,7 +42,7 @@ namespace ObdLogger.Ediabas
         public EdiabasErrorCategory Category { get; private set; }
 
         public EdiabasJobException(string ecu, string job, int errorCode, string errorText, string jobInfo)
-            : base(string.Format("Job {0} Ê§°Ü£º´íÎóÂë {1} ({2})", job, errorCode, errorText))
+            : base(string.Format("Job {0} å¤±è´¥ï¼šé”™è¯¯ç  {1} ({2})", job, errorCode, errorText))
         {
             Ecu = ecu;
             Job = job;
@@ -53,7 +53,7 @@ namespace ObdLogger.Ediabas
         }
 
         private EdiabasJobException(string ecu, string job, string ecuJobStatus)
-            : base(string.Format("Job {0} ±» ECU ¾Ü¾ø£º{1}", job, ecuJobStatus))
+            : base(string.Format("Job {0} è¢« ECU æ‹’ç»ï¼š{1}", job, ecuJobStatus))
         {
             Ecu = ecu;
             Job = job;
@@ -63,13 +63,13 @@ namespace ObdLogger.Ediabas
             Category = EdiabasErrorCategory.Run;
         }
 
-        /// <summary>ECU ¼¶¾Ü¾ø£¨API ²ã³É¹¦µ« JOB_STATUS Îª ERROR_...£©¡£ErrorCode ºãÎª 0¡£</summary>
+        /// <summary>ECU çº§æ‹’ç»ï¼ˆAPI å±‚æˆåŠŸä½† JOB_STATUS ä¸º ERROR_...ï¼‰ã€‚ErrorCode æ’ä¸º 0ã€‚</summary>
         public static EdiabasJobException ForEcuRejection(string ecu, string job, string jobStatus)
         {
             return new EdiabasJobException(ecu, job, "JOB_STATUS=" + jobStatus);
         }
 
-        /// <summary>ÊÇ·ñÎª ECU ¼¶¾Ü¾ø£¨Çø±ğÓÚ API ´íÎóÂëÊ§°Ü£©¡£</summary>
+        /// <summary>æ˜¯å¦ä¸º ECU çº§æ‹’ç»ï¼ˆåŒºåˆ«äº API é”™è¯¯ç å¤±è´¥ï¼‰ã€‚</summary>
         public bool IsEcuRejection { get { return ErrorCode == 0 && Category == EdiabasErrorCategory.Run; } }
 
         internal static EdiabasErrorCategory Classify(int code)

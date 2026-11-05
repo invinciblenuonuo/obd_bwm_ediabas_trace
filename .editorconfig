@@ -1,0 +1,8 @@
+root = true
+
+[*]
+charset = utf-8
+
+[*.{cs,csproj,ps1}]
+# BOM also lets Windows PowerShell 5.1 detect UTF-8 reliably.
+charset = utf-8-bom

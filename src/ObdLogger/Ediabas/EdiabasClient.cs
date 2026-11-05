@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
@@ -7,14 +7,14 @@ using ObdLogger.Logging;
 namespace ObdLogger.Ediabas
 {
     /// <summary>
-    /// EDIABAS API ·â×°²ã£¨¶ÔÓ¦ĞèÇóÎÄµµ NFR-3£ºÓëÒµÎñÊä³ö·ÖÀë£¬¶şÆÚ¿É¸´ÓÃ£©¡£
-    /// ¸ºÔğ£º³õÊ¼»¯/ÊÍ·Å¡¢Job Ö´ĞĞ¡¢½á¹û¼¯Ã¶¾Ù¡¢´íÎóĞÅÏ¢ÌáÈ¡¡£
-    /// ½ö±©Â¶Ö»¶ÁÕï¶ÏÄÜÁ¦£»²»Ìá¹©ÈÎºÎĞ´Èë/¸´Î»/±à³ÌÈë¿Ú£¨TC-6£©¡£
-    /// ·ÇÏß³Ì°²È«£»Ò»¸ö½ø³ÌÒ»¸öÊµÀı¡£
+    /// EDIABAS API å°è£…å±‚ï¼ˆå¯¹åº”éœ€æ±‚æ–‡æ¡£ NFR-3ï¼šä¸ä¸šåŠ¡è¾“å‡ºåˆ†ç¦»ï¼ŒäºŒæœŸå¯å¤ç”¨ï¼‰ã€‚
+    /// è´Ÿè´£ï¼šåˆå§‹åŒ–/é‡Šæ”¾ã€Job æ‰§è¡Œã€ç»“æœé›†æšä¸¾ã€é”™è¯¯ä¿¡æ¯æå–ã€‚
+    /// ä»…æš´éœ²åªè¯»è¯Šæ–­èƒ½åŠ›ï¼›ä¸æä¾›ä»»ä½•å†™å…¥/å¤ä½/ç¼–ç¨‹å…¥å£ï¼ˆTC-6ï¼‰ã€‚
+    /// éçº¿ç¨‹å®‰å…¨ï¼›ä¸€ä¸ªè¿›ç¨‹ä¸€ä¸ªå®ä¾‹ã€‚
     /// </summary>
     internal sealed class EdiabasClient : IDisposable
     {
-        // apiState ·µ»ØÖµ£¨Api.h£©
+        // apiState è¿”å›å€¼ï¼ˆApi.hï¼‰
         private const int ApiBusy = 0;
         private const int ApiReady = 1;
         private const int ApiBreakState = 2;
@@ -32,7 +32,7 @@ namespace ObdLogger.Ediabas
 
         public bool IsInitialized { get { return _initialized; } }
 
-        /// <summary>FR-2£ºapiInit ³õÊ¼»¯£¨Ê¹ÓÃÏÖÓĞ EDIABAS.INI / obd.ini ÅäÖÃ£©¡£</summary>
+        /// <summary>FR-2ï¼šapiInit åˆå§‹åŒ–ï¼ˆä½¿ç”¨ç°æœ‰ EDIABAS.INI / obd.ini é…ç½®ï¼‰ã€‚</summary>
         public void Init()
         {
             if (_initialized) return;
@@ -40,38 +40,38 @@ namespace ObdLogger.Ediabas
             bool ok = NativeMethods.ApiInit(out _handle);
             if (!ok || _handle == 0)
             {
-                _log.Api("apiInit() => Ê§°Ü (ok={0}, handle=0x{1:X8})", ok, _handle);
+                _log.Api("apiInit() => å¤±è´¥ (ok={0}, handle=0x{1:X8})", ok, _handle);
                 throw new EdiabasException(
-                    "apiInit() Ê§°Ü£ºEDIABAS Î´ÄÜ³õÊ¼»¯¡£Çë¼ì²é C:\\EDIABAS Ä¿Â¼¡¢" +
-                    "EDIABAS.INI£¨Interface = STD:OBD£©ÒÔ¼° PATH ÊÇ·ñ°üº¬ C:\\EDIABAS\\Bin¡£");
+                    "apiInit() å¤±è´¥ï¼šEDIABAS æœªèƒ½åˆå§‹åŒ–ã€‚è¯·æ£€æŸ¥ C:\\EDIABAS ç›®å½•ã€" +
+                    "EDIABAS.INIï¼ˆInterface = STD:OBDï¼‰ä»¥åŠ PATH æ˜¯å¦åŒ…å« C:\\EDIABAS\\Binã€‚");
             }
             _initialized = true;
             _log.Api("apiInit() => OK, handle=0x{0:X8}", _handle);
         }
 
-        /// <summary>API °æ±¾¼æÈİĞÔ¼ì²é£¨½ö¼ÇÂ¼ÈÕÖ¾£¬Ê§°Ü²»ÖĞ¶Ï£©¡£</summary>
+        /// <summary>API ç‰ˆæœ¬å…¼å®¹æ€§æ£€æŸ¥ï¼ˆä»…è®°å½•æ—¥å¿—ï¼Œå¤±è´¥ä¸ä¸­æ–­ï¼‰ã€‚</summary>
         public void CheckVersion()
         {
             try
             {
                 byte[] buf = new byte[NativeMethods.ApiMaxText];
-                // ¼æÈİĞÔ°æ±¾ºÅ¸ñÊ½£ºÖ÷°æ±¾ << 8 | ´Î°æ±¾£¨±¾»ú api32.dll Îª 7.3.0£©
+                // å…¼å®¹æ€§ç‰ˆæœ¬å·æ ¼å¼ï¼šä¸»ç‰ˆæœ¬ << 8 | æ¬¡ç‰ˆæœ¬ï¼ˆæœ¬æœº api32.dll ä¸º 7.3.0ï¼‰
                 bool ok = NativeMethods.ApiCheckVersion(0x0703, buf);
                 _log.Api("apiCheckVersion(7.3) => {0}, versionInfo=\"{1}\"", ok, AnsiToString(buf));
             }
             catch (Exception ex)
             {
-                _log.Warn("apiCheckVersion µ÷ÓÃÒì³££¨ºöÂÔ£©£º{0}", ex.Message);
+                _log.Warn("apiCheckVersion è°ƒç”¨å¼‚å¸¸ï¼ˆå¿½ç•¥ï¼‰ï¼š{0}", ex.Message);
             }
         }
 
-        /// <summary>API ×´Ì¬£º0=BUSY 1=READY 2=BREAK 3=ERROR¡£</summary>
+        /// <summary>API çŠ¶æ€ï¼š0=BUSY 1=READY 2=BREAK 3=ERRORã€‚</summary>
         public int State()
         {
             return NativeMethods.ApiState(_handle);
         }
 
-        /// <summary>ÇëÇóÖĞ¶Ïµ±Ç° Job£¨¹© Ctrl+C ´¦Àí¿çÏß³Ìµ÷ÓÃ£©¡£</summary>
+        /// <summary>è¯·æ±‚ä¸­æ–­å½“å‰ Jobï¼ˆä¾› Ctrl+C å¤„ç†è·¨çº¿ç¨‹è°ƒç”¨ï¼‰ã€‚</summary>
         public void RequestBreak()
         {
             try
@@ -84,19 +84,19 @@ namespace ObdLogger.Ediabas
             }
             catch (Exception ex)
             {
-                _log.Warn("apiBreak µ÷ÓÃÒì³££¨ºöÂÔ£©£º{0}", ex.Message);
+                _log.Warn("apiBreak è°ƒç”¨å¼‚å¸¸ï¼ˆå¿½ç•¥ï¼‰ï¼š{0}", ex.Message);
             }
         }
 
         /// <summary>
-        /// FR-3/FR-4£ºÖ´ĞĞÖ»¶Á Job ²¢Ã¶¾ÙÈ«²¿½á¹û¡£
-        /// ×¢Òâ£ºEDIABAS 7.x µÄ apiJob ÎªÒì²½Æô¶¯£¬ĞëÂÖÑ¯ apiState Ö±ÖÁ·Ç BUSY ºóÔÙ¶ÁÈ¡´íÎóÂëÓë½á¹û
-        /// £¨Á÷³Ì²ÎÕÕ±¦Âí¹Ù·½ apiNET32.dll / TestCsNET32£»½ø¶È¾­ apiJobInfo ·´À¡£©¡£
-        /// Job Ê§°ÜÊ±Å×³ö <see cref="EdiabasJobException"/>£¨º¬´íÎóÂë/ÎÄ±¾/JobInfo£©¡£
+        /// FR-3/FR-4ï¼šæ‰§è¡Œåªè¯» Job å¹¶æšä¸¾å…¨éƒ¨ç»“æœã€‚
+        /// æ³¨æ„ï¼šEDIABAS 7.x çš„ apiJob ä¸ºå¼‚æ­¥å¯åŠ¨ï¼Œé¡»è½®è¯¢ apiState ç›´è‡³é BUSY åå†è¯»å–é”™è¯¯ç ä¸ç»“æœ
+        /// ï¼ˆæµç¨‹å‚ç…§å®é©¬å®˜æ–¹ apiNET32.dll / TestCsNET32ï¼›è¿›åº¦ç» apiJobInfo åé¦ˆï¼‰ã€‚
+        /// Job å¤±è´¥æ—¶æŠ›å‡º <see cref="EdiabasJobException"/>ï¼ˆå«é”™è¯¯ç /æ–‡æœ¬/JobInfoï¼‰ã€‚
         /// </summary>
-        /// <param name="ecu">SGBD Ãû£¨²»º¬À©Õ¹Ãû£¬Èç mevd1724£»EDIABAS °´ EcuPath ½âÎö .prg£©</param>
-        /// <param name="job">Job Ãû³Æ</param>
-        /// <param name="para">Job ²ÎÊı£¨Ê¶±ğÀà Job Í¨³£Îª¿Õ£©</param>
+        /// <param name="ecu">SGBD åï¼ˆä¸å«æ‰©å±•åï¼Œå¦‚ mevd1724ï¼›EDIABAS æŒ‰ EcuPath è§£æ .prgï¼‰</param>
+        /// <param name="job">Job åç§°</param>
+        /// <param name="para">Job å‚æ•°ï¼ˆè¯†åˆ«ç±» Job é€šå¸¸ä¸ºç©ºï¼‰</param>
         public JobResult RunJob(string ecu, string job, string para)
         {
             EnsureInitialized();
@@ -110,25 +110,25 @@ namespace ObdLogger.Ediabas
             if (errorCode != 0)
             {
                 string errorText = ReadErrorText();
-                _log.Api("apiJob({0}) => ´íÎóÂë {1} [{2}]£»jobInfo=\"{3}\"£»apiState={4}",
+                _log.Api("apiJob({0}) => é”™è¯¯ç  {1} [{2}]ï¼›jobInfo=\"{3}\"ï¼›apiState={4}",
                     job, errorCode, errorText, jobInfo, State());
                 throw new EdiabasJobException(ecu, job, errorCode, errorText, jobInfo);
             }
 
-            _log.Api("apiJob({0}) => OK£»jobInfo=\"{1}\" (progress={2}%)", job, jobInfo, percent);
+            _log.Api("apiJob({0}) => OKï¼›jobInfo=\"{1}\" (progress={2}%)", job, jobInfo, percent);
             return ReadResults(job);
         }
 
         /// <summary>
-        /// µÈ´ıÒì²½ Job ½áÊø£ºÂÖÑ¯ apiState£¨100ms£©£¬»ã±¨½ø¶È±ä»¯£»
-        /// ´ø 60 Ãë¶µµ×³¬Ê±£¨FR-7 ²»¹ÒËÀ£»³É¹¦³¡¾°Í¨³£ÔÚÊıÃëÄÚÍê³É£¬Âú×ã NFR-1 ¡Ü30 Ãë£©¡£
+        /// ç­‰å¾…å¼‚æ­¥ Job ç»“æŸï¼šè½®è¯¢ apiStateï¼ˆ100msï¼‰ï¼Œæ±‡æŠ¥è¿›åº¦å˜åŒ–ï¼›
+        /// å¸¦ 60 ç§’å…œåº•è¶…æ—¶ï¼ˆFR-7 ä¸æŒ‚æ­»ï¼›æˆåŠŸåœºæ™¯é€šå¸¸åœ¨æ•°ç§’å†…å®Œæˆï¼Œæ»¡è¶³ NFR-1 â‰¤30 ç§’ï¼‰ã€‚
         /// </summary>
         private void WaitJobCompletion(string job)
         {
             const int PollMs = 100;
             const int MaxWaitMs = 60000;
 
-            Thread.Sleep(50); // ±Ü¿ªÆô¶¯¾ºÌ¬£¨apiJob ·µ»Øºó×´Ì¬Î´±ØÁ¢¼´½øÈë BUSY£©
+            Thread.Sleep(50); // é¿å¼€å¯åŠ¨ç«æ€ï¼ˆapiJob è¿”å›åçŠ¶æ€æœªå¿…ç«‹å³è¿›å…¥ BUSYï¼‰
             var sw = Stopwatch.StartNew();
             int lastPercent = int.MinValue;
             while (true)
@@ -136,18 +136,18 @@ namespace ObdLogger.Ediabas
                 int state = NativeMethods.ApiState(_handle);
                 if (state != ApiBusy)
                 {
-                    _log.Api("apiJob({0}) Òì²½Ö´ĞĞ½áÊø£¬apiState={1} ({2})£¬ºÄÊ± {3:F1}s",
+                    _log.Api("apiJob({0}) å¼‚æ­¥æ‰§è¡Œç»“æŸï¼ŒapiState={1} ({2})ï¼Œè€—æ—¶ {3:F1}s",
                         job, state, StateName(state), sw.Elapsed.TotalSeconds);
                     if (state == ApiBreakState)
                     {
-                        throw new OperationCanceledException("Job " + job + " ±» apiBreak ÖĞ¶Ï");
+                        throw new OperationCanceledException("Job " + job + " è¢« apiBreak ä¸­æ–­");
                     }
-                    return; // ApiReady / ApiErrorState£ºÍ³Ò»ÓÉµ÷ÓÃ·½¼ì²é errorCode
+                    return; // ApiReady / ApiErrorStateï¼šç»Ÿä¸€ç”±è°ƒç”¨æ–¹æ£€æŸ¥ errorCode
                 }
 
                 if (sw.ElapsedMilliseconds > MaxWaitMs)
                 {
-                    _log.Error("apiJob({0}) µÈ´ı³¬¹ı {1}s£¬µ÷ÓÃ apiBreak ÖĞÖ¹", job, MaxWaitMs / 1000);
+                    _log.Error("apiJob({0}) ç­‰å¾…è¶…è¿‡ {1}sï¼Œè°ƒç”¨ apiBreak ä¸­æ­¢", job, MaxWaitMs / 1000);
                     RequestBreak();
                     throw new EdiabasTimeoutException(job, MaxWaitMs / 1000);
                 }
@@ -156,7 +156,7 @@ namespace ObdLogger.Ediabas
                 ReadJobInfo(out percent);
                 if (percent != lastPercent)
                 {
-                    _log.Api("apiJob({0}) Ö´ĞĞÖĞ£¬½ø¶È {1}%", job, percent);
+                    _log.Api("apiJob({0}) æ‰§è¡Œä¸­ï¼Œè¿›åº¦ {1}%", job, percent);
                     lastPercent = percent;
                 }
                 Thread.Sleep(PollMs);
@@ -176,22 +176,22 @@ namespace ObdLogger.Ediabas
         }
 
         /// <summary>
-        /// FR-4£ºÍ¨¹ı apiResult...() ÏµÁĞº¯ÊıÃ¶¾Ù×î½üÒ»´Î Job µÄÈ«²¿½á¹û¼¯Óë×Ö¶Î¡£
-        /// ¹Ø¼üÓïÒå£¨Êµ²â + ediabaslib ApiInternal ½»²æÑéÖ¤£©£º
-        ///   - rset ½á¹û¼¯Ë÷ÒıÎª 0 »ù£¨0 .. rsets-1£©£»
-        ///   - apiResultSets ¿ÉÄÜ·µ»Ø¡°×ÜÊı-1¡±£¬¼´´æÔÚÒ»¸ö²»²ÎÓë¼ÆÊıµÄ¶îÍâ½á¹û¼¯
-        ///     £¨ÏµÍ³½á¹ûÈç UBATT/IGNITION ³£ÖÃÓÚ´Ë£©¡ª¡ªÌ½²â rset=rsets ¿ÉÒ»²¢²¶»ñ£»
-        ///   - ×Ö¶ÎË÷Òı index Îª 1 »ù£¨1 .. count£©£¬0 »ùµ÷ÓÃ»á·µ»Ø FALSE¡£
+        /// FR-4ï¼šé€šè¿‡ apiResult...() ç³»åˆ—å‡½æ•°æšä¸¾æœ€è¿‘ä¸€æ¬¡ Job çš„å…¨éƒ¨ç»“æœé›†ä¸å­—æ®µã€‚
+        /// å…³é”®è¯­ä¹‰ï¼ˆå®æµ‹ + ediabaslib ApiInternal äº¤å‰éªŒè¯ï¼‰ï¼š
+        ///   - rset ç»“æœé›†ç´¢å¼•ä¸º 0 åŸºï¼ˆ0 .. rsets-1ï¼‰ï¼›
+        ///   - apiResultSets å¯èƒ½è¿”å›â€œæ€»æ•°-1â€ï¼Œå³å­˜åœ¨ä¸€ä¸ªä¸å‚ä¸è®¡æ•°çš„é¢å¤–ç»“æœé›†
+        ///     ï¼ˆç³»ç»Ÿç»“æœå¦‚ UBATT/IGNITION å¸¸ç½®äºæ­¤ï¼‰â€”â€”æ¢æµ‹ rset=rsets å¯ä¸€å¹¶æ•è·ï¼›
+        ///   - å­—æ®µç´¢å¼• index ä¸º 1 åŸºï¼ˆ1 .. countï¼‰ï¼Œ0 åŸºè°ƒç”¨ä¼šè¿”å› FALSEã€‚
         /// </summary>
         private JobResult ReadResults(string jobName)
         {
             var result = new JobResult { JobName = jobName };
             if (!NativeMethods.ApiResultSets(_handle, out ushort sets))
             {
-                _log.Api("apiResultSets => FALSE£¨¸Ã Job ÎŞ½á¹û¼¯£©");
+                _log.Api("apiResultSets => FALSEï¼ˆè¯¥ Job æ— ç»“æœé›†ï¼‰");
                 return result;
             }
-            _log.Api("apiResultSets => {0} ¸ö½á¹û¼¯", sets);
+            _log.Api("apiResultSets => {0} ä¸ªç»“æœé›†", sets);
             if (sets == 0) return result;
 
             ushort setBase = DetectResultSetBase(sets);
@@ -199,7 +199,7 @@ namespace ObdLogger.Ediabas
             {
                 ReadResultSet(result, (ushort)(setBase + i), false);
             }
-            // ¶îÍâ½á¹û¼¯£¨EDIABAS ÏµÍ³½á¹ûËùÔÚ£¬²»²ÎÓë apiResultSets ¼ÆÊı£©£»²»´æÔÚÊ±Ì½²â·µ»Ø FALSE£¬ÎŞ¸±×÷ÓÃ
+            // é¢å¤–ç»“æœé›†ï¼ˆEDIABAS ç³»ç»Ÿç»“æœæ‰€åœ¨ï¼Œä¸å‚ä¸ apiResultSets è®¡æ•°ï¼‰ï¼›ä¸å­˜åœ¨æ—¶æ¢æµ‹è¿”å› FALSEï¼Œæ— å‰¯ä½œç”¨
             ReadResultSet(result, (ushort)(setBase + sets), true);
             return result;
         }
@@ -211,12 +211,12 @@ namespace ObdLogger.Ediabas
             {
                 if (!isExtraSet)
                 {
-                    _log.Api("apiResultNumber(rset={0}) => FALSE£¬Ìø¹ı¸Ã½á¹û¼¯", rset);
+                    _log.Api("apiResultNumber(rset={0}) => FALSEï¼Œè·³è¿‡è¯¥ç»“æœé›†", rset);
                     result.Sets.Add(set);
                 }
                 return;
             }
-            _log.Api("½á¹û¼¯ {0}{1}£º{2} ¸ö×Ö¶Î", rset, isExtraSet ? "£¨¶îÍâ/ÏµÍ³½á¹û¼¯£©" : "", count);
+            _log.Api("ç»“æœé›† {0}{1}ï¼š{2} ä¸ªå­—æ®µ", rset, isExtraSet ? "ï¼ˆé¢å¤–/ç³»ç»Ÿç»“æœé›†ï¼‰" : "", count);
 
             ushort fieldBase = DetectFieldIndexBase(rset, count);
             for (ushort i = 0; i < count; i++)
@@ -229,7 +229,7 @@ namespace ObdLogger.Ediabas
                     continue;
                 }
                 string name = AnsiToString(nameBuf);
-                _log.Api("  [{0}] ×Ö¶Î[{1}] Ãû³Æ = {2}", rset, index, name);
+                _log.Api("  [{0}] å­—æ®µ[{1}] åç§° = {2}", rset, index, name);
 
                 ApiResultFormat format = ApiResultFormat.Unknown;
                 if (NativeMethods.ApiResultFormat(_handle, out int fmt, name, rset))
@@ -245,7 +245,7 @@ namespace ObdLogger.Ediabas
             result.Sets.Add(set);
         }
 
-        /// <summary>½á¹û¼¯Ë÷Òı»ùÖ·×ÔÊÊÓ¦£¨Õı³£Îª 0 »ù£¬Òì³£ÊµÏÖ¶µµ×Ì½²â£©¡£</summary>
+        /// <summary>ç»“æœé›†ç´¢å¼•åŸºå€è‡ªé€‚åº”ï¼ˆæ­£å¸¸ä¸º 0 åŸºï¼Œå¼‚å¸¸å®ç°å…œåº•æ¢æµ‹ï¼‰ã€‚</summary>
         private ushort DetectResultSetBase(ushort sets)
         {
             if (NativeMethods.ApiResultNumber(_handle, out _, 0))
@@ -254,31 +254,31 @@ namespace ObdLogger.Ediabas
             }
             if (NativeMethods.ApiResultNumber(_handle, out _, 1))
             {
-                _log.Warn("½á¹û¼¯Ë÷ÒıÎª 1 »ù£¨·ÇµäĞÍÊµÏÖ£©£¬ÒÑ×Ô¶¯ÊÊÅä");
+                _log.Warn("ç»“æœé›†ç´¢å¼•ä¸º 1 åŸºï¼ˆéå…¸å‹å®ç°ï¼‰ï¼Œå·²è‡ªåŠ¨é€‚é…");
                 return 1;
             }
-            _log.Warn("apiResultNumber ¶Ô rset=0/1 ¾ù·µ»Ø FALSE£¬°´ 0 »ù¼ÌĞø³¢ÊÔ");
+            _log.Warn("apiResultNumber å¯¹ rset=0/1 å‡è¿”å› FALSEï¼ŒæŒ‰ 0 åŸºç»§ç»­å°è¯•");
             return 0;
         }
 
-        /// <summary>×Ö¶ÎË÷Òı»ùÖ·×ÔÊÊÓ¦£¨Êµ²âÎª 1 »ù£»Ì½²â index=0 Ê§°ÜÔò°´ 1 »ùÃ¶¾Ù£©¡£</summary>
+        /// <summary>å­—æ®µç´¢å¼•åŸºå€è‡ªé€‚åº”ï¼ˆå®æµ‹ä¸º 1 åŸºï¼›æ¢æµ‹ index=0 å¤±è´¥åˆ™æŒ‰ 1 åŸºæšä¸¾ï¼‰ã€‚</summary>
         private ushort DetectFieldIndexBase(ushort rset, ushort count)
         {
             if (count == 0) return 1;
             byte[] probe = new byte[256];
             if (NativeMethods.ApiResultName(_handle, probe, 0, rset))
             {
-                _log.Api("½á¹û¼¯ {0} ×Ö¶ÎË÷ÒıÎª 0 »ù", rset);
+                _log.Api("ç»“æœé›† {0} å­—æ®µç´¢å¼•ä¸º 0 åŸº", rset);
                 return 0;
             }
-            _log.Api("½á¹û¼¯ {0} ×Ö¶ÎË÷ÒıÎª 1 »ù£¨EDIABAS ±ê×¼£©", rset);
+            _log.Api("ç»“æœé›† {0} å­—æ®µç´¢å¼•ä¸º 1 åŸºï¼ˆEDIABAS æ ‡å‡†ï¼‰", rset);
             return 1;
         }
 
         /// <summary>
-        /// ¶ÁÈ¡µ¥¸ö×Ö¶ÎµÄÎÄ±¾Öµ£»BINARY ¸ñÊ½ÔÚÎÄ±¾¶ÁÈ¡Ê§°ÜÊ±»ØÍËÎªÊ®Áù½øÖÆ¡£
-        /// ×¢Òâ£ºformat ±ØĞë´«¿Õ×Ö·û´®¶ø·Ç null¡ª¡ªÔ­ÉúÊµÏÖ¶Ô format ²»×ö¿ÕÖ¸Õë¼ì²é£¬
-        /// ´« null »áµ¼ÖÂ·ÃÎÊ³åÍ»²¢Ê¹½ø³ÌÖ±½ÓÖÕÖ¹£¨2026-09-21 Êµ»úÈÕÖ¾Ö¤Êµ£©¡£
+        /// è¯»å–å•ä¸ªå­—æ®µçš„æ–‡æœ¬å€¼ï¼›BINARY æ ¼å¼åœ¨æ–‡æœ¬è¯»å–å¤±è´¥æ—¶å›é€€ä¸ºåå…­è¿›åˆ¶ã€‚
+        /// æ³¨æ„ï¼šformat å¿…é¡»ä¼ ç©ºå­—ç¬¦ä¸²è€Œé nullâ€”â€”åŸç”Ÿå®ç°å¯¹ format ä¸åšç©ºæŒ‡é’ˆæ£€æŸ¥ï¼Œ
+        /// ä¼  null ä¼šå¯¼è‡´è®¿é—®å†²çªå¹¶ä½¿è¿›ç¨‹ç›´æ¥ç»ˆæ­¢ï¼ˆ2026-09-21 å®æœºæ—¥å¿—è¯å®ï¼‰ã€‚
         /// </summary>
         private string ReadFieldText(string name, ushort rset, ApiResultFormat format)
         {
@@ -320,7 +320,7 @@ namespace ObdLogger.Ediabas
         {
             if (!_initialized)
             {
-                throw new EdiabasException("EDIABAS ÉĞÎ´³õÊ¼»¯£¨ÇëÏÈµ÷ÓÃ Init()£©");
+                throw new EdiabasException("EDIABAS å°šæœªåˆå§‹åŒ–ï¼ˆè¯·å…ˆè°ƒç”¨ Init()ï¼‰");
             }
         }
 
@@ -361,11 +361,11 @@ namespace ObdLogger.Ediabas
                 sb.Append(buf[i].ToString("X2"));
             }
             if (len > show) sb.Append(" ...");
-            sb.Append(" (¹² ").Append(len).Append(" ×Ö½Ú)");
+            sb.Append(" (å…± ").Append(len).Append(" å­—èŠ‚)");
             return sb.ToString();
         }
 
-        /// <summary>FR-6£ºÊÍ·Å EDIABAS ×ÊÔ´£»Òì³£Â·¾¶Í¬Ñù±£Ö¤Ö´ĞĞ£¨using/finally£©¡£</summary>
+        /// <summary>FR-6ï¼šé‡Šæ”¾ EDIABAS èµ„æºï¼›å¼‚å¸¸è·¯å¾„åŒæ ·ä¿è¯æ‰§è¡Œï¼ˆusing/finallyï¼‰ã€‚</summary>
         public void Dispose()
         {
             if (_disposed) return;
@@ -379,7 +379,7 @@ namespace ObdLogger.Ediabas
                 }
                 catch (Exception ex)
                 {
-                    _log.Warn("apiEnd µ÷ÓÃÒì³££º{0}", ex.Message);
+                    _log.Warn("apiEnd è°ƒç”¨å¼‚å¸¸ï¼š{0}", ex.Message);
                 }
                 _initialized = false;
                 _handle = 0;

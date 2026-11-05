@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ObdLogger.Ediabas;
 using ObdLogger.Logging;
@@ -6,39 +6,39 @@ using ObdLogger.Logging;
 namespace ObdLogger.Vehicle
 {
     /// <summary>
-    /// ÒµÎñ²ã£ºÑ¡ÔñÊ¶±ğÀà Job¡¢Ö´ĞĞ¡¢´Ó½á¹ûÖĞÌáÈ¡¡°³µÁ¾»ù´¡ĞÅÏ¢¡±¡£
-    /// ½öÊ¹ÓÃÖ»¶ÁÊ¶±ğ/×´Ì¬Àà Job£¨TC-6 °²È«ºìÏß£©¡£
+    /// ä¸šåŠ¡å±‚ï¼šé€‰æ‹©è¯†åˆ«ç±» Jobã€æ‰§è¡Œã€ä»ç»“æœä¸­æå–â€œè½¦è¾†åŸºç¡€ä¿¡æ¯â€ã€‚
+    /// ä»…ä½¿ç”¨åªè¯»è¯†åˆ«/çŠ¶æ€ç±» Jobï¼ˆTC-6 å®‰å…¨çº¢çº¿ï¼‰ã€‚
     /// </summary>
     internal sealed class VehicleInfoReader
     {
         /// <summary>
-        /// µÚ 1 ½×¶Î£ºÖ»¶ÁÊ¶±ğÀà Job ºòÑ¡Çåµ¥£¨°´¿ÉÄÜĞÔÅÅĞò£¬Ê×¸öÖ´ĞĞ³É¹¦ÕßÉúĞ§£©¡£
-        /// ÒÑÊµ²â£¨2026-09£¬±¾»ú mevd1724.prg£¬SYS-0008=Job ²»´æÔÚ£©£º
-        ///   "ident" ´æÔÚÓÚ mevd1724.prg£¨E Ïµ¾­µäÊ¶±ğ Job£©£»
+        /// ç¬¬ 1 é˜¶æ®µï¼šåªè¯»è¯†åˆ«ç±» Job å€™é€‰æ¸…å•ï¼ˆæŒ‰å¯èƒ½æ€§æ’åºï¼Œé¦–ä¸ªæ‰§è¡ŒæˆåŠŸè€…ç”Ÿæ•ˆï¼‰ã€‚
+        /// å·²å®æµ‹ï¼ˆ2026-09ï¼Œæœ¬æœº mevd1724.prgï¼ŒSYS-0008=Job ä¸å­˜åœ¨ï¼‰ï¼š
+        ///   "ident" å­˜åœ¨äº mevd1724.prgï¼ˆE ç³»ç»å…¸è¯†åˆ« Jobï¼‰ï¼›
         ///   identification / identifikation / aif_lesen / c_c_lesen / ident_lesen /
-        ///   ecu_identification / info_lesen / status_lesen / lieferanten_ident / sgbd_ident ¾ù²»´æÔÚ¡£
-        /// Êµ³µ²¹³ä£¨2026-09-21£©£º±¾³µ DME ¾Ü¾ø mevd1724.prg µÄ ident ×Ó¹¦ÄÜ£¬
-        ///   µ«½ÓÊÜ 01mevd1724 / MEVD174K / MEVD176K / MEVD17KW / 01mevd1726 / 01MEVD1727 / 01MEVD1729
-        ///   µÄ ident£¨JOB_STATUS=OKAY£¬·µ»Ø ID_BMW_NR=8631730 µÈÕæÊµÊı¾İ£©¡ª¡ªÓÃ --ecu ÇĞ»»¡£
-        /// ÆäÓàºòÑ¡±£Áô¹© --ecu ¸ü»» SGBD Ê±¶µµ×£»Ò²¿ÉÓÃ --job Ö¸¶¨ PRG ÄÚÊµ¼Ê Job Ãû£¨ÓÃ Tool32 ²é¿´£©¡£
+        ///   ecu_identification / info_lesen / status_lesen / lieferanten_ident / sgbd_ident å‡ä¸å­˜åœ¨ã€‚
+        /// å®è½¦è¡¥å……ï¼ˆ2026-09-21ï¼‰ï¼šæœ¬è½¦ DME æ‹’ç» mevd1724.prg çš„ ident å­åŠŸèƒ½ï¼Œ
+        ///   ä½†æ¥å— 01mevd1724 / MEVD174K / MEVD176K / MEVD17KW / 01mevd1726 / 01MEVD1727 / 01MEVD1729
+        ///   çš„ identï¼ˆJOB_STATUS=OKAYï¼Œè¿”å› ID_BMW_NR=8631730 ç­‰çœŸå®æ•°æ®ï¼‰â€”â€”ç”¨ --ecu åˆ‡æ¢ã€‚
+        /// å…¶ä½™å€™é€‰ä¿ç•™ä¾› --ecu æ›´æ¢ SGBD æ—¶å…œåº•ï¼›ä¹Ÿå¯ç”¨ --job æŒ‡å®š PRG å†…å®é™… Job åï¼ˆç”¨ Tool32 æŸ¥çœ‹ï¼‰ã€‚
         /// </summary>
         private static readonly string[] IdentJobCandidates =
         {
-            "ident",            // ÒÑÈ·ÈÏ´æÔÚÓÚ mevd1724.prg£¨E Ïµ±ê×¼Ê¶±ğ Job£©
-            "identification",   // F Ïµ¼°ÆäËû SGBD ³£¼ûÃüÃû
-            "aif_lesen",        // AIF£¨³ÌĞòÓ¦ÓÃĞÅÏ¢£©¶ÁÈ¡
-            "c_c_lesen",        // ±àÂëÊı¾İ¶ÁÈ¡£¨Ö»¶Á£©
+            "ident",            // å·²ç¡®è®¤å­˜åœ¨äº mevd1724.prgï¼ˆE ç³»æ ‡å‡†è¯†åˆ« Jobï¼‰
+            "identification",   // F ç³»åŠå…¶ä»– SGBD å¸¸è§å‘½å
+            "aif_lesen",        // AIFï¼ˆç¨‹åºåº”ç”¨ä¿¡æ¯ï¼‰è¯»å–
+            "c_c_lesen",        // ç¼–ç æ•°æ®è¯»å–ï¼ˆåªè¯»ï¼‰
         };
 
         /// <summary>
-        /// µÚ 2 ½×¶Î£ºVIN ²¹Æë Job ºòÑ¡£¨È«²¿Ö»¶Á¡°lesen¡±Àà£»ÒÀ¾İ doc/²ÄÁÏ/MEVD174K.b1v
-        /// ·´±àÒëµÄÈ¨Íş Job ¶¨Òå£©£º
-        ///   AIF_LESEN £º$23 ReadMemoryByAddress ¶Á AIF£¨AIF_FG_NR_LANG£¬17 Î»ÍêÕû VIN£¬
-        ///               ÎŞÔò»ØÍË 7 Î»£©£¬²ÎÊı AIF_NUMMER Áô¿ÕÄ¬ÈÏ 0=µ±Ç° AIF¡ª¡ªÒÑÊµ³µÑéÖ¤£¨2026-09-21£©£»
-        ///   C_FG_LESEN£ºKWP2000 $1A/$90 ¶Á³µ¼ÜºÅ£¨FG_NR£¬7 Î»£©¡ª¡ªÒÑÊµ³µÑéÖ¤£¨2026-09-21£©£»
-        ///   ÆäÓàÎªÆäËû SGBD ÃüÃû¶µµ×¡£
-        /// ºìÏß£º¾ø²»Ê¹ÓÃ *_SCHREIBEN / *_AUFTRAG / FS_LOESCHEN / *_RESET / PROGRAMMIEREN µÈ
-        /// Ğ´/¸´Î»/±à³ÌÀà Job¡£
+        /// ç¬¬ 2 é˜¶æ®µï¼šVIN è¡¥é½ Job å€™é€‰ï¼ˆå…¨éƒ¨åªè¯»â€œlesenâ€ç±»ï¼›ä¾æ® doc/ææ–™/MEVD174K.b1v
+        /// åç¼–è¯‘çš„æƒå¨ Job å®šä¹‰ï¼‰ï¼š
+        ///   AIF_LESEN ï¼š$23 ReadMemoryByAddress è¯» AIFï¼ˆAIF_FG_NR_LANGï¼Œ17 ä½å®Œæ•´ VINï¼Œ
+        ///               æ— åˆ™å›é€€ 7 ä½ï¼‰ï¼Œå‚æ•° AIF_NUMMER ç•™ç©ºé»˜è®¤ 0=å½“å‰ AIFâ€”â€”å·²å®è½¦éªŒè¯ï¼ˆ2026-09-21ï¼‰ï¼›
+        ///   C_FG_LESENï¼šKWP2000 $1A/$90 è¯»è½¦æ¶å·ï¼ˆFG_NRï¼Œ7 ä½ï¼‰â€”â€”å·²å®è½¦éªŒè¯ï¼ˆ2026-09-21ï¼‰ï¼›
+        ///   å…¶ä½™ä¸ºå…¶ä»– SGBD å‘½åå…œåº•ã€‚
+        /// çº¢çº¿ï¼šç»ä¸ä½¿ç”¨ *_SCHREIBEN / *_AUFTRAG / FS_LOESCHEN / *_RESET / PROGRAMMIEREN ç­‰
+        /// å†™/å¤ä½/ç¼–ç¨‹ç±» Jobã€‚
         /// </summary>
         private static readonly string[] VinJobCandidates =
         {
@@ -50,10 +50,10 @@ namespace ObdLogger.Vehicle
             "zcs_lesen",
         };
 
-        // ---- MVP/¿ÉÑ¡×Ö¶ÎµÄÃû³ÆÆ¥ÅäÄ£Ê½£¨²»Çø·Ö´óĞ¡Ğ´£¬°´ÓÅÏÈ¼¶ÏÈºó³¢ÊÔ£© ----
-        // Êµ³µÊµ²â£¨2026-09-21£©£º±¾³µ DME µÄ 0x80 Ê¶±ğ¿é×Ö¶ÎÎª ID_BMW_NR£¨BMW Áã¼şºÅ£©¡¢
-        // ID_HW_NR£¨Ó²¼şºÅ£©¡¢ID_SW_NR_FSV µÈ£»VIN ×Ö¶ÎÎª FG_NR£¨7 Î»£©/ AIF_FG_NR_LANG£¨17 Î»£¬
-        // ¾İ MEVD174K.b1v ·´±àÒë£©£»VARIANTE Îª SGBD ±äÌåÃû£¨×îºó¶µµ×£©¡£
+        // ---- MVP/å¯é€‰å­—æ®µçš„åç§°åŒ¹é…æ¨¡å¼ï¼ˆä¸åŒºåˆ†å¤§å°å†™ï¼ŒæŒ‰ä¼˜å…ˆçº§å…ˆåå°è¯•ï¼‰ ----
+        // å®è½¦å®æµ‹ï¼ˆ2026-09-21ï¼‰ï¼šæœ¬è½¦ DME çš„ 0x80 è¯†åˆ«å—å­—æ®µä¸º ID_BMW_NRï¼ˆBMW é›¶ä»¶å·ï¼‰ã€
+        // ID_HW_NRï¼ˆç¡¬ä»¶å·ï¼‰ã€ID_SW_NR_FSV ç­‰ï¼›VIN å­—æ®µä¸º FG_NRï¼ˆ7 ä½ï¼‰/ AIF_FG_NR_LANGï¼ˆ17 ä½ï¼Œ
+        // æ® MEVD174K.b1v åç¼–è¯‘ï¼‰ï¼›VARIANTE ä¸º SGBD å˜ä½“åï¼ˆæœ€åå…œåº•ï¼‰ã€‚
         private static readonly string[] VinPatterns = { @"\bVIN\b", @"FG.?NR.?LANG", @"FGNR", @"\bFIN\b", @"FIN$", @"^FG.?NR$", @"FZG" };
         private static readonly string[] EcuPatterns = { @"^ID_BMW_NR$", @"BMW.?NR", @"ECU.?NAME", @"BASIC.?ECU", @"ECU.?IDENT", @"BEDIAG", @"^VARIANTE$", @"DME" };
         private static readonly string[] HwPatterns = { @"HW.?(NR|NUM|REF|VER|TEIL|IDENT)", @"HARDWARE" };
@@ -69,19 +69,19 @@ namespace ObdLogger.Vehicle
         }
 
         /// <summary>
-        /// Á½½×¶Î¶ÁÈ¡³µÁ¾»ù´¡ĞÅÏ¢£º
-        /// µÚ 1 ½×¶ÎÖ´ĞĞÊ¶±ğÀà Job£¨ECU ±êÊ¶/Ó²¼ş/Èí¼şºÅ£©£»
-        /// µÚ 2 ½×¶ÎÔÚ VIN Î´ÃüÖĞÊ±×Ô¶¯°´Ğò³¢ÊÔÖ»¶Á VIN Job£¨C_FG_LESEN / AIF_LESEN µÈ£©¡£
+        /// ä¸¤é˜¶æ®µè¯»å–è½¦è¾†åŸºç¡€ä¿¡æ¯ï¼š
+        /// ç¬¬ 1 é˜¶æ®µæ‰§è¡Œè¯†åˆ«ç±» Jobï¼ˆECU æ ‡è¯†/ç¡¬ä»¶/è½¯ä»¶å·ï¼‰ï¼›
+        /// ç¬¬ 2 é˜¶æ®µåœ¨ VIN æœªå‘½ä¸­æ—¶è‡ªåŠ¨æŒ‰åºå°è¯•åªè¯» VIN Jobï¼ˆC_FG_LESEN / AIF_LESEN ç­‰ï¼‰ã€‚
         /// </summary>
-        /// <param name="forcedJob">--job Ö¸¶¨µÄ Job Ãû£»·Ç¿ÕÊ±Ö»Ö´ĞĞ¸Ã Job£¨²»×ö VIN ²¹Æë£©¡£</param>
-        /// <param name="para">--para Ö¸¶¨µÄ Job ²ÎÊı£¨Ê¶±ğÀà Job Í¨³£Îª¿Õ£©¡£</param>
-        /// <exception cref="EdiabasJobException">½Ó¿ÚÀà£¨Í¨ĞÅ£©´íÎóÖ±½ÓÅ×³ö</exception>
-        /// <exception cref="NoIdentJobException">µÚ 1 ½×¶ÎËùÓĞºòÑ¡ Job ¾ù²»¿ÉÓÃ</exception>
+        /// <param name="forcedJob">--job æŒ‡å®šçš„ Job åï¼›éç©ºæ—¶åªæ‰§è¡Œè¯¥ Jobï¼ˆä¸åš VIN è¡¥é½ï¼‰ã€‚</param>
+        /// <param name="para">--para æŒ‡å®šçš„ Job å‚æ•°ï¼ˆè¯†åˆ«ç±» Job é€šå¸¸ä¸ºç©ºï¼‰ã€‚</param>
+        /// <exception cref="EdiabasJobException">æ¥å£ç±»ï¼ˆé€šä¿¡ï¼‰é”™è¯¯ç›´æ¥æŠ›å‡º</exception>
+        /// <exception cref="NoIdentJobException">ç¬¬ 1 é˜¶æ®µæ‰€æœ‰å€™é€‰ Job å‡ä¸å¯ç”¨</exception>
         public VehicleInfo Read(EdiabasClient client, string ecuName, string forcedJob, string para)
         {
             var info = new VehicleInfo { SgbdName = ecuName };
 
-            // ---- µÚ 1 ½×¶Î£ºÊ¶±ğ Job ----
+            // ---- ç¬¬ 1 é˜¶æ®µï¼šè¯†åˆ« Job ----
             IEnumerable<string> candidates = string.IsNullOrEmpty(forcedJob)
                 ? IdentJobCandidates
                 : new[] { forcedJob };
@@ -101,7 +101,7 @@ namespace ObdLogger.Vehicle
             }
             Extract(info);
 
-            // ---- µÚ 2 ½×¶Î£ºVIN ²¹Æë£¨½öµ±Î´Ö¸¶¨ --job ÇÒ VIN Î´ÃüÖĞ£»È«²¿Ö»¶Á Job£© ----
+            // ---- ç¬¬ 2 é˜¶æ®µï¼šVIN è¡¥é½ï¼ˆä»…å½“æœªæŒ‡å®š --job ä¸” VIN æœªå‘½ä¸­ï¼›å…¨éƒ¨åªè¯» Jobï¼‰ ----
             if (!info.Vin.Found && string.IsNullOrEmpty(forcedJob))
             {
                 foreach (string job in VinJobCandidates)
@@ -114,7 +114,7 @@ namespace ObdLogger.Vehicle
                 }
                 if (!info.Vin.Found)
                 {
-                    _log.Warn("VIN ²¹Æë Job ¾ùÎ´»ñµÃ VIN£¨¿ÉÓÃ Tool32 ²é PRG ºó --job Ö¸¶¨ÆäËûÖ»¶Á Job£©");
+                    _log.Warn("VIN è¡¥é½ Job å‡æœªè·å¾— VINï¼ˆå¯ç”¨ Tool32 æŸ¥ PRG å --job æŒ‡å®šå…¶ä»–åªè¯» Jobï¼‰");
                 }
             }
 
@@ -122,8 +122,8 @@ namespace ObdLogger.Vehicle
         }
 
         /// <summary>
-        /// Ö´ĞĞµ¥¸öÖ»¶Á Job£º³É¹¦ÇÒÎ´±» ECU ¾Ü¾øÊ±·µ»Ø½á¹û£¬·ñÔò·µ»Ø null
-        /// £¨½Ó¿ÚÀàÍ¨ĞÅ´íÎóÖ±½ÓÅ×³ö£¬ÓÉ Program ¸ø³ö³¡¾°»¯ÌáÊ¾£©¡£
+        /// æ‰§è¡Œå•ä¸ªåªè¯» Jobï¼šæˆåŠŸä¸”æœªè¢« ECU æ‹’ç»æ—¶è¿”å›ç»“æœï¼Œå¦åˆ™è¿”å› null
+        /// ï¼ˆæ¥å£ç±»é€šä¿¡é”™è¯¯ç›´æ¥æŠ›å‡ºï¼Œç”± Program ç»™å‡ºåœºæ™¯åŒ–æç¤ºï¼‰ã€‚
         /// </summary>
         private JobResult TryRunJob(EdiabasClient client, string ecuName, string job, string para,
             IList<EdiabasJobException> failures)
@@ -132,7 +132,7 @@ namespace ObdLogger.Vehicle
             {
                 JobResult result = client.RunJob(ecuName, job, para ?? string.Empty);
 
-                // API ²ã³É¹¦»¹²»¹»£ºECU ¾Ü¾ø·şÎñÊ±´íÎóÖ»ÌåÏÖÔÚ JOB_STATUS ×Ö¶ÎÖĞ
+                // API å±‚æˆåŠŸè¿˜ä¸å¤Ÿï¼šECU æ‹’ç»æœåŠ¡æ—¶é”™è¯¯åªä½“ç°åœ¨ JOB_STATUS å­—æ®µä¸­
                 string jobStatus = result.FindJobStatus();
                 if (JobResult.IsErrorStatus(jobStatus))
                 {
@@ -140,42 +140,42 @@ namespace ObdLogger.Vehicle
                     {
                         failures.Add(EdiabasJobException.ForEcuRejection(ecuName, job, jobStatus));
                     }
-                    _log.Warn("Job {0} ±» ECU ¾Ü¾ø£¨{1}£©£¬³¢ÊÔÏÂÒ»¸öºòÑ¡", job, jobStatus);
+                    _log.Warn("Job {0} è¢« ECU æ‹’ç»ï¼ˆ{1}ï¼‰ï¼Œå°è¯•ä¸‹ä¸€ä¸ªå€™é€‰", job, jobStatus);
                     return null;
                 }
-                _log.Info("Job {0} Ö´ĞĞ³É¹¦£¨JOB_STATUS: {1}£©", job,
-                    string.IsNullOrWhiteSpace(jobStatus) ? "Õı³£" : jobStatus);
+                _log.Info("Job {0} æ‰§è¡ŒæˆåŠŸï¼ˆJOB_STATUS: {1}ï¼‰", job,
+                    string.IsNullOrWhiteSpace(jobStatus) ? "æ­£å¸¸" : jobStatus);
                 return result;
             }
             catch (EdiabasJobException ex)
             {
                 if (ex.Category == EdiabasErrorCategory.Interface)
                 {
-                    // Í¨ĞÅ²ãÊ§°Ü£º»» Job ÎŞÒâÒå£¬Ö±½ÓÉÏÅ×
+                    // é€šä¿¡å±‚å¤±è´¥ï¼šæ¢ Job æ— æ„ä¹‰ï¼Œç›´æ¥ä¸ŠæŠ›
                     throw;
                 }
                 if (failures != null) failures.Add(ex);
-                _log.Warn("Job {0} ²»¿ÉÓÃ£¨´íÎóÂë {1}£¬Àà±ğ {2}£©£¬³¢ÊÔÏÂÒ»¸öºòÑ¡", job, ex.ErrorCode, ex.Category);
+                _log.Warn("Job {0} ä¸å¯ç”¨ï¼ˆé”™è¯¯ç  {1}ï¼Œç±»åˆ« {2}ï¼‰ï¼Œå°è¯•ä¸‹ä¸€ä¸ªå€™é€‰", job, ex.ErrorCode, ex.Category);
                 return null;
             }
         }
 
         /// <summary>
-        /// ÔÚÈ«²¿ Job ½á¹ûÖĞ°´Ä£Ê½ÌáÈ¡ MVP/¿ÉÑ¡×Ö¶Î¡£
-        /// ½öÔÚÎ´ÃüÖĞÊ±Ìî³ä£ºµÚ 1 ½×¶Î£¨ident£©µÄÖµÓÅÏÈÓÚµÚ 2 ½×¶Î²¹Æë Job µÄÍ¬Ãû×Ö¶Î¡£
+        /// åœ¨å…¨éƒ¨ Job ç»“æœä¸­æŒ‰æ¨¡å¼æå– MVP/å¯é€‰å­—æ®µã€‚
+        /// ä»…åœ¨æœªå‘½ä¸­æ—¶å¡«å……ï¼šç¬¬ 1 é˜¶æ®µï¼ˆidentï¼‰çš„å€¼ä¼˜å…ˆäºç¬¬ 2 é˜¶æ®µè¡¥é½ Job çš„åŒåå­—æ®µã€‚
         /// </summary>
         private void Extract(VehicleInfo info)
         {
-            if (!info.Vin.Found) info.Vin = FindFirst(info, "VIN ³µ¼ÜºÅ", VinPatterns);
-            if (!info.EcuName.Found) info.EcuName = FindFirst(info, "ECU Ãû³Æ/Õï¶Ï±êÊ¶", EcuPatterns);
-            if (!info.HwVersion.Found) info.HwVersion = FindFirst(info, "ECU Ó²¼şºÅ/°æ±¾", HwPatterns);
-            if (!info.SwVersion.Found) info.SwVersion = FindFirst(info, "ECU Èí¼şºÅ/°æ±¾", SwPatterns);
-            if (!info.Ignition.Found) info.Ignition = FindFirst(info, "µã»ğ¿ª¹Ø (KL.15)", IgnitionPatterns);
-            if (!info.Voltage.Found) info.Voltage = FindFirst(info, "Ğîµç³ØµçÑ¹", VoltagePatterns);
+            if (!info.Vin.Found) info.Vin = FindFirst(info, "VIN è½¦æ¶å·", VinPatterns);
+            if (!info.EcuName.Found) info.EcuName = FindFirst(info, "ECU åç§°/è¯Šæ–­æ ‡è¯†", EcuPatterns);
+            if (!info.HwVersion.Found) info.HwVersion = FindFirst(info, "ECU ç¡¬ä»¶å·/ç‰ˆæœ¬", HwPatterns);
+            if (!info.SwVersion.Found) info.SwVersion = FindFirst(info, "ECU è½¯ä»¶å·/ç‰ˆæœ¬", SwPatterns);
+            if (!info.Ignition.Found) info.Ignition = FindFirst(info, "ç‚¹ç«å¼€å…³ (KL.15)", IgnitionPatterns);
+            if (!info.Voltage.Found) info.Voltage = FindFirst(info, "è“„ç”µæ± ç”µå‹", VoltagePatterns);
 
             if (!info.AllMvpFound)
             {
-                _log.Warn("MVP ×Ö¶ÎÎ´È«²¿ÃüÖĞ£ºVIN={0}, ECU={1}, HW={2}, SW={3}£¨Ïê¼ûÔ­Ê¼½á¹ûÓëÈÕÖ¾£©",
+                _log.Warn("MVP å­—æ®µæœªå…¨éƒ¨å‘½ä¸­ï¼šVIN={0}, ECU={1}, HW={2}, SW={3}ï¼ˆè¯¦è§åŸå§‹ç»“æœä¸æ—¥å¿—ï¼‰",
                     info.Vin.Found, info.EcuName.Found, info.HwVersion.Found, info.SwVersion.Found);
             }
         }
@@ -206,14 +206,14 @@ namespace ObdLogger.Vehicle
         }
     }
 
-    /// <summary>µÚ 1 ½×¶ÎËùÓĞºòÑ¡Ê¶±ğ Job ¾ùÖ´ĞĞÊ§°Ü£¨º¬¸÷ºòÑ¡µÄ´íÎóÃ÷Ï¸£©¡£</summary>
+    /// <summary>ç¬¬ 1 é˜¶æ®µæ‰€æœ‰å€™é€‰è¯†åˆ« Job å‡æ‰§è¡Œå¤±è´¥ï¼ˆå«å„å€™é€‰çš„é”™è¯¯æ˜ç»†ï¼‰ã€‚</summary>
     internal sealed class NoIdentJobException : System.Exception
     {
         public string EcuName { get; private set; }
         public IReadOnlyList<EdiabasJobException> Failures { get; private set; }
 
         public NoIdentJobException(string ecuName, IReadOnlyList<EdiabasJobException> failures)
-            : base("Î´ÄÜÔÚ " + ecuName + " ÉÏÖ´ĞĞÈÎºÎºòÑ¡Ê¶±ğÀà Job")
+            : base("æœªèƒ½åœ¨ " + ecuName + " ä¸Šæ‰§è¡Œä»»ä½•å€™é€‰è¯†åˆ«ç±» Job")
         {
             EcuName = ecuName;
             Failures = failures;

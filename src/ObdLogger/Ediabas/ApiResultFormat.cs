@@ -1,7 +1,7 @@
-namespace ObdLogger.Ediabas
+ï»¿namespace ObdLogger.Ediabas
 {
     /// <summary>
-    /// ½á¹û×Ö¶ÎµÄÊı¾İ¸ñÊ½£¨Api.h ÖĞ APIRESULTFORMAT Ã¶¾Ù£¬C Ã¶¾Ù´Ó 0 ¿ªÊ¼£©¡£
+    /// ç»“æœå­—æ®µçš„æ•°æ®æ ¼å¼ï¼ˆApi.h ä¸­ APIRESULTFORMAT æšä¸¾ï¼ŒC æšä¸¾ä» 0 å¼€å§‹ï¼‰ã€‚
     /// </summary>
     internal enum ApiResultFormat
     {

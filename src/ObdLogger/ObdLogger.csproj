@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+ï»¿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <!-- api32.dll Îª 32 Î»£º½ø³Ì±ØÐëÒÔ x86 ÔËÐÐ£¨ÐèÇóÎÄµµ TC-1/TC-2£© -->
+    <!-- api32.dll ä¸º 32 ä½ï¼šè¿›ç¨‹å¿…é¡»ä»¥ x86 è¿è¡Œï¼ˆéœ€æ±‚æ–‡æ¡£ TC-1/TC-2ï¼‰ -->
     <TargetFramework>net48</TargetFramework>
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>true</Prefer32Bit>
@@ -10,12 +10,12 @@
     <AssemblyName>ObdLogger</AssemblyName>
     <RootNamespace>ObdLogger</RootNamespace>
     <Version>2.0.0</Version>
-    <Description>OBD Logger - EDIABAS/K+DCAN ³µÁ¾Êý¾Ý¼ÇÂ¼Æ÷£¨Ò»ÆÚ£ºÁ´Â·´òÍ¨ + ³µÁ¾»ù´¡ÐÅÏ¢£»¶þÆÚ£ºÊµÊ±²ÉÑùÓë CSV ÂäÅÌ£©</Description>
+    <Description>OBD Logger - EDIABAS/K+DCAN è½¦è¾†æ•°æ®è®°å½•å™¨ï¼ˆä¸€æœŸï¼šé“¾è·¯æ‰“é€š + è½¦è¾†åŸºç¡€ä¿¡æ¯ï¼›äºŒæœŸï¼šå®žæ—¶é‡‡æ ·ä¸Ž CSV è½ç›˜ï¼‰</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- ²âÁ¿ÖµÄ¿Â¼£¨FR-2-9£ºÓÉ scripts/Export-Messwertetab.ps1 ´Ó MEVD174K.b1v µ¼³ö£©£»
-         Ç¶ÈëÎªÔËÐÐÆÚ ARG¡úRESULTNAME/EINHEIT ½âÎöµÄÈ¨ÍþÊý¾ÝÔ´£¬±£Ö¤µ¥ exe Áã°²×°£¨NFR-2-3£© -->
+    <!-- æµ‹é‡å€¼ç›®å½•ï¼ˆFR-2-9ï¼šç”± scripts/Export-Messwertetab.ps1 ä»Ž MEVD174K.b1v å¯¼å‡ºï¼‰ï¼›
+         åµŒå…¥ä¸ºè¿è¡ŒæœŸ ARGâ†’RESULTNAME/EINHEIT è§£æžçš„æƒå¨æ•°æ®æºï¼Œä¿è¯å• exe é›¶å®‰è£…ï¼ˆNFR-2-3ï¼‰ -->
     <EmbeddedResource Include="Logging\messwertetab.csv" />
   </ItemGroup>
 

@@ -36,3 +36,16 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Start-Intake.ps1
 需要先构建采集程序（`build.ps1`），或用 `-ExePath` 指定已有兼容程序。启动脚本不会自动构建或修改 EDIABAS 设置。当前程序使用 `C:\EDIABAS\Bin`，端口从其中的 `obd.ini` 读取，缺省 COM6；连接前应完成相应环境配置。
 
 参数是否支持、单位与缩放须通过实车确认。水泵目标列是目标转速确认值；节温器 PWM 是加热控制，不是阀门开闭反馈；水泵状态字按原始数值输出。配置文件省略单位覆盖，沿用程序内嵌参数目录的单位。
+
+## 冷却系统曲线
+
+```powershell
+python -m pip install -r .\scripts\requirements-plot.txt
+python .\scripts\plot-cooling.py .\logs\cooling\obdlog_20261101_113645.csv --context 行驶中
+```
+
+默认在 CSV 同级的 `analysis` 目录生成 PNG、SVG、统计 JSON 和 Markdown 报告；使用 `--out-dir` 可指定其他目录。脚本支持日志注释行、单位行和缺失数值，较长采样间隔会断开并标灰，不进行插值。水泵两条曲线使用不同纵轴并保留原始缩放，避免把未经验证的读数当作已校准机械转速。
+
+## 文本编码
+
+C# 源码、项目文件及含中文的 PowerShell 脚本使用 UTF-8 BOM；CSV 输出也使用 UTF-8 BOM，便于 Excel 自动识别中文。Python 读取 CSV 时使用 `encoding="utf-8-sig"`，可兼容带 BOM 和不带 BOM 的 UTF-8 文件。旧版程序已写出的替换字符无法通过切换显示编码恢复；本机历史冷却日志的注释修复副本存放在 `logs/cooling/repaired`，测量数据保持原样。

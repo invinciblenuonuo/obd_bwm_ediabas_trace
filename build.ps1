@@ -1,5 +1,5 @@
-# OBD Logger ¹¹½¨½Å±¾£¨ĞèÒª .NET SDK 8+£»Êä³ö¹Ì¶¨Îª 32 Î» / net48£©
-# ÓÃ·¨: powershell -ExecutionPolicy Bypass -File build.ps1 [-Configuration Debug]
+ï»¿# OBD Logger æ„å»ºè„šæœ¬ï¼ˆéœ€è¦ .NET SDK 8+ï¼›è¾“å‡ºå›ºå®šä¸º 32 ä½ / net48ï¼‰
+# ç”¨æ³•: powershell -ExecutionPolicy Bypass -File build.ps1 [-Configuration Debug]
 param(
     [string]$Configuration = "Release"
 )
@@ -7,14 +7,14 @@ param(
 $ErrorActionPreference = "Stop"
 $proj = Join-Path $PSScriptRoot "src\ObdLogger\ObdLogger.csproj"
 
-Write-Host "== ¹¹½¨ ObdLogger ($Configuration) =="
+Write-Host "== æ„å»º ObdLogger ($Configuration) =="
 dotnet build $proj -c $Configuration --nologo
-if ($LASTEXITCODE -ne 0) { throw "dotnet build Ê§°Ü£¬ÍË³öÂë $LASTEXITCODE" }
+if ($LASTEXITCODE -ne 0) { throw "dotnet build å¤±è´¥ï¼Œé€€å‡ºç  $LASTEXITCODE" }
 
 $exe = Join-Path $PSScriptRoot "src\ObdLogger\bin\$Configuration\net48\ObdLogger.exe"
-if (-not (Test-Path $exe)) { throw "Î´ÕÒµ½Êä³öÎÄ¼ş: $exe" }
+if (-not (Test-Path $exe)) { throw "æœªæ‰¾åˆ°è¾“å‡ºæ–‡ä»¶: $exe" }
 
-# Ğ£ÑéÊä³öÈ·Îª 32 Î» PE£¨FR-1£ºapi32.dll Ö»ÄÜ±» 32 Î»½ø³Ì¼ÓÔØ£©
+# æ ¡éªŒè¾“å‡ºç¡®ä¸º 32 ä½ PEï¼ˆFR-1ï¼šapi32.dll åªèƒ½è¢« 32 ä½è¿›ç¨‹åŠ è½½ï¼‰
 $fs = [System.IO.File]::OpenRead($exe)
 try {
     $buf = New-Object byte[] 4
@@ -24,5 +24,5 @@ try {
     $machine = [BitConverter]::ToUInt16($buf, 0)
 } finally { $fs.Close() }
 
-if ($machine -ne 0x014C) { throw ("Êä³ö²»ÊÇ 32 Î» (x86) ³ÌĞò! Machine=0x{0:X4}" -f $machine) }
-Write-Host "== ¹¹½¨³É¹¦: $exe £¨Machine=0x014C x86£¬¿É¼ÓÔØ api32.dll£©==" -ForegroundColor Green
+if ($machine -ne 0x014C) { throw ("è¾“å‡ºä¸æ˜¯ 32 ä½ (x86) ç¨‹åº! Machine=0x{0:X4}" -f $machine) }
+Write-Host "== æ„å»ºæˆåŠŸ: $exe ï¼ˆMachine=0x014C x86ï¼Œå¯åŠ è½½ api32.dllï¼‰==" -ForegroundColor Green

@@ -1,9 +1,9 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using ObdLogger.Ediabas;
 
 namespace ObdLogger.Vehicle
 {
-    /// <summary>Ò»¸ö±»ÌáÈ¡µÄÄ¿±ê×Ö¶Î£ºÏÔÊ¾Ãû + Öµ + À´Ô´£¨Job Ãû + ×Ö¶ÎÃû£¬±ãÓÚºË¶Ô£©¡£</summary>
+    /// <summary>ä¸€ä¸ªè¢«æå–çš„ç›®æ ‡å­—æ®µï¼šæ˜¾ç¤ºå + å€¼ + æ¥æºï¼ˆJob å + å­—æ®µåï¼Œä¾¿äºæ ¸å¯¹ï¼‰ã€‚</summary>
     internal sealed class ExtractedField
     {
         public string Label;
@@ -19,27 +19,27 @@ namespace ObdLogger.Vehicle
     }
 
     /// <summary>
-    /// ĞèÇóÎÄµµ 3.3 ½Ú¡°³µÁ¾»ù´¡ĞÅÏ¢¡±£ºMVP ±ØĞëÊä³ö + ¿ÉÑ¡Êä³ö + È«²¿Ô­Ê¼ Job ½á¹û¡£
+    /// éœ€æ±‚æ–‡æ¡£ 3.3 èŠ‚â€œè½¦è¾†åŸºç¡€ä¿¡æ¯â€ï¼šMVP å¿…é¡»è¾“å‡º + å¯é€‰è¾“å‡º + å…¨éƒ¨åŸå§‹ Job ç»“æœã€‚
     /// </summary>
     internal sealed class VehicleInfo
     {
-        // ---- ±ØĞëÊä³ö£¨MVP£© ----
-        public ExtractedField Vin = ExtractedField.Missing("VIN ³µ¼ÜºÅ");
-        public ExtractedField EcuName = ExtractedField.Missing("ECU Ãû³Æ/Õï¶Ï±êÊ¶");
-        public ExtractedField HwVersion = ExtractedField.Missing("ECU Ó²¼şºÅ/°æ±¾");
-        public ExtractedField SwVersion = ExtractedField.Missing("ECU Èí¼şºÅ/°æ±¾");
+        // ---- å¿…é¡»è¾“å‡ºï¼ˆMVPï¼‰ ----
+        public ExtractedField Vin = ExtractedField.Missing("VIN è½¦æ¶å·");
+        public ExtractedField EcuName = ExtractedField.Missing("ECU åç§°/è¯Šæ–­æ ‡è¯†");
+        public ExtractedField HwVersion = ExtractedField.Missing("ECU ç¡¬ä»¶å·/ç‰ˆæœ¬");
+        public ExtractedField SwVersion = ExtractedField.Missing("ECU è½¯ä»¶å·/ç‰ˆæœ¬");
 
-        // ---- ¿ÉÑ¡Êä³ö ----
-        public ExtractedField Ignition = ExtractedField.Missing("µã»ğ¿ª¹Ø (KL.15)");
-        public ExtractedField Voltage = ExtractedField.Missing("Ğîµç³ØµçÑ¹");
+        // ---- å¯é€‰è¾“å‡º ----
+        public ExtractedField Ignition = ExtractedField.Missing("ç‚¹ç«å¼€å…³ (KL.15)");
+        public ExtractedField Voltage = ExtractedField.Missing("è“„ç”µæ± ç”µå‹");
 
-        /// <summary>Ä¿±ê ECU£¨SGBD Ãû£¬Èç mevd1724£©¡£</summary>
+        /// <summary>ç›®æ ‡ ECUï¼ˆSGBD åï¼Œå¦‚ mevd1724ï¼‰ã€‚</summary>
         public string SgbdName;
 
-        /// <summary>ÒÑ³É¹¦Ö´ĞĞµÄÈ«²¿ Job µÄÔ­Ê¼½á¹û£¨°´Ö´ĞĞË³Ğò£»Ê¶±ğ Job ÔÚÇ°£¬VIN ²¹Æë Job ÔÚºó£©¡£</summary>
+        /// <summary>å·²æˆåŠŸæ‰§è¡Œçš„å…¨éƒ¨ Job çš„åŸå§‹ç»“æœï¼ˆæŒ‰æ‰§è¡Œé¡ºåºï¼›è¯†åˆ« Job åœ¨å‰ï¼ŒVIN è¡¥é½ Job åœ¨åï¼‰ã€‚</summary>
         public readonly List<JobResult> Raws = new List<JobResult>();
 
-        /// <summary>ÒÑÖ´ĞĞ Job Ãû£¨" + " Á¬½Ó£¬ÓÃÓÚ±êÌâÕ¹Ê¾£©¡£</summary>
+        /// <summary>å·²æ‰§è¡Œ Job åï¼ˆ" + " è¿æ¥ï¼Œç”¨äºæ ‡é¢˜å±•ç¤ºï¼‰ã€‚</summary>
         public string JobNames
         {
             get

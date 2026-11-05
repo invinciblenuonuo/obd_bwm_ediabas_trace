@@ -1,35 +1,35 @@
-using System;
+ï»¿using System;
 using System.Runtime.InteropServices;
 
 namespace ObdLogger.Ediabas
 {
     /// <summary>
-    /// EDIABAS 7.3.0 Ô­Éú API£¨C:\EDIABAS\Bin\api32.dll£¬½ö 32 Î»£©P/Invoke ÉùÃ÷¡£
+    /// EDIABAS 7.3.0 åŸç”Ÿ APIï¼ˆC:\EDIABAS\Bin\api32.dllï¼Œä»… 32 ä½ï¼‰P/Invoke å£°æ˜ã€‚
     ///
-    /// Ç©ÃûÒÀ¾İ£¨±¾»úÊµ²â + ¹Ù·½/ÉçÇøÈ¨ÍşÀ´Ô´½»²æÑéÖ¤£©£º
-    /// 1. api32.dll ·´»ã±à£ºËùÓĞº¯ÊıÒÔ stdcall ·µ»Ø£¨ret N Óëµ¼³ö±ğÃû ___apiXxx@N µÄ N ÍêÈ«Ò»ÖÂ£©£»
-    /// 2. ±¦Âí¹Ù·½ apiNET32.dll£¨Ediabas.API£©ÄÚ²¿ __api32* °ü×°µÄ²ÎÊıÁĞ±í£»
-    /// 3. ediabaslib£¨uholeschak£©Api32/Api.h Óë ApiDll.cpp£¨FAR PASCAL = stdcall£©¡£
+    /// ç­¾åä¾æ®ï¼ˆæœ¬æœºå®æµ‹ + å®˜æ–¹/ç¤¾åŒºæƒå¨æ¥æºäº¤å‰éªŒè¯ï¼‰ï¼š
+    /// 1. api32.dll åæ±‡ç¼–ï¼šæ‰€æœ‰å‡½æ•°ä»¥ stdcall è¿”å›ï¼ˆret N ä¸å¯¼å‡ºåˆ«å ___apiXxx@N çš„ N å®Œå…¨ä¸€è‡´ï¼‰ï¼›
+    /// 2. å®é©¬å®˜æ–¹ apiNET32.dllï¼ˆEdiabas.APIï¼‰å†…éƒ¨ __api32* åŒ…è£…çš„å‚æ•°åˆ—è¡¨ï¼›
+    /// 3. ediabaslibï¼ˆuholeschakï¼‰Api32/Api.h ä¸ ApiDll.cppï¼ˆFAR PASCAL = stdcallï¼‰ã€‚
     ///
-    /// Óë 6.x ¾­µäÎÄµµµÄ²îÒì£º7.x Îª¶àÊµÀı API£¬³ı apiCheckVersion/apiXSysSetConfig Íâ£¬
-    /// ËùÓĞº¯ÊıÊ×²Î¾ùÎª apiInit Êä³öµÄ APIHANDLE£¨UInt32£©¡£
-    /// ×Ö·û´®¾ùÎª ANSI£»APIBOOL Îª 4 ×Ö½ÚÃ¶¾Ù£¨APIFALSE=0 / APITRUE=1£©¡£
+    /// ä¸ 6.x ç»å…¸æ–‡æ¡£çš„å·®å¼‚ï¼š7.x ä¸ºå¤šå®ä¾‹ APIï¼Œé™¤ apiCheckVersion/apiXSysSetConfig å¤–ï¼Œ
+    /// æ‰€æœ‰å‡½æ•°é¦–å‚å‡ä¸º apiInit è¾“å‡ºçš„ APIHANDLEï¼ˆUInt32ï¼‰ã€‚
+    /// å­—ç¬¦ä¸²å‡ä¸º ANSIï¼›APIBOOL ä¸º 4 å­—èŠ‚æšä¸¾ï¼ˆAPIFALSE=0 / APITRUE=1ï¼‰ã€‚
     /// </summary>
     internal static class NativeMethods
     {
-        // ---- Api.h »º³åÇø³£Á¿ ----
-        internal const int ApiMaxName = 64;    // APIMAXNAME£ºjob/ecu/result Ãû£¨º¬ '\0'£©
-        internal const int ApiMaxText = 1024;  // APIMAXTEXT£ºÎÄ±¾½á¹û£¨º¬ '\0'£©
-        internal const int ApiMaxBinary = 1024; // APIMAXBINARY£º¶ş½øÖÆ½á¹û
+        // ---- Api.h ç¼“å†²åŒºå¸¸é‡ ----
+        internal const int ApiMaxName = 64;    // APIMAXNAMEï¼šjob/ecu/result åï¼ˆå« '\0'ï¼‰
+        internal const int ApiMaxText = 1024;  // APIMAXTEXTï¼šæ–‡æœ¬ç»“æœï¼ˆå« '\0'ï¼‰
+        internal const int ApiMaxBinary = 1024; // APIMAXBINARYï¼šäºŒè¿›åˆ¶ç»“æœ
 
         private const string ApiDll = "api32.dll";
 
-        // ---- Windows£ºÖ¸¶¨ DLL ËÑË÷Ä¿Â¼£¨È·±£ api32.dll ¼°ÆäÒÀÀµ´Ó C:\EDIABAS\Bin ½âÎö£© ----
+        // ---- Windowsï¼šæŒ‡å®š DLL æœç´¢ç›®å½•ï¼ˆç¡®ä¿ api32.dll åŠå…¶ä¾èµ–ä» C:\EDIABAS\Bin è§£æï¼‰ ----
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool SetDllDirectory(string lpPathName);
 
-        // ---- ÉúÃüÖÜÆÚ ----
+        // ---- ç”Ÿå‘½å‘¨æœŸ ----
 
         [DllImport(ApiDll, EntryPoint = "__apiInit", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -41,7 +41,7 @@ namespace ObdLogger.Ediabas
         [DllImport(ApiDll, EntryPoint = "__apiBreak", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
         internal static extern void ApiBreak(uint handle);
 
-        // ---- Job Ö´ĞĞ£¨Ö»¶ÁÊ¶±ğÀà Job ×¨ÓÃ£»apiJob ±¾ÉíÎŞ·µ»ØÖµ£¬´íÎó¾­ apiErrorCode ·´À¡£© ----
+        // ---- Job æ‰§è¡Œï¼ˆåªè¯»è¯†åˆ«ç±» Job ä¸“ç”¨ï¼›apiJob æœ¬èº«æ— è¿”å›å€¼ï¼Œé”™è¯¯ç» apiErrorCode åé¦ˆï¼‰ ----
 
         [DllImport(ApiDll, EntryPoint = "__apiJob", ExactSpelling = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         internal static extern void ApiJob(uint handle, string ecu, string job, string para, string result);
@@ -49,7 +49,7 @@ namespace ObdLogger.Ediabas
         [DllImport(ApiDll, EntryPoint = "__apiJobInfo", ExactSpelling = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         internal static extern int ApiJobInfo(uint handle, byte[] infoText);
 
-        // ---- ´íÎóĞÅÏ¢ ----
+        // ---- é”™è¯¯ä¿¡æ¯ ----
 
         [DllImport(ApiDll, EntryPoint = "__apiErrorCode", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
         internal static extern int ApiErrorCode(uint handle);
@@ -57,7 +57,7 @@ namespace ObdLogger.Ediabas
         [DllImport(ApiDll, EntryPoint = "__apiErrorText", ExactSpelling = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         internal static extern void ApiErrorText(uint handle, byte[] buf, int bufsize);
 
-        // ---- ½á¹û¼¯Ã¶¾Ù ----
+        // ---- ç»“æœé›†æšä¸¾ ----
 
         [DllImport(ApiDll, EntryPoint = "__apiResultSets", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -83,7 +83,7 @@ namespace ObdLogger.Ediabas
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool ApiResultBinary(uint handle, byte[] buf, ref ushort buflen, string result, ushort rset);
 
-        // ---- ×´Ì¬/°æ±¾ ----
+        // ---- çŠ¶æ€/ç‰ˆæœ¬ ----
 
         [DllImport(ApiDll, EntryPoint = "__apiState", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
         internal static extern int ApiState(uint handle);

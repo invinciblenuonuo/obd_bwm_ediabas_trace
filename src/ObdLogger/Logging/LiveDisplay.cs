@@ -1,18 +1,18 @@
-using System;
+ï»¿using System;
 using System.Text;
 using System.Threading;
 
 namespace ObdLogger.Logging
 {
     /// <summary>
-    /// ¿ØÖÆÌ¨¾ÍµØË¢ĞÂÏÔÊ¾£¨FR-2-3£©£º¹Ì¶¨ĞĞÊı¿éÄÚÓÃ SetCursorPosition ¸²¸Ç¸üĞÂ£¬<b>²»¹ö¶¯Ë¢ÈÕÖ¾</b>¡£
-    /// ²É¼¯²»±»ÏÔÊ¾×èÈû£º²É¼¯Ïß³ÌÖ» <see cref="Publish"/> Ò»Ö¡ÒıÓÃ£¨¼ÓËø¼«¶Ì£©£¬ÏÔÊ¾Ïß³Ì°´×ÔÉí½ÚÅÄäÖÈ¾¡£
-    /// ÎŞ¿ØÖÆÌ¨/Êä³ö±»ÖØ¶¨Ïò£¨ÎŞÈËÖµÊØ/ºóÌ¨ÔËĞĞ£©Ê±×Ô¶¯½ûÓÃ£¬½ö²»Ó°Ïì CSV ÓëÎÄ¼şÈÕÖ¾¡£
+    /// æ§åˆ¶å°å°±åœ°åˆ·æ–°æ˜¾ç¤ºï¼ˆFR-2-3ï¼‰ï¼šå›ºå®šè¡Œæ•°å—å†…ç”¨ SetCursorPosition è¦†ç›–æ›´æ–°ï¼Œ<b>ä¸æ»šåŠ¨åˆ·æ—¥å¿—</b>ã€‚
+    /// é‡‡é›†ä¸è¢«æ˜¾ç¤ºé˜»å¡ï¼šé‡‡é›†çº¿ç¨‹åª <see cref="Publish"/> ä¸€å¸§å¼•ç”¨ï¼ˆåŠ é”æçŸ­ï¼‰ï¼Œæ˜¾ç¤ºçº¿ç¨‹æŒ‰è‡ªèº«èŠ‚æ‹æ¸²æŸ“ã€‚
+    /// æ— æ§åˆ¶å°/è¾“å‡ºè¢«é‡å®šå‘ï¼ˆæ— äººå€¼å®ˆ/åå°è¿è¡Œï¼‰æ—¶è‡ªåŠ¨ç¦ç”¨ï¼Œä»…ä¸å½±å“ CSV ä¸æ–‡ä»¶æ—¥å¿—ã€‚
     /// </summary>
     internal sealed class LiveDisplay
     {
-        private const int ReservedLines = 6;      // ±êÌâ + ×´Ì¬ + ·Ö¸ô + Òç³öÌáÊ¾ + Ò³½Å + ÓàÁ¿£¨È·±£²»¹ö¶¯£©
-        private const int RefreshMs = 120;        // ¡Ö8Hz Ë¢ĞÂ£¬ÈâÑÛÁ÷³©ÇÒ CPU ÓÑºÃ
+        private const int ReservedLines = 6;      // æ ‡é¢˜ + çŠ¶æ€ + åˆ†éš” + æº¢å‡ºæç¤º + é¡µè„š + ä½™é‡ï¼ˆç¡®ä¿ä¸æ»šåŠ¨ï¼‰
+        private const int RefreshMs = 120;        // â‰ˆ8Hz åˆ·æ–°ï¼Œè‚‰çœ¼æµç•…ä¸” CPU å‹å¥½
 
         private readonly SampleConfig _config;
         private readonly SamplerStats _stats;
@@ -42,10 +42,10 @@ namespace ObdLogger.Logging
 
         public void SetCsvPath(string path) { lock (_sync) { _csvPath = path; } }
 
-        /// <summary>ÉèÖÃ×´Ì¬ĞĞÎÄ±¾£¨ÈçÈ±¿Ú/ÖØÊÔÌáÊ¾£©£»null Çå³ı¡£</summary>
+        /// <summary>è®¾ç½®çŠ¶æ€è¡Œæ–‡æœ¬ï¼ˆå¦‚ç¼ºå£/é‡è¯•æç¤ºï¼‰ï¼›null æ¸…é™¤ã€‚</summary>
         public void SetStatus(string message) { lock (_sync) { _status = message; } }
 
-        /// <summary>·¢²¼×îĞÂÒ»Ö¡¹©ÏÔÊ¾£¨²É¼¯Ïß³Ìµ÷ÓÃ£»½öÌæ»»ÒıÓÃ£¬²»×èÈû£©¡£</summary>
+        /// <summary>å‘å¸ƒæœ€æ–°ä¸€å¸§ä¾›æ˜¾ç¤ºï¼ˆé‡‡é›†çº¿ç¨‹è°ƒç”¨ï¼›ä»…æ›¿æ¢å¼•ç”¨ï¼Œä¸é˜»å¡ï¼‰ã€‚</summary>
         public void Publish(SampleSnapshot snapshot)
         {
             if (!_enabled) return;
@@ -58,7 +58,7 @@ namespace ObdLogger.Logging
             {
                 if (Console.IsOutputRedirected)
                 {
-                    log.Info("±ê×¼Êä³ö±»ÖØ¶¨Ïò£¬½ûÓÃ¿ØÖÆÌ¨¾ÍµØÏÔÊ¾£¨CSV/ÎÄ¼şÈÕÖ¾²»ÊÜÓ°Ïì£©");
+                    log.Info("æ ‡å‡†è¾“å‡ºè¢«é‡å®šå‘ï¼Œç¦ç”¨æ§åˆ¶å°å°±åœ°æ˜¾ç¤ºï¼ˆCSV/æ–‡ä»¶æ—¥å¿—ä¸å—å½±å“ï¼‰");
                     return false;
                 }
                 int h = Console.WindowHeight;
@@ -68,7 +68,7 @@ namespace ObdLogger.Logging
             }
             catch (Exception ex)
             {
-                log.Info("ÎŞ¿ÉÓÃ¿ØÖÆÌ¨£¬½ûÓÃ¾ÍµØÏÔÊ¾£º{0}", ex.Message);
+                log.Info("æ— å¯ç”¨æ§åˆ¶å°ï¼Œç¦ç”¨å°±åœ°æ˜¾ç¤ºï¼š{0}", ex.Message);
                 return false;
             }
         }
@@ -85,7 +85,7 @@ namespace ObdLogger.Logging
             }
             catch (Exception ex)
             {
-                _log.Warn("³õÊ¼»¯¿ØÖÆÌ¨ÏÔÊ¾Ê§°Ü£¨×ªÎª¾²Ä¬£©£º{0}", ex.Message);
+                _log.Warn("åˆå§‹åŒ–æ§åˆ¶å°æ˜¾ç¤ºå¤±è´¥ï¼ˆè½¬ä¸ºé™é»˜ï¼‰ï¼š{0}", ex.Message);
             }
             _stop = false;
             _started = true;
@@ -103,11 +103,11 @@ namespace ObdLogger.Logging
                 }
                 catch (Exception)
                 {
-                    // ¿ØÖÆÌ¨Òì³££¨³ß´ç±ä»¯/¹Ø±Õ£©²»Ó¦ÍÏ¿å²É¼¯£º¾²Ä¬ÖØÊÔ
+                    // æ§åˆ¶å°å¼‚å¸¸ï¼ˆå°ºå¯¸å˜åŒ–/å…³é—­ï¼‰ä¸åº”æ‹–å®é‡‡é›†ï¼šé™é»˜é‡è¯•
                 }
                 Thread.Sleep(RefreshMs);
             }
-            // ÊÕÎ²£ºÔÙäÖÈ¾Ò»Ö¡×îÖÕ×´Ì¬
+            // æ”¶å°¾ï¼šå†æ¸²æŸ“ä¸€å¸§æœ€ç»ˆçŠ¶æ€
             try { Render(); } catch { }
         }
 
@@ -127,7 +127,7 @@ namespace ObdLogger.Logging
             int maxItems = Math.Max(1, height - ReservedLines);
 
             var lines = new System.Collections.Generic.List<string>();
-            lines.Add(Trunc("¨T¨T OBD Logger ¶şÆÚ ¡¤ ÊµÊ±²ÉÑù ¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T", width));
+            lines.Add(Trunc("â•â• OBD Logger äºŒæœŸ Â· å®æ—¶é‡‡æ · â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•", width));
             lines.Add(Trunc(BuildStatusLine(status), width));
             lines.Add(Trunc(new string('-', Math.Max(8, width - 1)), width));
 
@@ -138,7 +138,7 @@ namespace ObdLogger.Logging
                 {
                     if (shown >= maxItems) break;
                     string val = item.Index < snap.Values.Length ? snap.Values[item.Index] : string.Empty;
-                    if (string.IsNullOrEmpty(val)) val = snap.IsGap ? "--È±¿Ú--" : "----";
+                    if (string.IsNullOrEmpty(val)) val = snap.IsGap ? "--ç¼ºå£--" : "----";
                     lines.Add(Trunc(string.Format("  {0,-20} {1,12}  {2}",
                         item.DisplayName, val, item.Unit), width));
                     shown++;
@@ -146,18 +146,18 @@ namespace ObdLogger.Logging
             }
             else
             {
-                lines.Add(Trunc("  µÈ´ıÊ×Ö¡²ÉÑù¡­", width));
+                lines.Add(Trunc("  ç­‰å¾…é¦–å¸§é‡‡æ ·â€¦", width));
                 shown = 1;
             }
 
             int overflow = _config.Count - shown;
             string hint = overflow > 0
-                ? string.Format("  ÁíÓĞ {0} Ïî¼û CSV", overflow)
+                ? string.Format("  å¦æœ‰ {0} é¡¹è§ CSV", overflow)
                 : string.Empty;
             if (hint.Length > 0) lines.Add(Trunc(hint, width));
 
-            string foot = string.Format("  CSV: {0}   |   °´ q »ò Ctrl+C Í£Ö¹",
-                string.IsNullOrEmpty(csvPath) ? "(×¼±¸ÖĞ)" : csvPath);
+            string foot = string.Format("  CSV: {0}   |   æŒ‰ q æˆ– Ctrl+C åœæ­¢",
+                string.IsNullOrEmpty(csvPath) ? "(å‡†å¤‡ä¸­)" : csvPath);
             lines.Add(Trunc(foot, width));
 
             WriteBlock(lines);
@@ -171,7 +171,7 @@ namespace ObdLogger.Logging
             }
             double elapsed = _stats.ElapsedSeconds;
             string elapsedText = FormatDuration(elapsed);
-            return string.Format("  ËÙÂÊ {0,0.00} Hz   Ñù±¾ {1}   È±¿Ú {2}   ÒÑÔËĞĞ {3}",
+            return string.Format("  é€Ÿç‡ {0,0.00} Hz   æ ·æœ¬ {1}   ç¼ºå£ {2}   å·²è¿è¡Œ {3}",
                 _stats.RateHz, _stats.Ok, _stats.Gap, elapsedText);
         }
 
@@ -192,7 +192,7 @@ namespace ObdLogger.Logging
                 int pad = (width - 1) - lines[i].Length;
                 if (pad > 0) Console.Write(new string(' ', pad));
             }
-            // Çå³ı±¾´Î±ÈÉÏ´ÎÉÙĞ´µÄ²ĞÁôĞĞ
+            // æ¸…é™¤æœ¬æ¬¡æ¯”ä¸Šæ¬¡å°‘å†™çš„æ®‹ç•™è¡Œ
             for (int i = lines.Count; i < _lastLineCount; i++)
             {
                 Console.SetCursorPosition(0, _top + i);

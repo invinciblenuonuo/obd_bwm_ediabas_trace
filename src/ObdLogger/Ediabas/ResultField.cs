@@ -1,9 +1,9 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 
 namespace ObdLogger.Ediabas
 {
-    /// <summary>µ¥¸ö½á¹û×Ö¶Î£º×Ö¶ÎÃû + ¸ñÊ½ + ÒÑ×ª»»ÎªÎÄ±¾µÄÖµ¡£</summary>
+    /// <summary>å•ä¸ªç»“æœå­—æ®µï¼šå­—æ®µå + æ ¼å¼ + å·²è½¬æ¢ä¸ºæ–‡æœ¬çš„å€¼ã€‚</summary>
     internal sealed class ResultField
     {
         public string Name;
@@ -11,23 +11,23 @@ namespace ObdLogger.Ediabas
         public string Value;
     }
 
-    /// <summary>Ò»¸ö½á¹û¼¯£¨rset£©ÄÚµÄÈ«²¿×Ö¶Î¡£</summary>
+    /// <summary>ä¸€ä¸ªç»“æœé›†ï¼ˆrsetï¼‰å†…çš„å…¨éƒ¨å­—æ®µã€‚</summary>
     internal sealed class ResultSet
     {
         public ushort Index;
         public readonly List<ResultField> Fields = new List<ResultField>();
     }
 
-    /// <summary>Ò»´Î Job µ÷ÓÃµÄÍêÕû½á¹û£¨¿ÉÄÜ°üº¬¶à¸ö½á¹û¼¯£©¡£</summary>
+    /// <summary>ä¸€æ¬¡ Job è°ƒç”¨çš„å®Œæ•´ç»“æœï¼ˆå¯èƒ½åŒ…å«å¤šä¸ªç»“æœé›†ï¼‰ã€‚</summary>
     internal sealed class JobResult
     {
         public string JobName;
         public readonly List<ResultSet> Sets = new List<ResultSet>();
 
         /// <summary>
-        /// ECU ¼¶ Job ×´Ì¬£¨ÏµÍ³½á¹û×Ö¶Î JOB_STATUS£©¡£
-        /// ×¢Òâ£ºapiErrorCode==0 ½ö±íÊ¾ API ²ã³É¹¦£»ECU ¾Ü¾ø·şÎñ£¨Èç SUB_FUNCTION_NOT_SUPPORTED£©
-        /// Ê±´íÎóÖ»»áÌåÏÖÔÚ JOB_STATUS ×Ö¶ÎÖĞ£¬±ØĞëµ¥¶À¼ì²é¡£
+        /// ECU çº§ Job çŠ¶æ€ï¼ˆç³»ç»Ÿç»“æœå­—æ®µ JOB_STATUSï¼‰ã€‚
+        /// æ³¨æ„ï¼šapiErrorCode==0 ä»…è¡¨ç¤º API å±‚æˆåŠŸï¼›ECU æ‹’ç»æœåŠ¡ï¼ˆå¦‚ SUB_FUNCTION_NOT_SUPPORTEDï¼‰
+        /// æ—¶é”™è¯¯åªä¼šä½“ç°åœ¨ JOB_STATUS å­—æ®µä¸­ï¼Œå¿…é¡»å•ç‹¬æ£€æŸ¥ã€‚
         /// </summary>
         public string FindJobStatus()
         {
@@ -46,7 +46,7 @@ namespace ObdLogger.Ediabas
             return fallback;
         }
 
-        /// <summary>JOB_STATUS ÊÇ·ñÎª´íÎó£¨EDIABAS Ô¼¶¨£º´íÎóÒÔ "ERROR" Ç°×º±íÊ¾£»¿ÕÎªÕı³££©¡£</summary>
+        /// <summary>JOB_STATUS æ˜¯å¦ä¸ºé”™è¯¯ï¼ˆEDIABAS çº¦å®šï¼šé”™è¯¯ä»¥ "ERROR" å‰ç¼€è¡¨ç¤ºï¼›ç©ºä¸ºæ­£å¸¸ï¼‰ã€‚</summary>
         public static bool IsErrorStatus(string status)
         {
             return !string.IsNullOrWhiteSpace(status) &&

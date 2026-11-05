@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -6,9 +6,9 @@ using System.Text;
 namespace ObdLogger.Logging
 {
     /// <summary>
-    /// Ó¦ÓÃ²ãÈÕÖ¾£¨FR-8£©£º¼ÇÂ¼Ã¿´Î API µ÷ÓÃ¡¢Job Ãû³Æ¡¢¹Ø¼ü²ÎÊıÓë½á¹û¡£
-    /// Ê¼ÖÕĞ´ÎÄ¼ş£¨exe Ä¿Â¼ÏÂ logs\£¬Ê§°ÜÔòÍËµ½ %LOCALAPPDATA%£©£¬
-    /// ÏêÏ¸¼¶±ğ£¨API µ÷ÓÃÃ÷Ï¸£©ÔÚ --verbose Ê±Í¬Ê±Êä³öµ½¿ØÖÆÌ¨¡£
+    /// åº”ç”¨å±‚æ—¥å¿—ï¼ˆFR-8ï¼‰ï¼šè®°å½•æ¯æ¬¡ API è°ƒç”¨ã€Job åç§°ã€å…³é”®å‚æ•°ä¸ç»“æœã€‚
+    /// å§‹ç»ˆå†™æ–‡ä»¶ï¼ˆexe ç›®å½•ä¸‹ logs\ï¼Œå¤±è´¥åˆ™é€€åˆ° %LOCALAPPDATA%ï¼‰ï¼Œ
+    /// è¯¦ç»†çº§åˆ«ï¼ˆAPI è°ƒç”¨æ˜ç»†ï¼‰åœ¨ --verbose æ—¶åŒæ—¶è¾“å‡ºåˆ°æ§åˆ¶å°ã€‚
     /// </summary>
     internal sealed class AppLog : IDisposable
     {
@@ -19,9 +19,9 @@ namespace ObdLogger.Logging
         private volatile bool _consoleEnabled = true;
 
         /// <summary>
-        /// ¿ØÖÆÌ¨Êä³ö×Ü¿ª¹Ø£¨Ä¬ÈÏ true£¬±£³ÖÒ»ÆÚĞĞÎª²»±ä£©¡£
-        /// ¶şÆÚ log Ä£Ê½ÔÚ¾ÍµØË¢ĞÂÏÔÊ¾ÆÚ¼äÖÃ false£¬Ê¹ Warn/Error ½öÂäÎÄ¼ş£¬
-        /// ±ÜÃâÓë <see cref="LiveDisplay"/> ÇÀÕ¼¿ØÖÆÌ¨¶øÆÆ»µ¡°²»¹ö¶¯¡±²¼¾Ö£¨FR-2-3£©¡£
+        /// æ§åˆ¶å°è¾“å‡ºæ€»å¼€å…³ï¼ˆé»˜è®¤ trueï¼Œä¿æŒä¸€æœŸè¡Œä¸ºä¸å˜ï¼‰ã€‚
+        /// äºŒæœŸ log æ¨¡å¼åœ¨å°±åœ°åˆ·æ–°æ˜¾ç¤ºæœŸé—´ç½® falseï¼Œä½¿ Warn/Error ä»…è½æ–‡ä»¶ï¼Œ
+        /// é¿å…ä¸ <see cref="LiveDisplay"/> æŠ¢å æ§åˆ¶å°è€Œç ´åâ€œä¸æ»šåŠ¨â€å¸ƒå±€ï¼ˆFR-2-3ï¼‰ã€‚
         /// </summary>
         public bool ConsoleEnabled
         {
@@ -52,7 +52,7 @@ namespace ObdLogger.Logging
             }
             if (path == null)
             {
-                // ÎÄ¼şÈÕÖ¾²»¿ÉÓÃÊ±²»×èÈûÖ÷Á÷³Ì£¬½öÊä³ö¿ØÖÆÌ¨
+                // æ–‡ä»¶æ—¥å¿—ä¸å¯ç”¨æ—¶ä¸é˜»å¡ä¸»æµç¨‹ï¼Œä»…è¾“å‡ºæ§åˆ¶å°
                 return new AppLog(null, verbose, null);
             }
             var writer = new StreamWriter(path, true, Encoding.UTF8) { AutoFlush = true };
@@ -74,7 +74,7 @@ namespace ObdLogger.Logging
             }
         }
 
-        /// <summary>API µ÷ÓÃÃ÷Ï¸£¨FR-8£©£ºĞ´ÎÄ¼ş£»--verbose Ê±Í¬Ê±ÉÏÆÁ¡£</summary>
+        /// <summary>API è°ƒç”¨æ˜ç»†ï¼ˆFR-8ï¼‰ï¼šå†™æ–‡ä»¶ï¼›--verbose æ—¶åŒæ—¶ä¸Šå±ã€‚</summary>
         public void Api(string format, params object[] args)
         {
             Write("API", format, args, console: _verbose);
@@ -114,7 +114,7 @@ namespace ObdLogger.Logging
             {
                 if (_writer != null)
                 {
-                    try { _writer.WriteLine(line); } catch { /* ÈÕÖ¾Ê§°Ü²»Ó°ÏìÖ÷Á÷³Ì */ }
+                    try { _writer.WriteLine(line); } catch { /* æ—¥å¿—å¤±è´¥ä¸å½±å“ä¸»æµç¨‹ */ }
                 }
                 if (console && _consoleEnabled)
                 {

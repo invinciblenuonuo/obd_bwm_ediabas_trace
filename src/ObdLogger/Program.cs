@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -10,31 +10,31 @@ using ObdLogger.Vehicle;
 namespace ObdLogger
 {
     /// <summary>
-    /// OBD Logger Ò»ÆÚÈë¿Ú£ºÑéÖ¤¡°³ÌĞò ¡ú EDIABAS ¡ú K+DCAN ¡ú ³µÁ¾ DME¡±Á´Â·£¬
-    /// ¶ÁÈ¡²¢´òÓ¡³µÁ¾»ù´¡ĞÅÏ¢£¨ĞèÇóÎÄµµµÚ 3 ½Ú£©¡£
+    /// OBD Logger ä¸€æœŸå…¥å£ï¼šéªŒè¯â€œç¨‹åº â†’ EDIABAS â†’ K+DCAN â†’ è½¦è¾† DMEâ€é“¾è·¯ï¼Œ
+    /// è¯»å–å¹¶æ‰“å°è½¦è¾†åŸºç¡€ä¿¡æ¯ï¼ˆéœ€æ±‚æ–‡æ¡£ç¬¬ 3 èŠ‚ï¼‰ã€‚
     ///
-    /// ÍË³öÂë£º0=³É¹¦£»1=ÒâÍâ´íÎó£»2=EDIABAS »·¾³/³õÊ¼»¯Ê§°Ü£»3=Í¨ĞÅ/¶Ë¿ÚÊ§°Ü£»4=ÎŞ¿ÉÓÃµÄÊ¶±ğÀà Job¡£
+    /// é€€å‡ºç ï¼š0=æˆåŠŸï¼›1=æ„å¤–é”™è¯¯ï¼›2=EDIABAS ç¯å¢ƒ/åˆå§‹åŒ–å¤±è´¥ï¼›3=é€šä¿¡/ç«¯å£å¤±è´¥ï¼›4=æ— å¯ç”¨çš„è¯†åˆ«ç±» Jobã€‚
     /// </summary>
     internal static class Program
     {
         private const string DefaultEcuName = "mevd1724";
-        private const string DefaultLogEcuName = "MEVD174K"; // ¶şÆÚ log Ä¬ÈÏ£¨TC-5£º±¾³µÊµ²â¿ÉÓÃ SGBD£©
+        private const string DefaultLogEcuName = "MEVD174K"; // äºŒæœŸ log é»˜è®¤ï¼ˆTC-5ï¼šæœ¬è½¦å®æµ‹å¯ç”¨ SGBDï¼‰
         private const string EdiabasBinDir = @"C:\EDIABAS\Bin";
         private const string DefaultPortName = "COM6";
 
         private static volatile bool _cancelRequested;
 
-        // ½ø³ÌÆô¶¯Ê±µÄ¹¤×÷Ä¿Â¼£ºEDIABAS Ğè½« CurrentDirectory ÇĞµ½ C:\EDIABAS\Bin£¬
-        // µ«ÓÃ»§´«ÈëµÄÏà¶Ô --config/--out Ó¦°´Æô¶¯Ä¿Â¼½âÎö£¨·ñÔò»á±»´íÎóµØÏà¶Ô Bin Ä¿Â¼£©¡£
+        // è¿›ç¨‹å¯åŠ¨æ—¶çš„å·¥ä½œç›®å½•ï¼šEDIABAS éœ€å°† CurrentDirectory åˆ‡åˆ° C:\EDIABAS\Binï¼Œ
+        // ä½†ç”¨æˆ·ä¼ å…¥çš„ç›¸å¯¹ --config/--out åº”æŒ‰å¯åŠ¨ç›®å½•è§£æï¼ˆå¦åˆ™ä¼šè¢«é”™è¯¯åœ°ç›¸å¯¹ Bin ç›®å½•ï¼‰ã€‚
         private static string _launchDir;
 
         private static int Main(string[] args)
         {
             try { _launchDir = Directory.GetCurrentDirectory(); }
             catch { _launchDir = AppDomain.CurrentDomain.BaseDirectory; }
-            try { Console.OutputEncoding = Encoding.UTF8; } catch { /* ¾É¿ØÖÆÌ¨²»Ö§³ÖÊ±ºöÂÔ */ }
+            try { Console.OutputEncoding = Encoding.UTF8; } catch { /* æ—§æ§åˆ¶å°ä¸æ”¯æŒæ—¶å¿½ç•¥ */ }
 
-            // ¶şÆÚ×ÓÃüÁî·ÖÅÉ£º`log` ¡ú ÊµÊ±²ÉÑùÂäÅÌ£¨FR-2-1£©£»ÎŞ×ÓÃüÁî ¡ú Ò»ÆÚ³µÁ¾»ù´¡ĞÅÏ¢£¨ĞĞÎª²»±ä£¬AC-2-7 »Ø¹é£©¡£
+            // äºŒæœŸå­å‘½ä»¤åˆ†æ´¾ï¼š`log` â†’ å®æ—¶é‡‡æ ·è½ç›˜ï¼ˆFR-2-1ï¼‰ï¼›æ— å­å‘½ä»¤ â†’ ä¸€æœŸè½¦è¾†åŸºç¡€ä¿¡æ¯ï¼ˆè¡Œä¸ºä¸å˜ï¼ŒAC-2-7 å›å½’ï¼‰ã€‚
             if (args.Length > 0 && string.Equals(args[0], "log", StringComparison.OrdinalIgnoreCase))
             {
                 return RunLogging(args, 1);
@@ -42,7 +42,7 @@ namespace ObdLogger
             return RunInfo(args);
         }
 
-        /// <summary>Ò»ÆÚÈë¿Ú£º¶ÁÈ¡²¢´òÓ¡³µÁ¾»ù´¡ĞÅÏ¢£¨Ô­ Main Ö÷Ìå£¬ĞĞÎª±£³Ö²»±ä£©¡£</summary>
+        /// <summary>ä¸€æœŸå…¥å£ï¼šè¯»å–å¹¶æ‰“å°è½¦è¾†åŸºç¡€ä¿¡æ¯ï¼ˆåŸ Main ä¸»ä½“ï¼Œè¡Œä¸ºä¿æŒä¸å˜ï¼‰ã€‚</summary>
         private static int RunInfo(string[] args)
         {
             Options options;
@@ -57,51 +57,51 @@ namespace ObdLogger
                 return 0;
             }
 
-            Console.WriteLine("OBD Logger Ò»ÆÚ - EDIABAS/K+DCAN ³µÁ¾»ù´¡ĞÅÏ¢¶ÁÈ¡");
-            Console.WriteLine("Á´Â·: ObdLogger ¡ú api32.dll ¡ú EDIABAS 7.3.0 ¡ú " + options.EcuName + ".prg ¡ú K+DCAN ¡ú DME");
-            Console.WriteLine("°²È«ºìÏß: Ò»ÆÚ½öÖ´ĞĞÖ»¶ÁÊ¶±ğÀà Job£¬ÎŞÈÎºÎĞ´Èë/¸´Î»/±à³Ì²Ù×÷");
+            Console.WriteLine("OBD Logger ä¸€æœŸ - EDIABAS/K+DCAN è½¦è¾†åŸºç¡€ä¿¡æ¯è¯»å–");
+            Console.WriteLine("é“¾è·¯: ObdLogger â†’ api32.dll â†’ EDIABAS 7.3.0 â†’ " + options.EcuName + ".prg â†’ K+DCAN â†’ DME");
+            Console.WriteLine("å®‰å…¨çº¢çº¿: ä¸€æœŸä»…æ‰§è¡Œåªè¯»è¯†åˆ«ç±» Jobï¼Œæ— ä»»ä½•å†™å…¥/å¤ä½/ç¼–ç¨‹æ“ä½œ");
             Console.WriteLine();
 
-            // ---------- FR-1 / TC-1£º32 Î»½ø³Ì×Ô¼ì ----------
+            // ---------- FR-1 / TC-1ï¼š32 ä½è¿›ç¨‹è‡ªæ£€ ----------
             if (Environment.Is64BitProcess)
             {
-                Console.Error.WriteLine("[´íÎó] µ±Ç°½ø³ÌÎª 64 Î»£¬ÎŞ·¨¼ÓÔØ 32 Î» api32.dll¡£ÇëÊ¹ÓÃ x86 ¹¹½¨ÔËĞĞ¡£");
+                Console.Error.WriteLine("[é”™è¯¯] å½“å‰è¿›ç¨‹ä¸º 64 ä½ï¼Œæ— æ³•åŠ è½½ 32 ä½ api32.dllã€‚è¯·ä½¿ç”¨ x86 æ„å»ºè¿è¡Œã€‚");
                 return 2;
             }
 
-            // ---------- FR-2 / TC-3£ºEDIABAS »·¾³Ô¤¼ì ----------
+            // ---------- FR-2 / TC-3ï¼šEDIABAS ç¯å¢ƒé¢„æ£€ ----------
             string apiDllPath = Path.Combine(EdiabasBinDir, "api32.dll");
             if (!File.Exists(apiDllPath))
             {
-                Console.Error.WriteLine("[´íÎó] Î´ÕÒµ½ " + apiDllPath + "¡£ÇëÈ·ÈÏ EDIABAS ÒÑ°²×°ÔÚ C:\\EDIABAS¡£");
+                Console.Error.WriteLine("[é”™è¯¯] æœªæ‰¾åˆ° " + apiDllPath + "ã€‚è¯·ç¡®è®¤ EDIABAS å·²å®‰è£…åœ¨ C:\\EDIABASã€‚");
                 return 2;
             }
 
             using (AppLog log = AppLog.Create(options.Verbose))
             {
-                log.Info("Æô¶¯£»OS={0}£»½ø³Ì={1}Î»£»ECU={2}£»ForcedJob={3}",
+                log.Info("å¯åŠ¨ï¼›OS={0}ï¼›è¿›ç¨‹={1}ä½ï¼›ECU={2}ï¼›ForcedJob={3}",
                     Environment.OSVersion, Environment.Is64BitProcess ? 64 : 32,
-                    options.EcuName, options.JobName ?? "(ºòÑ¡Ì½²â)");
+                    options.EcuName, options.JobName ?? "(å€™é€‰æ¢æµ‹)");
                 if (log.FilePath != null)
                 {
-                    Console.WriteLine("ÈÕÖ¾ÎÄ¼ş: " + log.FilePath);
+                    Console.WriteLine("æ—¥å¿—æ–‡ä»¶: " + log.FilePath);
                 }
 
-                // ÈÃ api32.dll ¼°ÆäÒÀÀµ£¨ebas32.dll µÈ£©´Ó C:\EDIABAS\Bin ½âÎö
+                // è®© api32.dll åŠå…¶ä¾èµ–ï¼ˆebas32.dll ç­‰ï¼‰ä» C:\EDIABAS\Bin è§£æ
                 if (!NativeMethods.SetDllDirectory(EdiabasBinDir))
                 {
-                    log.Warn("SetDllDirectory({0}) Ê§°Ü£¬ÒÀÀµ PATH ½âÎö api32.dll", EdiabasBinDir);
+                    log.Warn("SetDllDirectory({0}) å¤±è´¥ï¼Œä¾èµ– PATH è§£æ api32.dll", EdiabasBinDir);
                 }
                 try { Environment.CurrentDirectory = EdiabasBinDir; }
-                catch (Exception ex) { log.Warn("ÇĞ»»¹¤×÷Ä¿Â¼µ½ {0} Ê§°Ü£º{1}", EdiabasBinDir, ex.Message); }
+                catch (Exception ex) { log.Warn("åˆ‡æ¢å·¥ä½œç›®å½•åˆ° {0} å¤±è´¥ï¼š{1}", EdiabasBinDir, ex.Message); }
 
-                // ---------- AC-5£ºCOM ¶Ë¿ÚÔ¤¼ì£¨Õ¼ÓÃ/Î´²åÈë¸ø³öÃ÷È·ÌáÊ¾£© ----------
+                // ---------- AC-5ï¼šCOM ç«¯å£é¢„æ£€ï¼ˆå ç”¨/æœªæ’å…¥ç»™å‡ºæ˜ç¡®æç¤ºï¼‰ ----------
                 string comError = PrecheckComPort(log);
                 if (comError != null)
                 {
-                    log.Error("COM Ô¤¼ìÊ§°Ü£º{0}", comError);
+                    log.Error("COM é¢„æ£€å¤±è´¥ï¼š{0}", comError);
                     Console.Error.WriteLine();
-                    Console.Error.WriteLine("[´íÎó] " + comError);
+                    Console.Error.WriteLine("[é”™è¯¯] " + comError);
                     return 3;
                 }
 
@@ -109,18 +109,18 @@ namespace ObdLogger
                 {
                     Console.CancelKeyPress += (s, e) =>
                     {
-                        e.Cancel = true; // ×ßÕı³£ÍË³öÂ·¾¶£¬±£Ö¤ apiEnd Ö´ĞĞ£¨FR-6£©
+                        e.Cancel = true; // èµ°æ­£å¸¸é€€å‡ºè·¯å¾„ï¼Œä¿è¯ apiEnd æ‰§è¡Œï¼ˆFR-6ï¼‰
                         _cancelRequested = true;
                         client.RequestBreak();
                     };
 
                     try
                     {
-                        // FR-2£º³õÊ¼»¯
+                        // FR-2ï¼šåˆå§‹åŒ–
                         client.Init();
                         client.CheckVersion();
 
-                        // FR-3/FR-4/FR-5£ºÖ´ĞĞÊ¶±ğÀà Job ²¢ÌáÈ¡³µÁ¾»ù´¡ĞÅÏ¢
+                        // FR-3/FR-4/FR-5ï¼šæ‰§è¡Œè¯†åˆ«ç±» Job å¹¶æå–è½¦è¾†åŸºç¡€ä¿¡æ¯
                         var reader = new VehicleInfoReader(log);
                         VehicleInfo info = reader.Read(client, options.EcuName, options.JobName, options.Para);
 
@@ -128,30 +128,30 @@ namespace ObdLogger
 
                         if (info.TotalFieldCount == 0)
                         {
-                            Console.WriteLine("[¾¯¸æ] Job Ö´ĞĞ³É¹¦µ«Î´·µ»ØÈÎºÎ½á¹û×Ö¶Î£¬ÇëºË¶Ô ECU Óë Job ÊÇ·ñÆ¥Åä¡£");
+                            Console.WriteLine("[è­¦å‘Š] Job æ‰§è¡ŒæˆåŠŸä½†æœªè¿”å›ä»»ä½•ç»“æœå­—æ®µï¼Œè¯·æ ¸å¯¹ ECU ä¸ Job æ˜¯å¦åŒ¹é…ã€‚");
                         }
                         if (!info.AllMvpFound)
                         {
-                            Console.WriteLine("[¾¯¸æ] MVP ×Ö¶ÎÎ´È«²¿¶ÁÈ¡µ½£¨¼ûÉÏ·½¡°Î´¶ÁÈ¡µ½¡±Ïî£©¡£" +
-                                "Á´Â·ÒÑÑéÖ¤£¬¿É¶ÔÕÕÔ­Ê¼½á¹ûÈ·ÈÏ×Ö¶ÎÃüÃû£¬»òÓÃ --job Ö¸¶¨ÆäËûÊ¶±ğÀà Job¡£");
+                            Console.WriteLine("[è­¦å‘Š] MVP å­—æ®µæœªå…¨éƒ¨è¯»å–åˆ°ï¼ˆè§ä¸Šæ–¹â€œæœªè¯»å–åˆ°â€é¡¹ï¼‰ã€‚" +
+                                "é“¾è·¯å·²éªŒè¯ï¼Œå¯å¯¹ç…§åŸå§‹ç»“æœç¡®è®¤å­—æ®µå‘½åï¼Œæˆ–ç”¨ --job æŒ‡å®šå…¶ä»–è¯†åˆ«ç±» Jobã€‚");
                         }
                         Console.WriteLine();
-                        Console.WriteLine("Íê³É£ºÓë DME µÄÕï¶ÏÍ¨ĞÅÒÑ½¨Á¢²¢³É¹¦¶ÁÈ¡Êı¾İ¡£");
+                        Console.WriteLine("å®Œæˆï¼šä¸ DME çš„è¯Šæ–­é€šä¿¡å·²å»ºç«‹å¹¶æˆåŠŸè¯»å–æ•°æ®ã€‚");
                         return 0;
                     }
                     catch (OperationCanceledException ex)
                     {
-                        log.Warn("ÓÃ»§ÖĞ¶Ï£º{0}", ex.Message);
+                        log.Warn("ç”¨æˆ·ä¸­æ–­ï¼š{0}", ex.Message);
                         Console.Error.WriteLine();
-                        Console.Error.WriteLine("[ÖĞ¶Ï] ÒÑ±»ÓÃ»§ÖĞ¶Ï (Ctrl+C)£¬×ÊÔ´ÒÑÕı³£ÊÍ·Å¡£");
+                        Console.Error.WriteLine("[ä¸­æ–­] å·²è¢«ç”¨æˆ·ä¸­æ–­ (Ctrl+C)ï¼Œèµ„æºå·²æ­£å¸¸é‡Šæ”¾ã€‚");
                         return 3;
                     }
                     catch (EdiabasTimeoutException ex)
                     {
-                        log.Error("³¬Ê±£º{0}", ex.Message);
+                        log.Error("è¶…æ—¶ï¼š{0}", ex.Message);
                         Console.Error.WriteLine();
-                        Console.Error.WriteLine("[´íÎó] " + ex.Message);
-                        Console.Error.WriteLine("Çë¼ì²é£ºµã»ğ¿ª¹ØÒÑ´ò¿ª (KL.15)¡¢K+DCAN ÏßÁ¬½Ó¿É¿¿¡¢ÏßÀÂÊ±Ğò¼æÈİĞÔ£¨±ØÒªÊ±ÏÈÓÃ INPA/Tool32 ÑéÖ¤£©¡£");
+                        Console.Error.WriteLine("[é”™è¯¯] " + ex.Message);
+                        Console.Error.WriteLine("è¯·æ£€æŸ¥ï¼šç‚¹ç«å¼€å…³å·²æ‰“å¼€ (KL.15)ã€K+DCAN çº¿è¿æ¥å¯é ã€çº¿ç¼†æ—¶åºå…¼å®¹æ€§ï¼ˆå¿…è¦æ—¶å…ˆç”¨ INPA/Tool32 éªŒè¯ï¼‰ã€‚");
                         PrintTraceHint();
                         return 3;
                     }
@@ -167,48 +167,48 @@ namespace ObdLogger
                     }
                     catch (EdiabasException ex)
                     {
-                        log.Error("EDIABAS ´íÎó£º{0}", ex.Message);
+                        log.Error("EDIABAS é”™è¯¯ï¼š{0}", ex.Message);
                         Console.Error.WriteLine();
-                        Console.Error.WriteLine("[´íÎó] " + ex.Message);
+                        Console.Error.WriteLine("[é”™è¯¯] " + ex.Message);
                         PrintEnvErrorHint();
                         PrintTraceHint();
                         return 2;
                     }
                     catch (Exception ex)
                     {
-                        log.Error("ÒâÍâ´íÎó£º{0}", ex);
+                        log.Error("æ„å¤–é”™è¯¯ï¼š{0}", ex);
                         Console.Error.WriteLine();
-                        Console.Error.WriteLine("[´íÎó] ·¢ÉúÒâÍâ´íÎó£¨ÏêÏ¸¶ÑÕ»¼ûÈÕÖ¾ÎÄ¼ş£©£º" + ex.Message);
+                        Console.Error.WriteLine("[é”™è¯¯] å‘ç”Ÿæ„å¤–é”™è¯¯ï¼ˆè¯¦ç»†å †æ ˆè§æ—¥å¿—æ–‡ä»¶ï¼‰ï¼š" + ex.Message);
                         return 1;
                     }
                 }
             }
         }
 
-        // ---------- Êä³ö ----------
+        // ---------- è¾“å‡º ----------
 
-        /// <summary>FR-5£º¸ñÊ½»¯´òÓ¡×Ö¶ÎÃû + Öµ£¨µ¥Î»ÔÚ¿ÉÍÆ¶¨Ê±¸ø³ö£©¡£</summary>
+        /// <summary>FR-5ï¼šæ ¼å¼åŒ–æ‰“å°å­—æ®µå + å€¼ï¼ˆå•ä½åœ¨å¯æ¨å®šæ—¶ç»™å‡ºï¼‰ã€‚</summary>
         private static void PrintReport(VehicleInfo info)
         {
             Console.WriteLine();
-            Console.WriteLine("================ ³µÁ¾»ù´¡ĞÅÏ¢ ================");
+            Console.WriteLine("================ è½¦è¾†åŸºç¡€ä¿¡æ¯ ================");
             Console.WriteLine("ECU (SGBD): {0}    Job: {1}", info.SgbdName, info.JobNames);
             PrintMvp(info.Vin);
             PrintMvp(info.EcuName);
             PrintMvp(info.HwVersion);
             PrintMvp(info.SwVersion);
 
-            Console.WriteLine("---------------- ¿ÉÑ¡ĞÅÏ¢ ------------------");
+            Console.WriteLine("---------------- å¯é€‰ä¿¡æ¯ ------------------");
             PrintOptional(info.Ignition, null);
             PrintOptional(info.Voltage, "V");
 
-            Console.WriteLine("---------------- Ô­Ê¼½á¹û ------------------");
+            Console.WriteLine("---------------- åŸå§‹ç»“æœ ------------------");
             foreach (JobResult raw in info.Raws)
             {
                 Console.WriteLine("  [Job: {0}]", raw.JobName);
                 foreach (ResultSet set in raw.Sets)
                 {
-                    Console.WriteLine("    [½á¹û¼¯ {0}]£¨{1} ¸ö×Ö¶Î£©", set.Index, set.Fields.Count);
+                    Console.WriteLine("    [ç»“æœé›† {0}]ï¼ˆ{1} ä¸ªå­—æ®µï¼‰", set.Index, set.Fields.Count);
                     int width = set.Fields.Count == 0 ? 0 : set.Fields.Max(f => f.Name.Length);
                     foreach (ResultField field in set.Fields)
                     {
@@ -224,11 +224,11 @@ namespace ObdLogger
         {
             if (field.Found)
             {
-                Console.WriteLine("  {0,-18}: {1}    (À´Ô´: {2} / {3})", field.Label, field.Value, field.SourceJob, field.SourceField);
+                Console.WriteLine("  {0,-18}: {1}    (æ¥æº: {2} / {3})", field.Label, field.Value, field.SourceJob, field.SourceField);
             }
             else
             {
-                Console.WriteLine("  {0,-18}: Î´¶ÁÈ¡µ½", field.Label);
+                Console.WriteLine("  {0,-18}: æœªè¯»å–åˆ°", field.Label);
             }
         }
 
@@ -236,7 +236,7 @@ namespace ObdLogger
         {
             if (!field.Found)
             {
-                Console.WriteLine("  {0,-18}: Î´¶ÁÈ¡µ½£¨¿ÉÑ¡£©", field.Label);
+                Console.WriteLine("  {0,-18}: æœªè¯»å–åˆ°ï¼ˆå¯é€‰ï¼‰", field.Label);
                 return;
             }
             string unit = string.Empty;
@@ -250,48 +250,48 @@ namespace ObdLogger
                     unit = " " + unitHint;
                 }
             }
-            Console.WriteLine("  {0,-18}: {1}{2}    (À´Ô´: {3} / {4})", field.Label, field.Value, unit, field.SourceJob, field.SourceField);
+            Console.WriteLine("  {0,-18}: {1}{2}    (æ¥æº: {3} / {4})", field.Label, field.Value, unit, field.SourceJob, field.SourceField);
         }
 
-        // ---------- ´íÎó³¡¾°»¯ÌáÊ¾£¨FR-7£© ----------
+        // ---------- é”™è¯¯åœºæ™¯åŒ–æç¤ºï¼ˆFR-7ï¼‰ ----------
 
         private static void PrintJobError(EdiabasJobException ex, AppLog log)
         {
-            log.Error("Job Ê§°Ü£º{0}", ex.Message);
+            log.Error("Job å¤±è´¥ï¼š{0}", ex.Message);
             Console.Error.WriteLine();
             if (_cancelRequested)
             {
-                Console.Error.WriteLine("[ÖĞ¶Ï] ÒÑ±»ÓÃ»§ÖĞ¶Ï (Ctrl+C)£¬×ÊÔ´ÒÑÕı³£ÊÍ·Å¡£");
+                Console.Error.WriteLine("[ä¸­æ–­] å·²è¢«ç”¨æˆ·ä¸­æ–­ (Ctrl+C)ï¼Œèµ„æºå·²æ­£å¸¸é‡Šæ”¾ã€‚");
                 return;
             }
             if (ex.IsEcuRejection)
             {
-                Console.Error.WriteLine("[´íÎó] Óë ECU Í¨ĞÅ³É¹¦£¬µ« ECU ¾Ü¾øÁË¸ÃÕï¶ÏÇëÇó£¨{0}£©¡£", ex.ErrorText);
-                Console.Error.WriteLine("¿ÉÄÜÔ­ÒòÓë¶Ô²ß£º");
-                Console.Error.WriteLine("  1) Êµ¼Ê DME Óë¸Ã SGBD ²»ÍêÈ«Æ¥Åä£¨·çÏÕÏî R-1£©£º--ecu ¸ü»» SGBD ÖØÊÔ");
-                Console.Error.WriteLine("     £¨Êµ²â±¾³µ DME ½ÓÊÜ£º01mevd1724 / MEVD174K / MEVD176K / MEVD17KW / 01mevd1726 / 01MEVD1727 / 01MEVD1729£©£»");
-                Console.Error.WriteLine("  2) ¸Ã Job ĞèÒª²ÎÊı£ºÓÃ Tool32 ²é¿´ {0}.prg ÖĞ {1} µÄ²ÎÊı¶¨Òåºó --para ´«Èë£»", ex.Ecu, ex.Job);
-                Console.Error.WriteLine("  3) Èô¶à¸ö SGBD ¾ù±¨×Ó¹¦ÄÜ²»Ö§³Ö£¬¿ÉÄÜ DME Èí¼ş°æ±¾¹ıĞÂ/¹ı¾É£¬ĞèÆ¥Åä¶ÔÓ¦°æ±¾µÄ PRG¡£");
+                Console.Error.WriteLine("[é”™è¯¯] ä¸ ECU é€šä¿¡æˆåŠŸï¼Œä½† ECU æ‹’ç»äº†è¯¥è¯Šæ–­è¯·æ±‚ï¼ˆ{0}ï¼‰ã€‚", ex.ErrorText);
+                Console.Error.WriteLine("å¯èƒ½åŸå› ä¸å¯¹ç­–ï¼š");
+                Console.Error.WriteLine("  1) å®é™… DME ä¸è¯¥ SGBD ä¸å®Œå…¨åŒ¹é…ï¼ˆé£é™©é¡¹ R-1ï¼‰ï¼š--ecu æ›´æ¢ SGBD é‡è¯•");
+                Console.Error.WriteLine("     ï¼ˆå®æµ‹æœ¬è½¦ DME æ¥å—ï¼š01mevd1724 / MEVD174K / MEVD176K / MEVD17KW / 01mevd1726 / 01MEVD1727 / 01MEVD1729ï¼‰ï¼›");
+                Console.Error.WriteLine("  2) è¯¥ Job éœ€è¦å‚æ•°ï¼šç”¨ Tool32 æŸ¥çœ‹ {0}.prg ä¸­ {1} çš„å‚æ•°å®šä¹‰å --para ä¼ å…¥ï¼›", ex.Ecu, ex.Job);
+                Console.Error.WriteLine("  3) è‹¥å¤šä¸ª SGBD å‡æŠ¥å­åŠŸèƒ½ä¸æ”¯æŒï¼Œå¯èƒ½ DME è½¯ä»¶ç‰ˆæœ¬è¿‡æ–°/è¿‡æ—§ï¼Œéœ€åŒ¹é…å¯¹åº”ç‰ˆæœ¬çš„ PRGã€‚");
                 return;
             }
             switch (ex.Category)
             {
                 case EdiabasErrorCategory.Interface:
-                    Console.Error.WriteLine("[´íÎó] ÎŞ·¨Óë³µÁ¾ DME ½¨Á¢Í¨ĞÅ£¨½Ó¿ÚÀà´íÎó {0}: {1}£©¡£", ex.ErrorCode, ex.ErrorText);
-                    Console.Error.WriteLine("ÇëÒÀ´Î¼ì²é£º");
-                    Console.Error.WriteLine("  1) K+DCAN ÏßÒÑÁ¬½Ó³µÁ¾ OBD ½Ó¿ÚÓëµçÄÔ USB£¬ÇÒ³µÁ¾µã»ğ¿ª¹ØÒÑ´ò¿ª (KL.15)£»");
-                    Console.Error.WriteLine("  2) COM6 Î´±» INPA / Tool32 / ÆäËû³ÌĞòÕ¼ÓÃ£¨¶Ë¿ÚÎª¶ÀÕ¼Ê¹ÓÃ£©£»");
-                    Console.Error.WriteLine("  3) ÏßÀÂÎª¿ÉÓÃµÄ FTDI K+DCAN Ïß£¨±ØÒªÊ±ÏÈÓÃ INPA/Tool32 ÑéÖ¤ÏßÀÂÓë³µÁ¾Í¨ĞÅ£©£»");
-                    Console.Error.WriteLine("  4) Ğîµç³ØµçÑ¹Õı³££¨µçÑ¹¹ıµÍ»áµ¼ÖÂÕï¶ÏÖĞ¶Ï£¬±ØÒªÊ±½Ó³äµçÆ÷£©¡£");
+                    Console.Error.WriteLine("[é”™è¯¯] æ— æ³•ä¸è½¦è¾† DME å»ºç«‹é€šä¿¡ï¼ˆæ¥å£ç±»é”™è¯¯ {0}: {1}ï¼‰ã€‚", ex.ErrorCode, ex.ErrorText);
+                    Console.Error.WriteLine("è¯·ä¾æ¬¡æ£€æŸ¥ï¼š");
+                    Console.Error.WriteLine("  1) K+DCAN çº¿å·²è¿æ¥è½¦è¾† OBD æ¥å£ä¸ç”µè„‘ USBï¼Œä¸”è½¦è¾†ç‚¹ç«å¼€å…³å·²æ‰“å¼€ (KL.15)ï¼›");
+                    Console.Error.WriteLine("  2) COM6 æœªè¢« INPA / Tool32 / å…¶ä»–ç¨‹åºå ç”¨ï¼ˆç«¯å£ä¸ºç‹¬å ä½¿ç”¨ï¼‰ï¼›");
+                    Console.Error.WriteLine("  3) çº¿ç¼†ä¸ºå¯ç”¨çš„ FTDI K+DCAN çº¿ï¼ˆå¿…è¦æ—¶å…ˆç”¨ INPA/Tool32 éªŒè¯çº¿ç¼†ä¸è½¦è¾†é€šä¿¡ï¼‰ï¼›");
+                    Console.Error.WriteLine("  4) è“„ç”µæ± ç”µå‹æ­£å¸¸ï¼ˆç”µå‹è¿‡ä½ä¼šå¯¼è‡´è¯Šæ–­ä¸­æ–­ï¼Œå¿…è¦æ—¶æ¥å……ç”µå™¨ï¼‰ã€‚");
                     PrintTraceHint();
                     break;
                 case EdiabasErrorCategory.Bip:
                 case EdiabasErrorCategory.Sys:
-                    Console.Error.WriteLine("[´íÎó] SGBD/Job ²ã´íÎó£¨{0}: {1}£©¡£", ex.ErrorCode, ex.ErrorText);
-                    Console.Error.WriteLine("ÇëÈ·ÈÏ C:\\EDIABAS\\ECU\\{0}.prg ´æÔÚ£¬ÇÒ Job Ãû³ÆÕıÈ·£¨¿ÉÓÃ Tool32 ²é¿´ PRG ÄÚ Job ÁĞ±í£©¡£", ex.Ecu);
+                    Console.Error.WriteLine("[é”™è¯¯] SGBD/Job å±‚é”™è¯¯ï¼ˆ{0}: {1}ï¼‰ã€‚", ex.ErrorCode, ex.ErrorText);
+                    Console.Error.WriteLine("è¯·ç¡®è®¤ C:\\EDIABAS\\ECU\\{0}.prg å­˜åœ¨ï¼Œä¸” Job åç§°æ­£ç¡®ï¼ˆå¯ç”¨ Tool32 æŸ¥çœ‹ PRG å†… Job åˆ—è¡¨ï¼‰ã€‚", ex.Ecu);
                     break;
                 default:
-                    Console.Error.WriteLine("[´íÎó] Job {0} Ö´ĞĞÊ§°Ü£º´íÎóÂë {1} ({2})¡£JobInfo: {3}",
+                    Console.Error.WriteLine("[é”™è¯¯] Job {0} æ‰§è¡Œå¤±è´¥ï¼šé”™è¯¯ç  {1} ({2})ã€‚JobInfo: {3}",
                         ex.Job, ex.ErrorCode, ex.ErrorText, ex.JobInfo);
                     PrintTraceHint();
                     break;
@@ -300,43 +300,43 @@ namespace ObdLogger
 
         private static void PrintNoIdentJob(NoIdentJobException ex, AppLog log)
         {
-            log.Error("ÎŞ¿ÉÓÃÊ¶±ğ Job£º{0}", ex.Message);
+            log.Error("æ— å¯ç”¨è¯†åˆ« Jobï¼š{0}", ex.Message);
             Console.Error.WriteLine();
-            Console.Error.WriteLine("[´íÎó] ËùÓĞºòÑ¡Ê¶±ğÀà Job ¾ùÖ´ĞĞÊ§°Ü£º");
+            Console.Error.WriteLine("[é”™è¯¯] æ‰€æœ‰å€™é€‰è¯†åˆ«ç±» Job å‡æ‰§è¡Œå¤±è´¥ï¼š");
             foreach (EdiabasJobException f in ex.Failures)
             {
                 if (f.IsEcuRejection)
                 {
-                    Console.Error.WriteLine("  - {0}: ECU ¾Ü¾ø ({1})", f.Job, f.ErrorText);
+                    Console.Error.WriteLine("  - {0}: ECU æ‹’ç» ({1})", f.Job, f.ErrorText);
                 }
                 else
                 {
-                    Console.Error.WriteLine("  - {0}: ´íÎóÂë {1} ({2})", f.Job, f.ErrorCode, f.ErrorText);
+                    Console.Error.WriteLine("  - {0}: é”™è¯¯ç  {1} ({2})", f.Job, f.ErrorCode, f.ErrorText);
                 }
             }
-            Console.Error.WriteLine("ÅÅ²é½¨Òé£º");
-            Console.Error.WriteLine("  1) ÈôÊ§°Üº¬ \"ECU ¾Ü¾ø (JOB_STATUS=ERROR_ECU_SUB_FUNCTION_NOT_SUPPORTED)\"£º");
-            Console.Error.WriteLine("     ËµÃ÷ DME Í¨ĞÅÕı³£µ«¸Ã SGBD µÄÊ¶±ğ·şÎñ²»Æ¥Åä ¡ª¡ª --ecu »» SGBD£¨R-1£©£¬»ò --para ´« Job ²ÎÊı£»");
-            Console.Error.WriteLine("  2) ÓÃ Tool32 (C:\\EDIABAS\\Bin\\tool32.exe) ¼ÓÔØ {0}.prg ²é¿´Êµ¼Ê Job ÁĞ±íÓë²ÎÊı¶¨Òå£¬", ex.EcuName);
-            Console.Error.WriteLine("     È»ºóÓÃ  ObdLogger.exe --job <JobÃû> [--para <²ÎÊı>]  ÖØÊÔ£»");
-            Console.Error.WriteLine("  3) È·ÈÏ C:\\EDIABAS\\ECU\\{0}.prg ÎÄ¼ş´æÔÚ¡£", ex.EcuName);
+            Console.Error.WriteLine("æ’æŸ¥å»ºè®®ï¼š");
+            Console.Error.WriteLine("  1) è‹¥å¤±è´¥å« \"ECU æ‹’ç» (JOB_STATUS=ERROR_ECU_SUB_FUNCTION_NOT_SUPPORTED)\"ï¼š");
+            Console.Error.WriteLine("     è¯´æ˜ DME é€šä¿¡æ­£å¸¸ä½†è¯¥ SGBD çš„è¯†åˆ«æœåŠ¡ä¸åŒ¹é… â€”â€” --ecu æ¢ SGBDï¼ˆR-1ï¼‰ï¼Œæˆ– --para ä¼  Job å‚æ•°ï¼›");
+            Console.Error.WriteLine("  2) ç”¨ Tool32 (C:\\EDIABAS\\Bin\\tool32.exe) åŠ è½½ {0}.prg æŸ¥çœ‹å®é™… Job åˆ—è¡¨ä¸å‚æ•°å®šä¹‰ï¼Œ", ex.EcuName);
+            Console.Error.WriteLine("     ç„¶åç”¨  ObdLogger.exe --job <Jobå> [--para <å‚æ•°>]  é‡è¯•ï¼›");
+            Console.Error.WriteLine("  3) ç¡®è®¤ C:\\EDIABAS\\ECU\\{0}.prg æ–‡ä»¶å­˜åœ¨ã€‚", ex.EcuName);
         }
 
         private static void PrintEnvErrorHint()
         {
-            Console.Error.WriteLine("ÇëÈ·ÈÏ£ºC:\\EDIABAS Ä¿Â¼ÍêÕû¡¢EDIABAS.INI ÖĞ Interface = STD:OBD¡¢PATH °üº¬ C:\\EDIABAS\\Bin¡£");
+            Console.Error.WriteLine("è¯·ç¡®è®¤ï¼šC:\\EDIABAS ç›®å½•å®Œæ•´ã€EDIABAS.INI ä¸­ Interface = STD:OBDã€PATH åŒ…å« C:\\EDIABAS\\Binã€‚");
         }
 
-        /// <summary>FR-9£ºÌáÊ¾¿É¿ªÆô EDIABAS ²à¸ú×Ù¸¨Öú¶¨Î»£¨³ÌĞò²»ĞŞ¸ÄÅäÖÃ£©¡£</summary>
+        /// <summary>FR-9ï¼šæç¤ºå¯å¼€å¯ EDIABAS ä¾§è·Ÿè¸ªè¾…åŠ©å®šä½ï¼ˆç¨‹åºä¸ä¿®æ”¹é…ç½®ï¼‰ã€‚</summary>
         private static void PrintTraceHint()
         {
-            Console.Error.WriteLine("ÅÅÕÏÌáÊ¾£º¿É½« C:\\EDIABAS\\Bin\\EDIABAS.INI ÖĞ ApiTrace / IfhTrace ÁÙÊ±ÉèÎª 1£¬");
-            Console.Error.WriteLine("          ÖØÅÜºó²é¿´ C:\\EDIABAS\\TRACE\\ ÏÂµÄ¸ú×ÙÎÄ¼ş£¨ÅÅÕÏºó¸Ä»Ø 0£©¡£");
+            Console.Error.WriteLine("æ’éšœæç¤ºï¼šå¯å°† C:\\EDIABAS\\Bin\\EDIABAS.INI ä¸­ ApiTrace / IfhTrace ä¸´æ—¶è®¾ä¸º 1ï¼Œ");
+            Console.Error.WriteLine("          é‡è·‘åæŸ¥çœ‹ C:\\EDIABAS\\TRACE\\ ä¸‹çš„è·Ÿè¸ªæ–‡ä»¶ï¼ˆæ’éšœåæ”¹å› 0ï¼‰ã€‚");
         }
 
-        // ---------- COM ¶Ë¿ÚÔ¤¼ì ----------
+        // ---------- COM ç«¯å£é¢„æ£€ ----------
 
-        /// <summary>·µ»Ø null ±íÊ¾Í¨¹ı£»·ñÔò·µ»ØÈËÀà¿É¶ÁµÄ´íÎóÃèÊö£¨AC-4/AC-5£©¡£</summary>
+        /// <summary>è¿”å› null è¡¨ç¤ºé€šè¿‡ï¼›å¦åˆ™è¿”å›äººç±»å¯è¯»çš„é”™è¯¯æè¿°ï¼ˆAC-4/AC-5ï¼‰ã€‚</summary>
         private static string PrecheckComPort(AppLog log)
         {
             string portName = ReadObdPortName(log);
@@ -347,15 +347,15 @@ namespace ObdLogger
             }
             catch (Exception ex)
             {
-                log.Warn("Ã¶¾Ù´®¿ÚÊ§°Ü£¨Ìø¹ıÔ¤¼ì£¬½»ÓÉ EDIABAS ÅĞ¶¨£©£º{0}", ex.Message);
+                log.Warn("æšä¸¾ä¸²å£å¤±è´¥ï¼ˆè·³è¿‡é¢„æ£€ï¼Œäº¤ç”± EDIABAS åˆ¤å®šï¼‰ï¼š{0}", ex.Message);
                 return null;
             }
 
             bool exists = ports.Any(p => string.Equals(p, portName, StringComparison.OrdinalIgnoreCase));
             if (!exists)
             {
-                return "Î´¼ì²âµ½ " + portName + "£¨K+DCAN ÏßÎ´²åÈëµçÄÔ£¬»ò FTDI Çı¶¯Î´Õı³£¹¤×÷£©¡£µ±Ç°ÏµÍ³´®¿Ú: " +
-                       (ports.Length == 0 ? "£¨ÎŞ£©" : string.Join(", ", ports));
+                return "æœªæ£€æµ‹åˆ° " + portName + "ï¼ˆK+DCAN çº¿æœªæ’å…¥ç”µè„‘ï¼Œæˆ– FTDI é©±åŠ¨æœªæ­£å¸¸å·¥ä½œï¼‰ã€‚å½“å‰ç³»ç»Ÿä¸²å£: " +
+                       (ports.Length == 0 ? "ï¼ˆæ— ï¼‰" : string.Join(", ", ports));
             }
             try
             {
@@ -364,16 +364,16 @@ namespace ObdLogger
                     sp.Open();
                     sp.Close();
                 }
-                log.Info("COM Ô¤¼ìÍ¨¹ı£º{0} ¿É´ò¿ª", portName);
+                log.Info("COM é¢„æ£€é€šè¿‡ï¼š{0} å¯æ‰“å¼€", portName);
                 return null;
             }
             catch (Exception ex)
             {
-                return portName + " ÎŞ·¨´ò¿ª£¬¿ÉÄÜ±» INPA / Tool32 / ÆäËû³ÌĞòÕ¼ÓÃ£¨¶Ë¿Ú¶ÀÕ¼£©¡£Çë¹Ø±ÕÕ¼ÓÃ³ÌĞòºóÖØÊÔ¡£(" + ex.Message + ")";
+                return portName + " æ— æ³•æ‰“å¼€ï¼Œå¯èƒ½è¢« INPA / Tool32 / å…¶ä»–ç¨‹åºå ç”¨ï¼ˆç«¯å£ç‹¬å ï¼‰ã€‚è¯·å…³é—­å ç”¨ç¨‹åºåé‡è¯•ã€‚(" + ex.Message + ")";
             }
         }
 
-        /// <summary>´Ó obd.ini [OBD] ¶Î¶ÁÈ¡ Port£¨Ä¬ÈÏ COM6£©£¬±£³ÖÓëÏÖÓĞÅäÖÃÒ»ÖÂ£¨FR-2/TC-3£©¡£</summary>
+        /// <summary>ä» obd.ini [OBD] æ®µè¯»å– Portï¼ˆé»˜è®¤ COM6ï¼‰ï¼Œä¿æŒä¸ç°æœ‰é…ç½®ä¸€è‡´ï¼ˆFR-2/TC-3ï¼‰ã€‚</summary>
         private static string ReadObdPortName(AppLog log)
         {
             try
@@ -402,14 +402,14 @@ namespace ObdLogger
             }
             catch (Exception ex)
             {
-                log.Warn("¶ÁÈ¡ obd.ini Ê§°Ü£¬Ê¹ÓÃÄ¬ÈÏ¶Ë¿Ú {0}£º{1}", DefaultPortName, ex.Message);
+                log.Warn("è¯»å– obd.ini å¤±è´¥ï¼Œä½¿ç”¨é»˜è®¤ç«¯å£ {0}ï¼š{1}", DefaultPortName, ex.Message);
             }
             return DefaultPortName;
         }
 
         /// <summary>
-        /// ½«ÓÃ»§´«ÈëµÄÏà¶ÔÂ·¾¶°´¡°Æô¶¯Ä¿Â¼¡±½âÎöÎª¾ø¶ÔÂ·¾¶£¨¿Õ/ÒÑ¸ù»¯ÔòÔ­Ñù·µ»Ø£©¡£
-        /// Òò EDIABAS Ğè½« CurrentDirectory ÇĞµ½ C:\EDIABAS\Bin£¬·ñÔòÏà¶Ô --config/--out »á±»´íÎó½âÎö¡£
+        /// å°†ç”¨æˆ·ä¼ å…¥çš„ç›¸å¯¹è·¯å¾„æŒ‰â€œå¯åŠ¨ç›®å½•â€è§£æä¸ºç»å¯¹è·¯å¾„ï¼ˆç©º/å·²æ ¹åŒ–åˆ™åŸæ ·è¿”å›ï¼‰ã€‚
+        /// å›  EDIABAS éœ€å°† CurrentDirectory åˆ‡åˆ° C:\EDIABAS\Binï¼Œå¦åˆ™ç›¸å¯¹ --config/--out ä¼šè¢«é”™è¯¯è§£æã€‚
         /// </summary>
         private static string ResolveUserPath(string path)
         {
@@ -422,15 +422,15 @@ namespace ObdLogger
             }
             catch
             {
-                return path; // ·Ç·¨×Ö·ûµÈ£º½»ÓÉºóĞøÊ¹ÓÃ´¦±¨´í
+                return path; // éæ³•å­—ç¬¦ç­‰ï¼šäº¤ç”±åç»­ä½¿ç”¨å¤„æŠ¥é”™
             }
         }
 
-        // ================= ¶şÆÚ£ºlog Ä£Ê½£¨ÊµÊ±²ÉÑùÓë CSV ÂäÅÌ£© =================
+        // ================= äºŒæœŸï¼šlog æ¨¡å¼ï¼ˆå®æ—¶é‡‡æ ·ä¸ CSV è½ç›˜ï¼‰ =================
 
         /// <summary>
-        /// ¶şÆÚÈë¿Ú£¨FR-2-1£©£ºÊµÊ±²ÉÑù·¢¶¯»úÊı¾İ¡¢¿ØÖÆÌ¨¾ÍµØÏÔÊ¾¡¢CSV ÂäÅÌ¡£
-        /// ¸´ÓÃÒ»¸öÆÚµÄ»·¾³Ô¤¼ìÓë EdiabasClient/VehicleInfoReader£»²É¼¯ÔÚÖ÷Ïß³Ì´®ĞĞµ÷ÓÃÖ»¶Á²âÁ¿¿é Job¡£
+        /// äºŒæœŸå…¥å£ï¼ˆFR-2-1ï¼‰ï¼šå®æ—¶é‡‡æ ·å‘åŠ¨æœºæ•°æ®ã€æ§åˆ¶å°å°±åœ°æ˜¾ç¤ºã€CSV è½ç›˜ã€‚
+        /// å¤ç”¨ä¸€ä¸ªæœŸçš„ç¯å¢ƒé¢„æ£€ä¸ EdiabasClient/VehicleInfoReaderï¼›é‡‡é›†åœ¨ä¸»çº¿ç¨‹ä¸²è¡Œè°ƒç”¨åªè¯»æµ‹é‡å— Jobã€‚
         /// </summary>
         private static int RunLogging(string[] args, int start)
         {
@@ -446,53 +446,53 @@ namespace ObdLogger
                 return 0;
             }
 
-            Console.WriteLine("OBD Logger ¶şÆÚ - ÊµÊ±Êı¾İ¶¨Ê±²ÉÑùÓë CSV ÂäÅÌ");
-            Console.WriteLine("Á´Â·: ObdLogger ¡ú api32.dll ¡ú EDIABAS 7.3.0 ¡ú " + lo.EcuName + ".prg ¡ú K+DCAN ¡ú DME");
-            Console.WriteLine("°²È«ºìÏß: ½öÖ»¶Á²âÁ¿¿é Job£¨STATUS_MESSWERTBLOCK_LESEN£©£¬ÎŞÈÎºÎĞ´Èë/¸´Î»/±à³Ì²Ù×÷");
+            Console.WriteLine("OBD Logger äºŒæœŸ - å®æ—¶æ•°æ®å®šæ—¶é‡‡æ ·ä¸ CSV è½ç›˜");
+            Console.WriteLine("é“¾è·¯: ObdLogger â†’ api32.dll â†’ EDIABAS 7.3.0 â†’ " + lo.EcuName + ".prg â†’ K+DCAN â†’ DME");
+            Console.WriteLine("å®‰å…¨çº¢çº¿: ä»…åªè¯»æµ‹é‡å— Jobï¼ˆSTATUS_MESSWERTBLOCK_LESENï¼‰ï¼Œæ— ä»»ä½•å†™å…¥/å¤ä½/ç¼–ç¨‹æ“ä½œ");
             Console.WriteLine();
 
-            // ---------- TC-1£º32 Î»½ø³Ì×Ô¼ì ----------
+            // ---------- TC-1ï¼š32 ä½è¿›ç¨‹è‡ªæ£€ ----------
             if (Environment.Is64BitProcess)
             {
-                Console.Error.WriteLine("[´íÎó] µ±Ç°½ø³ÌÎª 64 Î»£¬ÎŞ·¨¼ÓÔØ 32 Î» api32.dll¡£ÇëÊ¹ÓÃ x86 ¹¹½¨ÔËĞĞ¡£");
+                Console.Error.WriteLine("[é”™è¯¯] å½“å‰è¿›ç¨‹ä¸º 64 ä½ï¼Œæ— æ³•åŠ è½½ 32 ä½ api32.dllã€‚è¯·ä½¿ç”¨ x86 æ„å»ºè¿è¡Œã€‚");
                 return 2;
             }
-            // ---------- TC-2£ºEDIABAS »·¾³Ô¤¼ì ----------
+            // ---------- TC-2ï¼šEDIABAS ç¯å¢ƒé¢„æ£€ ----------
             string apiDllPath = Path.Combine(EdiabasBinDir, "api32.dll");
             if (!File.Exists(apiDllPath))
             {
-                Console.Error.WriteLine("[´íÎó] Î´ÕÒµ½ " + apiDllPath + "¡£ÇëÈ·ÈÏ EDIABAS ÒÑ°²×°ÔÚ C:\\EDIABAS¡£");
+                Console.Error.WriteLine("[é”™è¯¯] æœªæ‰¾åˆ° " + apiDllPath + "ã€‚è¯·ç¡®è®¤ EDIABAS å·²å®‰è£…åœ¨ C:\\EDIABASã€‚");
                 return 2;
             }
 
             using (AppLog log = AppLog.Create(lo.Verbose))
             {
-                log.Info("log Ä£Ê½Æô¶¯£»OS={0}£»½ø³Ì={1}Î»£»ECU={2}£»rate={3}Hz£»out={4}£»config={5}£»paraSep='{6}'£»allowJA={7}",
+                log.Info("log æ¨¡å¼å¯åŠ¨ï¼›OS={0}ï¼›è¿›ç¨‹={1}ä½ï¼›ECU={2}ï¼›rate={3}Hzï¼›out={4}ï¼›config={5}ï¼›paraSep='{6}'ï¼›allowJA={7}",
                     Environment.OSVersion, Environment.Is64BitProcess ? 64 : 32, lo.EcuName, lo.RateHz,
-                    lo.OutPath ?? "(Ä¬ÈÏ log\\)", lo.ConfigPath ?? "(ÄÚÖÃÄ¬ÈÏ)", lo.ParaSep, lo.AllowModeJa);
+                    lo.OutPath ?? "(é»˜è®¤ log\\)", lo.ConfigPath ?? "(å†…ç½®é»˜è®¤)", lo.ParaSep, lo.AllowModeJa);
                 if (log.FilePath != null)
                 {
-                    Console.WriteLine("ÈÕÖ¾ÎÄ¼ş: " + log.FilePath);
+                    Console.WriteLine("æ—¥å¿—æ–‡ä»¶: " + log.FilePath);
                 }
 
                 if (!NativeMethods.SetDllDirectory(EdiabasBinDir))
                 {
-                    log.Warn("SetDllDirectory({0}) Ê§°Ü£¬ÒÀÀµ PATH ½âÎö api32.dll", EdiabasBinDir);
+                    log.Warn("SetDllDirectory({0}) å¤±è´¥ï¼Œä¾èµ– PATH è§£æ api32.dll", EdiabasBinDir);
                 }
                 try { Environment.CurrentDirectory = EdiabasBinDir; }
-                catch (Exception ex) { log.Warn("ÇĞ»»¹¤×÷Ä¿Â¼µ½ {0} Ê§°Ü£º{1}", EdiabasBinDir, ex.Message); }
+                catch (Exception ex) { log.Warn("åˆ‡æ¢å·¥ä½œç›®å½•åˆ° {0} å¤±è´¥ï¼š{1}", EdiabasBinDir, ex.Message); }
 
-                // ---------- AC-2-5£ºCOM ¶Ë¿ÚÔ¤¼ì£¨Î´½Ó³µ/Õ¼ÓÃ ¡ú Ã÷È·ÌáÊ¾²¢Õı³£ÍË³ö£© ----------
+                // ---------- AC-2-5ï¼šCOM ç«¯å£é¢„æ£€ï¼ˆæœªæ¥è½¦/å ç”¨ â†’ æ˜ç¡®æç¤ºå¹¶æ­£å¸¸é€€å‡ºï¼‰ ----------
                 string comError = PrecheckComPort(log);
                 if (comError != null)
                 {
-                    log.Error("COM Ô¤¼ìÊ§°Ü£º{0}", comError);
+                    log.Error("COM é¢„æ£€å¤±è´¥ï¼š{0}", comError);
                     Console.Error.WriteLine();
-                    Console.Error.WriteLine("[´íÎó] " + comError);
+                    Console.Error.WriteLine("[é”™è¯¯] " + comError);
                     return 3;
                 }
 
-                // ---------- ¼ÓÔØ²âÁ¿ÖµÄ¿Â¼£¨Ç¶Èë MESSWERTETAB£¬FR-2-9£©+ ²ÉÑùÇåµ¥£¨FR-2-4£© ----------
+                // ---------- åŠ è½½æµ‹é‡å€¼ç›®å½•ï¼ˆåµŒå…¥ MESSWERTETABï¼ŒFR-2-9ï¼‰+ é‡‡æ ·æ¸…å•ï¼ˆFR-2-4ï¼‰ ----------
                 MesswertCatalog catalog = MesswertCatalog.LoadEmbedded(log);
                 SampleConfig config;
                 string configPath = ResolveUserPath(lo.ConfigPath);
@@ -505,21 +505,21 @@ namespace ObdLogger
                 }
                 catch (SampleConfigException ex)
                 {
-                    log.Error("²ÉÑùÅäÖÃ´íÎó£º{0}", ex.Message);
+                    log.Error("é‡‡æ ·é…ç½®é”™è¯¯ï¼š{0}", ex.Message);
                     Console.Error.WriteLine();
-                    Console.Error.WriteLine("[´íÎó] " + ex.Message);
+                    Console.Error.WriteLine("[é”™è¯¯] " + ex.Message);
                     return 1;
                 }
                 catch (Exception ex)
                 {
-                    log.Error("¶ÁÈ¡²ÉÑùÅäÖÃÊ§°Ü£º{0}", ex);
+                    log.Error("è¯»å–é‡‡æ ·é…ç½®å¤±è´¥ï¼š{0}", ex);
                     Console.Error.WriteLine();
-                    Console.Error.WriteLine("[´íÎó] ¶ÁÈ¡²ÉÑùÅäÖÃÊ§°Ü£º" + ex.Message);
+                    Console.Error.WriteLine("[é”™è¯¯] è¯»å–é‡‡æ ·é…ç½®å¤±è´¥ï¼š" + ex.Message);
                     return 1;
                 }
 
                 int groupCount = (int)Math.Ceiling(config.Count / (double)SampleConfig.MaxArgsPerCall);
-                Console.WriteLine("²ÉÑùÇåµ¥: {0}£¨{1} Ïî£¬{2} ×é£¬µ¥´Îµ÷ÓÃ ¡Ü{3} Ïî£©",
+                Console.WriteLine("é‡‡æ ·æ¸…å•: {0}ï¼ˆ{1} é¡¹ï¼Œ{2} ç»„ï¼Œå•æ¬¡è°ƒç”¨ â‰¤{3} é¡¹ï¼‰",
                     config.Source, config.Count, groupCount, SampleConfig.MaxArgsPerCall);
 
                 var settings = new SamplerSettings
@@ -536,12 +536,12 @@ namespace ObdLogger
                 {
                     try
                     {
-                        // FR-2£º³õÊ¼»¯
+                        // FR-2ï¼šåˆå§‹åŒ–
                         client.Init();
                         client.CheckVersion();
 
-                        // ³µÁ¾»ù´¡ĞÅÏ¢£¨VIN ¹© CSV Í·£»Ê§°ÜÁô¿ÕÇÒ²»×èÈû²ÉÑù£¬¡ì6 / FR-2-6£©¡£
-                        // ½Ó¿ÚÀà´íÎó/³¬Ê±Ö±½ÓÉÏÅ×£¬ÎŞ³µÊ±¿ìËÙÍË³ö£¨AC-2-5£©¡£
+                        // è½¦è¾†åŸºç¡€ä¿¡æ¯ï¼ˆVIN ä¾› CSV å¤´ï¼›å¤±è´¥ç•™ç©ºä¸”ä¸é˜»å¡é‡‡æ ·ï¼ŒÂ§6 / FR-2-6ï¼‰ã€‚
+                        // æ¥å£ç±»é”™è¯¯/è¶…æ—¶ç›´æ¥ä¸ŠæŠ›ï¼Œæ— è½¦æ—¶å¿«é€Ÿé€€å‡ºï¼ˆAC-2-5ï¼‰ã€‚
                         string vin = string.Empty;
                         string ecuIdent = string.Empty;
                         try
@@ -555,16 +555,16 @@ namespace ObdLogger
                         catch (OperationCanceledException) { throw; }
                         catch (EdiabasJobException jex)
                         {
-                            if (jex.Category == EdiabasErrorCategory.Interface) throw; // ÎŞ³µ/Í¨ĞÅÊ§°Ü£º¿ìËÙÍË³ö
-                            log.Warn("Ê¶±ğ Job Ê§°Ü£¨VIN Áô¿Õ£¬¼ÌĞø²ÉÑù£©£º{0}", jex.Message);
+                            if (jex.Category == EdiabasErrorCategory.Interface) throw; // æ— è½¦/é€šä¿¡å¤±è´¥ï¼šå¿«é€Ÿé€€å‡º
+                            log.Warn("è¯†åˆ« Job å¤±è´¥ï¼ˆVIN ç•™ç©ºï¼Œç»§ç»­é‡‡æ ·ï¼‰ï¼š{0}", jex.Message);
                         }
                         catch (Exception ex)
                         {
-                            log.Warn("¶ÁÈ¡³µÁ¾»ù´¡ĞÅÏ¢Ê§°Ü£¨VIN Áô¿Õ£¬¼ÌĞø²ÉÑù£©£º{0}", ex.Message);
+                            log.Warn("è¯»å–è½¦è¾†åŸºç¡€ä¿¡æ¯å¤±è´¥ï¼ˆVIN ç•™ç©ºï¼Œç»§ç»­é‡‡æ ·ï¼‰ï¼š{0}", ex.Message);
                         }
-                        Console.WriteLine("³µÁ¾: VIN={0}  ECU±êÊ¶={1}",
-                            string.IsNullOrEmpty(vin) ? "(Î´¶ÁÈ¡µ½)" : vin,
-                            string.IsNullOrEmpty(ecuIdent) ? "(Î´¶ÁÈ¡µ½)" : ecuIdent);
+                        Console.WriteLine("è½¦è¾†: VIN={0}  ECUæ ‡è¯†={1}",
+                            string.IsNullOrEmpty(vin) ? "(æœªè¯»å–åˆ°)" : vin,
+                            string.IsNullOrEmpty(ecuIdent) ? "(æœªè¯»å–åˆ°)" : ecuIdent);
 
                         var meta = new CsvHeaderInfo
                         {
@@ -582,7 +582,7 @@ namespace ObdLogger
                         using (var csv = new CsvWriter(outPath, config, meta, log))
                         using (var sampler = new Sampler(client, config, csv, display, log, settings, stats))
                         {
-                            // FR-2-7£ºCtrl+C ¡ú ÖÃÍ£Ö¹±êÖ¾ + apiBreak£¨ÑØÓÃÒ»ÆÚ»úÖÆ£¬±£Ö¤ CSV ÍêÕû¹Ø±ÕÓë apiEnd£©
+                            // FR-2-7ï¼šCtrl+C â†’ ç½®åœæ­¢æ ‡å¿— + apiBreakï¼ˆæ²¿ç”¨ä¸€æœŸæœºåˆ¶ï¼Œä¿è¯ CSV å®Œæ•´å…³é—­ä¸ apiEndï¼‰
                             Console.CancelKeyPress += (s, e) =>
                             {
                                 e.Cancel = true;
@@ -590,7 +590,7 @@ namespace ObdLogger
                             };
 
                             int code = 0;
-                            log.ConsoleEnabled = false; // ÏÔÊ¾½Ó¹Ü¿ØÖÆÌ¨£»ÈÕÖ¾½öÂäÎÄ¼ş£¨FR-2-3£©
+                            log.ConsoleEnabled = false; // æ˜¾ç¤ºæ¥ç®¡æ§åˆ¶å°ï¼›æ—¥å¿—ä»…è½æ–‡ä»¶ï¼ˆFR-2-3ï¼‰
                             try
                             {
                                 sampler.Run();
@@ -605,12 +605,12 @@ namespace ObdLogger
                             }
                             catch (EdiabasException ex)
                             {
-                                log.Error("EDIABAS ´íÎó£º{0}", ex.Message);
+                                log.Error("EDIABAS é”™è¯¯ï¼š{0}", ex.Message);
                                 code = 2;
                             }
                             catch (Exception ex)
                             {
-                                log.Error("ÒâÍâ´íÎó£º{0}", ex);
+                                log.Error("æ„å¤–é”™è¯¯ï¼š{0}", ex);
                                 code = 1;
                             }
                             finally
@@ -629,17 +629,17 @@ namespace ObdLogger
                     }
                     catch (OperationCanceledException)
                     {
-                        log.Warn("ÓÃ»§ÖĞ¶Ï£¨³õÊ¼»¯½×¶Î£©");
+                        log.Warn("ç”¨æˆ·ä¸­æ–­ï¼ˆåˆå§‹åŒ–é˜¶æ®µï¼‰");
                         Console.Error.WriteLine();
-                        Console.Error.WriteLine("[ÖĞ¶Ï] ÒÑ±»ÓÃ»§ÖĞ¶Ï (Ctrl+C)£¬×ÊÔ´ÒÑÕı³£ÊÍ·Å¡£");
+                        Console.Error.WriteLine("[ä¸­æ–­] å·²è¢«ç”¨æˆ·ä¸­æ–­ (Ctrl+C)ï¼Œèµ„æºå·²æ­£å¸¸é‡Šæ”¾ã€‚");
                         return 3;
                     }
                     catch (EdiabasTimeoutException ex)
                     {
-                        log.Error("³¬Ê±£º{0}", ex.Message);
+                        log.Error("è¶…æ—¶ï¼š{0}", ex.Message);
                         Console.Error.WriteLine();
-                        Console.Error.WriteLine("[´íÎó] " + ex.Message);
-                        Console.Error.WriteLine("Çë¼ì²é£ºµã»ğ¿ª¹ØÒÑ´ò¿ª (KL.15)¡¢K+DCAN ÏßÁ¬½Ó¿É¿¿¡¢ÏßÀÂÊ±Ğò¼æÈİĞÔ¡£");
+                        Console.Error.WriteLine("[é”™è¯¯] " + ex.Message);
+                        Console.Error.WriteLine("è¯·æ£€æŸ¥ï¼šç‚¹ç«å¼€å…³å·²æ‰“å¼€ (KL.15)ã€K+DCAN çº¿è¿æ¥å¯é ã€çº¿ç¼†æ—¶åºå…¼å®¹æ€§ã€‚");
                         PrintTraceHint();
                         return 3;
                     }
@@ -650,63 +650,63 @@ namespace ObdLogger
                     }
                     catch (EdiabasException ex)
                     {
-                        log.Error("EDIABAS ´íÎó£º{0}", ex.Message);
+                        log.Error("EDIABAS é”™è¯¯ï¼š{0}", ex.Message);
                         Console.Error.WriteLine();
-                        Console.Error.WriteLine("[´íÎó] " + ex.Message);
+                        Console.Error.WriteLine("[é”™è¯¯] " + ex.Message);
                         PrintEnvErrorHint();
                         PrintTraceHint();
                         return 2;
                     }
                     catch (Exception ex)
                     {
-                        log.Error("ÒâÍâ´íÎó£º{0}", ex);
+                        log.Error("æ„å¤–é”™è¯¯ï¼š{0}", ex);
                         Console.Error.WriteLine();
-                        Console.Error.WriteLine("[´íÎó] ·¢ÉúÒâÍâ´íÎó£¨ÏêÏ¸¶ÑÕ»¼ûÈÕÖ¾ÎÄ¼ş£©£º" + ex.Message);
+                        Console.Error.WriteLine("[é”™è¯¯] å‘ç”Ÿæ„å¤–é”™è¯¯ï¼ˆè¯¦ç»†å †æ ˆè§æ—¥å¿—æ–‡ä»¶ï¼‰ï¼š" + ex.Message);
                         return 1;
                     }
                 }
             }
         }
 
-        /// <summary>²ÉÑùÆô¶¯½×¶ÎÖÂÃüÊ§°Ü ¡ú ³¡¾°»¯ÌáÊ¾ + ÍË³öÂë£¨¸´ÓÃÒ»ÆÚ´íÎóÌáÊ¾·ç¸ñ£©¡£</summary>
+        /// <summary>é‡‡æ ·å¯åŠ¨é˜¶æ®µè‡´å‘½å¤±è´¥ â†’ åœºæ™¯åŒ–æç¤º + é€€å‡ºç ï¼ˆå¤ç”¨ä¸€æœŸé”™è¯¯æç¤ºé£æ ¼ï¼‰ã€‚</summary>
         private static int ReportSamplerStart(SamplerStartException sse, AppLog log)
         {
-            log.Error("²ÉÑùÆô¶¯Ê§°Ü£¨{0}£©£º{1}£»{2}", sse.Kind, sse.Message, sse.Detail);
+            log.Error("é‡‡æ ·å¯åŠ¨å¤±è´¥ï¼ˆ{0}ï¼‰ï¼š{1}ï¼›{2}", sse.Kind, sse.Message, sse.Detail);
             Console.Error.WriteLine();
             switch (sse.Kind)
             {
                 case SamplerStartException.FailureKind.NoConnection:
-                    Console.Error.WriteLine("[´íÎó] ÎŞ·¨Óë³µÁ¾ DME ½¨Á¢Í¨ĞÅ£º" + sse.Message);
-                    Console.Error.WriteLine("ÇëÒÀ´Î¼ì²é£º");
-                    Console.Error.WriteLine("  1) K+DCAN ÏßÒÑÁ¬½Ó³µÁ¾ OBD ÓëµçÄÔ USB£¬ÇÒµã»ğ¿ª¹ØÒÑ´ò¿ª (KL.15)£»");
-                    Console.Error.WriteLine("  2) COM6 Î´±» INPA / Tool32 / ÆäËû³ÌĞòÕ¼ÓÃ£¨¶Ë¿Ú¶ÀÕ¼£©£»");
-                    Console.Error.WriteLine("  3) ÏßÀÂÎª¿ÉÓÃ FTDI K+DCAN£¨±ØÒªÊ±ÏÈÓÃ INPA/Tool32 ÑéÖ¤£©£»");
-                    Console.Error.WriteLine("  4) Ğîµç³ØµçÑ¹Õı³££¨¹ıµÍ»áÖĞ¶ÏÕï¶Ï£¬³¤¼ÇÂ¼½¨Òé½Ó³äµçÆ÷£¬R-2-6£©¡£");
+                    Console.Error.WriteLine("[é”™è¯¯] æ— æ³•ä¸è½¦è¾† DME å»ºç«‹é€šä¿¡ï¼š" + sse.Message);
+                    Console.Error.WriteLine("è¯·ä¾æ¬¡æ£€æŸ¥ï¼š");
+                    Console.Error.WriteLine("  1) K+DCAN çº¿å·²è¿æ¥è½¦è¾† OBD ä¸ç”µè„‘ USBï¼Œä¸”ç‚¹ç«å¼€å…³å·²æ‰“å¼€ (KL.15)ï¼›");
+                    Console.Error.WriteLine("  2) COM6 æœªè¢« INPA / Tool32 / å…¶ä»–ç¨‹åºå ç”¨ï¼ˆç«¯å£ç‹¬å ï¼‰ï¼›");
+                    Console.Error.WriteLine("  3) çº¿ç¼†ä¸ºå¯ç”¨ FTDI K+DCANï¼ˆå¿…è¦æ—¶å…ˆç”¨ INPA/Tool32 éªŒè¯ï¼‰ï¼›");
+                    Console.Error.WriteLine("  4) è“„ç”µæ± ç”µå‹æ­£å¸¸ï¼ˆè¿‡ä½ä¼šä¸­æ–­è¯Šæ–­ï¼Œé•¿è®°å½•å»ºè®®æ¥å……ç”µå™¨ï¼ŒR-2-6ï¼‰ã€‚");
                     PrintTraceHint();
                     return 3;
                 case SamplerStartException.FailureKind.EcuRejected:
-                    Console.Error.WriteLine("[´íÎó] " + sse.Message);
-                    Console.Error.WriteLine("¶Ô²ß£º--ecu ¸ü»» SGBD£¨±¾³µÊµ²â¿ÉÓÃ£ºMEVD174K / 01mevd1724 / MEVD176K / MEVD17KW / 01mevd1726 / 01MEVD1727 / 01MEVD1729£©¡£");
+                    Console.Error.WriteLine("[é”™è¯¯] " + sse.Message);
+                    Console.Error.WriteLine("å¯¹ç­–ï¼š--ecu æ›´æ¢ SGBDï¼ˆæœ¬è½¦å®æµ‹å¯ç”¨ï¼šMEVD174K / 01mevd1724 / MEVD176K / MEVD17KW / 01mevd1726 / 01MEVD1727 / 01MEVD1729ï¼‰ã€‚");
                     return 4;
                 case SamplerStartException.FailureKind.BadArguments:
-                    Console.Error.WriteLine("[´íÎó] " + sse.Message);
-                    Console.Error.WriteLine("  ÏêÇé£º" + sse.Detail);
-                    Console.Error.WriteLine("¿ÉÄÜÔ­ÒòÓë¶Ô²ß£º");
-                    Console.Error.WriteLine("  1) ¶¯Ì¬²ÎÊı·Ö¸ô·û²»·û£¨R-2-1£©£º³ÌĞòÒÑ×Ô¶¯³¢ÊÔ ';' Óë ','£¬ÈôÈÔÊ§°Ü¿ÉÓÃ --para-sep Ö¸¶¨£»");
-                    Console.Error.WriteLine("  2) ²ÉÑùÇåµ¥º¬ÎŞĞ§ ARG£ººË¶Ô doc\\²ÄÁÏ\\messwertetab.csv£¨FR-2-9 µ¼³ö£©µÄ ARG ÁĞ£»");
-                    Console.Error.WriteLine("  3) ¸Ã SGBD ²»Ö§³Ö STATUS_MESSWERTBLOCK_LESEN£º--ecu ¸ü»»£¨¼ûÉÏ£©£»");
-                    Console.Error.WriteLine("  4) MODE=JA µÄ $2C ¶¯Ì¬¶¨Òå±»µ±Ç° ECU ×´Ì¬¾Ü¾ø£¨R-2-4£©£º¼Ó --no-ja ÓÃ±£ÊØÖ»¶ÁÄ£Ê½ÖØÊÔ¡£");
+                    Console.Error.WriteLine("[é”™è¯¯] " + sse.Message);
+                    Console.Error.WriteLine("  è¯¦æƒ…ï¼š" + sse.Detail);
+                    Console.Error.WriteLine("å¯èƒ½åŸå› ä¸å¯¹ç­–ï¼š");
+                    Console.Error.WriteLine("  1) åŠ¨æ€å‚æ•°åˆ†éš”ç¬¦ä¸ç¬¦ï¼ˆR-2-1ï¼‰ï¼šç¨‹åºå·²è‡ªåŠ¨å°è¯• ';' ä¸ ','ï¼Œè‹¥ä»å¤±è´¥å¯ç”¨ --para-sep æŒ‡å®šï¼›");
+                    Console.Error.WriteLine("  2) é‡‡æ ·æ¸…å•å«æ— æ•ˆ ARGï¼šæ ¸å¯¹ doc\\ææ–™\\messwertetab.csvï¼ˆFR-2-9 å¯¼å‡ºï¼‰çš„ ARG åˆ—ï¼›");
+                    Console.Error.WriteLine("  3) è¯¥ SGBD ä¸æ”¯æŒ STATUS_MESSWERTBLOCK_LESENï¼š--ecu æ›´æ¢ï¼ˆè§ä¸Šï¼‰ï¼›");
+                    Console.Error.WriteLine("  4) MODE=JA çš„ $2C åŠ¨æ€å®šä¹‰è¢«å½“å‰ ECU çŠ¶æ€æ‹’ç»ï¼ˆR-2-4ï¼‰ï¼šåŠ  --no-ja ç”¨ä¿å®ˆåªè¯»æ¨¡å¼é‡è¯•ã€‚");
                     return 4;
                 case SamplerStartException.FailureKind.Environment:
                 default:
-                    Console.Error.WriteLine("[´íÎó] " + sse.Message);
+                    Console.Error.WriteLine("[é”™è¯¯] " + sse.Message);
                     PrintEnvErrorHint();
                     PrintTraceHint();
                     return 2;
             }
         }
 
-        /// <summary>FR-2-11£ºÔËĞĞ½áÊøÊä³ö²ÉÑù»ã×Ü¡£</summary>
+        /// <summary>FR-2-11ï¼šè¿è¡Œç»“æŸè¾“å‡ºé‡‡æ ·æ±‡æ€»ã€‚</summary>
         private static void PrintLogSummary(SamplerStats stats, CsvWriter csv, Sampler sampler, AppLog log)
         {
             double elapsed = stats.ElapsedSeconds;
@@ -715,38 +715,38 @@ namespace ObdLogger
             var inv = System.Globalization.CultureInfo.InvariantCulture;
 
             Console.WriteLine();
-            Console.WriteLine("================ ²ÉÑù»ã×Ü (FR-2-11) ================");
-            Console.WriteLine("ÔËĞĞÊ±³¤ : {0:00}:{1:00}:{2:00}", (int)ts.TotalHours, ts.Minutes, ts.Seconds);
-            Console.WriteLine("ÓĞĞ§Ñù±¾ : {0}", stats.Ok);
-            Console.WriteLine("Êı¾İÈ±¿Ú : {0}", stats.Gap);
-            Console.WriteLine("Æ½¾ùËÙÂÊ : {0} Hz", stats.RateHz.ToString("0.00", inv));
-            Console.WriteLine("CSV ÎÄ¼ş : {0}", string.IsNullOrEmpty(csv.CurrentPath) ? "(Î´´´½¨)" : csv.CurrentPath);
-            Console.WriteLine("           ¹² {0} ĞĞ£¬¹ö¶¯ {1} ´Î", csv.RowsWritten, csv.RollCount);
-            Console.WriteLine("Ğ­ÉÌ²ÎÊı : ·Ö¸ô·û='{0}'  MODE ¶¨Òå/¶ÁÈ¡='{1}'/'{2}'",
+            Console.WriteLine("================ é‡‡æ ·æ±‡æ€» (FR-2-11) ================");
+            Console.WriteLine("è¿è¡Œæ—¶é•¿ : {0:00}:{1:00}:{2:00}", (int)ts.TotalHours, ts.Minutes, ts.Seconds);
+            Console.WriteLine("æœ‰æ•ˆæ ·æœ¬ : {0}", stats.Ok);
+            Console.WriteLine("æ•°æ®ç¼ºå£ : {0}", stats.Gap);
+            Console.WriteLine("å¹³å‡é€Ÿç‡ : {0} Hz", stats.RateHz.ToString("0.00", inv));
+            Console.WriteLine("CSV æ–‡ä»¶ : {0}", string.IsNullOrEmpty(csv.CurrentPath) ? "(æœªåˆ›å»º)" : csv.CurrentPath);
+            Console.WriteLine("           å…± {0} è¡Œï¼Œæ»šåŠ¨ {1} æ¬¡", csv.RowsWritten, csv.RollCount);
+            Console.WriteLine("åå•†å‚æ•° : åˆ†éš”ç¬¦='{0}'  MODE å®šä¹‰/è¯»å–='{1}'/'{2}'",
                 sampler.NegotiatedParaSep,
-                sampler.NegotiatedModeDefine ?? "(Î´ÓÃ JA)",
+                sampler.NegotiatedModeDefine ?? "(æœªç”¨ JA)",
                 sampler.NegotiatedModeRead);
-            Console.WriteLine("²âÁ¿¿é   : µ¥´Î¶¨Òå×î´ó {0} Ïî ¡ú {1} ×é£¨ECU ¶Ô¹ı´óµÄ $2C ¶¨Òå·µ»Ø requestOutOfRange£¬ÒÑ×Ô¶¯ÊÕËõ£©",
+            Console.WriteLine("æµ‹é‡å—   : å•æ¬¡å®šä¹‰æœ€å¤§ {0} é¡¹ â†’ {1} ç»„ï¼ˆECU å¯¹è¿‡å¤§çš„ $2C å®šä¹‰è¿”å› requestOutOfRangeï¼Œå·²è‡ªåŠ¨æ”¶ç¼©ï¼‰",
                 sampler.MaxBlockDiscovered, sampler.GroupCount);
             if (sampler.ExcludedArgs != null && sampler.ExcludedArgs.Length > 0)
             {
-                Console.WriteLine("ÒÑÌø¹ıÏî : {0}£¨±» ECU ¾Ü¾ø£¬Èç Resultname not valid£»Æä CSV ÁĞÁô¿Õ£©",
+                Console.WriteLine("å·²è·³è¿‡é¡¹ : {0}ï¼ˆè¢« ECU æ‹’ç»ï¼Œå¦‚ Resultname not validï¼›å…¶ CSV åˆ—ç•™ç©ºï¼‰",
                     string.Join(", ", sampler.ExcludedArgs));
             }
             if (stats.Gap > 0)
             {
-                Console.WriteLine("ÌáÊ¾     : ´æÔÚÊı¾İÈ±¿Ú£¨CSV ÖĞÒÔ¿Õ×Ö¶Î±ê¼Ç£©£»³£¼ûÓÚµã»ğ OFF/ÏßÀÂËÉ¶¯£¬ÒÑ×Ô¶¯ÍË±ÜÖØÊÔ²¢»Ö¸´£¨FR-2-8£©¡£");
+                Console.WriteLine("æç¤º     : å­˜åœ¨æ•°æ®ç¼ºå£ï¼ˆCSV ä¸­ä»¥ç©ºå­—æ®µæ ‡è®°ï¼‰ï¼›å¸¸è§äºç‚¹ç« OFF/çº¿ç¼†æ¾åŠ¨ï¼Œå·²è‡ªåŠ¨é€€é¿é‡è¯•å¹¶æ¢å¤ï¼ˆFR-2-8ï¼‰ã€‚");
             }
-            Console.WriteLine("ÅÅÕÏ     : Ğèµç±¨¼¶¸ú×ÙÊ±£¬¿É½« C:\\EDIABAS\\Bin\\EDIABAS.INI µÄ ApiTrace/IfhTrace ÉèÎª 1 ºóÖØÅÜ£¨FR-2-12£¬³ÌĞò²»¸ÄÅäÖÃ£©¡£");
+            Console.WriteLine("æ’éšœ     : éœ€ç”µæŠ¥çº§è·Ÿè¸ªæ—¶ï¼Œå¯å°† C:\\EDIABAS\\Bin\\EDIABAS.INI çš„ ApiTrace/IfhTrace è®¾ä¸º 1 åé‡è·‘ï¼ˆFR-2-12ï¼Œç¨‹åºä¸æ”¹é…ç½®ï¼‰ã€‚");
             Console.WriteLine("====================================================");
             Console.WriteLine();
-            Console.WriteLine("[Íê³É] ²ÉÑùÒÑÍ£Ö¹£¬CSV ÒÑÍêÕû¹Ø±Õ£¬apiEnd ÒÑÊÍ·Å£¨FR-2-7£©¡£");
+            Console.WriteLine("[å®Œæˆ] é‡‡æ ·å·²åœæ­¢ï¼ŒCSV å·²å®Œæ•´å…³é—­ï¼ŒapiEnd å·²é‡Šæ”¾ï¼ˆFR-2-7ï¼‰ã€‚");
 
-            log.Info("²ÉÑù»ã×Ü£ºÊ±³¤={0:F1}s£¬Ñù±¾={1}£¬È±¿Ú={2}£¬ËÙÂÊ={3:F2}Hz£¬CSVĞĞÊı={4}£¬¹ö¶¯={5}",
+            log.Info("é‡‡æ ·æ±‡æ€»ï¼šæ—¶é•¿={0:F1}sï¼Œæ ·æœ¬={1}ï¼Œç¼ºå£={2}ï¼Œé€Ÿç‡={3:F2}Hzï¼ŒCSVè¡Œæ•°={4}ï¼Œæ»šåŠ¨={5}",
                 elapsed, stats.Ok, stats.Gap, stats.RateHz, csv.RowsWritten, csv.RollCount);
         }
 
-        /// <summary>¶şÆÚ log Ä£Ê½µÄÃüÁîĞĞÑ¡Ïî¡£</summary>
+        /// <summary>äºŒæœŸ log æ¨¡å¼çš„å‘½ä»¤è¡Œé€‰é¡¹ã€‚</summary>
         private sealed class LogOptions
         {
             public string EcuName = DefaultLogEcuName;
@@ -782,7 +782,7 @@ namespace ObdLogger
                             double r;
                             if (!double.TryParse(args[i], System.Globalization.NumberStyles.Float, inv, out r) || r <= 0)
                             {
-                                Console.Error.WriteLine("[´íÎó] --rate ĞèÎªÕıÊı£¨Hz£©£¬Èç 1 / 2 / 0.5£º" + args[i]);
+                                Console.Error.WriteLine("[é”™è¯¯] --rate éœ€ä¸ºæ­£æ•°ï¼ˆHzï¼‰ï¼Œå¦‚ 1 / 2 / 0.5ï¼š" + args[i]);
                                 return false;
                             }
                             o.RateHz = r;
@@ -795,7 +795,7 @@ namespace ObdLogger
                             if (++i >= args.Length) return false;
                             if (args[i].Length == 0)
                             {
-                                Console.Error.WriteLine("[´íÎó] --para-sep ²»ÄÜÎª¿Õ");
+                                Console.Error.WriteLine("[é”™è¯¯] --para-sep ä¸èƒ½ä¸ºç©º");
                                 return false;
                             }
                             o.ParaSep = args[i];
@@ -811,7 +811,7 @@ namespace ObdLogger
                             double dur;
                             if (!double.TryParse(args[i], System.Globalization.NumberStyles.Float, inv, out dur) || dur <= 0)
                             {
-                                Console.Error.WriteLine("[´íÎó] --duration ĞèÎªÕıÊı£¨Ãë£©£º" + args[i]);
+                                Console.Error.WriteLine("[é”™è¯¯] --duration éœ€ä¸ºæ­£æ•°ï¼ˆç§’ï¼‰ï¼š" + args[i]);
                                 return false;
                             }
                             o.DurationSec = dur;
@@ -826,7 +826,7 @@ namespace ObdLogger
                             o.ShowHelp = true;
                             break;
                         default:
-                            Console.Error.WriteLine("[´íÎó] log Ä£Ê½Î´Öª²ÎÊı: " + a);
+                            Console.Error.WriteLine("[é”™è¯¯] log æ¨¡å¼æœªçŸ¥å‚æ•°: " + a);
                             return false;
                     }
                 }
@@ -836,36 +836,36 @@ namespace ObdLogger
 
         private static void PrintUsage()
         {
-            Console.WriteLine("ÓÃ·¨:");
-            Console.WriteLine("  ObdLogger.exe [Ñ¡Ïî]              Ò»ÆÚ£º¶ÁÈ¡²¢´òÓ¡³µÁ¾»ù´¡ĞÅÏ¢");
-            Console.WriteLine("  ObdLogger.exe log [log Ñ¡Ïî]      ¶şÆÚ£ºÊµÊ±²ÉÑù·¢¶¯»úÊı¾İ²¢ÂäÅÌ CSV");
+            Console.WriteLine("ç”¨æ³•:");
+            Console.WriteLine("  ObdLogger.exe [é€‰é¡¹]              ä¸€æœŸï¼šè¯»å–å¹¶æ‰“å°è½¦è¾†åŸºç¡€ä¿¡æ¯");
+            Console.WriteLine("  ObdLogger.exe log [log é€‰é¡¹]      äºŒæœŸï¼šå®æ—¶é‡‡æ ·å‘åŠ¨æœºæ•°æ®å¹¶è½ç›˜ CSV");
             Console.WriteLine();
-            Console.WriteLine("Ò»ÆÚÑ¡Ïî:");
-            Console.WriteLine("  --ecu <Ãû³Æ>     SGBD/PRG Ãû³Æ£¨Ä¬ÈÏ " + DefaultEcuName + "£»±¾³µÊµ²âÓ¦Ê¹ÓÃ MEVD174K£©");
-            Console.WriteLine("  --job <Ãû³Æ>     Ç¿ÖÆÊ¹ÓÃÖ¸¶¨Ö»¶Á Job£¨Ìø¹ıºòÑ¡Ì½²â£»Job Ãû¿ÉÓÃ Tool32 ²é¿´£©");
-            Console.WriteLine("  --para <²ÎÊı>    ´«¸ø Job µÄ²ÎÊı£¨Ê¶±ğÀà Job Í¨³£Áô¿Õ£©");
-            Console.WriteLine("  --verbose, -v    ¿ØÖÆÌ¨Êä³ö API µ÷ÓÃÃ÷Ï¸£¨ÈÕÖ¾ÎÄ¼şÊ¼ÖÕ¼ÇÂ¼£©");
-            Console.WriteLine("  --help, -h       ÏÔÊ¾±¾°ïÖú");
+            Console.WriteLine("ä¸€æœŸé€‰é¡¹:");
+            Console.WriteLine("  --ecu <åç§°>     SGBD/PRG åç§°ï¼ˆé»˜è®¤ " + DefaultEcuName + "ï¼›æœ¬è½¦å®æµ‹åº”ä½¿ç”¨ MEVD174Kï¼‰");
+            Console.WriteLine("  --job <åç§°>     å¼ºåˆ¶ä½¿ç”¨æŒ‡å®šåªè¯» Jobï¼ˆè·³è¿‡å€™é€‰æ¢æµ‹ï¼›Job åå¯ç”¨ Tool32 æŸ¥çœ‹ï¼‰");
+            Console.WriteLine("  --para <å‚æ•°>    ä¼ ç»™ Job çš„å‚æ•°ï¼ˆè¯†åˆ«ç±» Job é€šå¸¸ç•™ç©ºï¼‰");
+            Console.WriteLine("  --verbose, -v    æ§åˆ¶å°è¾“å‡º API è°ƒç”¨æ˜ç»†ï¼ˆæ—¥å¿—æ–‡ä»¶å§‹ç»ˆè®°å½•ï¼‰");
+            Console.WriteLine("  --help, -h       æ˜¾ç¤ºæœ¬å¸®åŠ©");
             Console.WriteLine();
-            Console.WriteLine("¶şÆÚ log Ñ¡Ïî:");
-            Console.WriteLine("  --ecu <Ãû³Æ>     SGBD/PRG Ãû³Æ£¨log Ä¬ÈÏ " + DefaultLogEcuName + "£¬±¾³µÊµ²â¿ÉÓÃ£©");
-            Console.WriteLine("  --out <Â·¾¶>     CSV Êä³ö£¨ÎÄ¼ş»òÄ¿Â¼£»Ä¬ÈÏ exeÄ¿Â¼\\log\\obdlog_<Ê±¼ä´Á>.csv£©");
-            Console.WriteLine("  --rate <Hz>      Ä¿±ê²ÉÑùÂÊ£¨Ä¬ÈÏ 1£¬·¶Î§ 0.1~5£»Êµ¼ÊÒÔ ECU ÏìÓ¦Îª×¼£©");
-            Console.WriteLine("  --config <ÎÄ¼ş>  ²ÉÑùÇåµ¥ÅäÖÃ£¨Ã¿ĞĞ ARG,ÏÔÊ¾Ãû[,µ¥Î»]£»Ä¬ÈÏÓÃÄÚÖÃ ¡ì3.3 ÒÑºËÊµÇåµ¥£©");
-            Console.WriteLine("  --para-sep <c>   ¶¯Ì¬²ÎÊı·Ö¸ô·û£¨Ä¬ÈÏ ';'£»Æô¶¯Ê±×Ô¶¯Ğ­ÉÌ ';' Óë ','£¬·çÏÕÏî R-2-1£©");
-            Console.WriteLine("  --no-ja          ±£ÊØÄ£Ê½£º½öÓÃ MODE=NEIN ¶Á ECU ÒÑ´æ¶¨Òå£¬²»Ğ´ ECU RAM£¨¡ì3.4£©");
-            Console.WriteLine("  --no-hotkey      ²»¼àÌı q ¼ü£¨ÎŞÈËÖµÊØ/ºóÌ¨ÔËĞĞ£»Ctrl+C ÈÔ¿ÉÍ£Ö¹£©");
-            Console.WriteLine("  --duration <Ãë>  ÔËĞĞÖ¸¶¨ÃëÊıºóÓÅÑÅ×ÔÍ££¨ÎŞÈËÖµÊØ¶¨Ê±Â¼ÖÆ£»Ä¬ÈÏ 0=Ö±µ½ÊÖ¶¯Í£Ö¹£©");
-            Console.WriteLine("  --verbose, -v    ¿ØÖÆÌ¨Êä³ö API Ã÷Ï¸£¨log Ä£Ê½Ä¬ÈÏ¾²Ä¬¡¢½öÎÄ¼ş£¬FR-2-3£©");
-            Console.WriteLine("  --help, -h       ÏÔÊ¾±¾°ïÖú");
+            Console.WriteLine("äºŒæœŸ log é€‰é¡¹:");
+            Console.WriteLine("  --ecu <åç§°>     SGBD/PRG åç§°ï¼ˆlog é»˜è®¤ " + DefaultLogEcuName + "ï¼Œæœ¬è½¦å®æµ‹å¯ç”¨ï¼‰");
+            Console.WriteLine("  --out <è·¯å¾„>     CSV è¾“å‡ºï¼ˆæ–‡ä»¶æˆ–ç›®å½•ï¼›é»˜è®¤ exeç›®å½•\\log\\obdlog_<æ—¶é—´æˆ³>.csvï¼‰");
+            Console.WriteLine("  --rate <Hz>      ç›®æ ‡é‡‡æ ·ç‡ï¼ˆé»˜è®¤ 1ï¼ŒèŒƒå›´ 0.1~5ï¼›å®é™…ä»¥ ECU å“åº”ä¸ºå‡†ï¼‰");
+            Console.WriteLine("  --config <æ–‡ä»¶>  é‡‡æ ·æ¸…å•é…ç½®ï¼ˆæ¯è¡Œ ARG,æ˜¾ç¤ºå[,å•ä½]ï¼›é»˜è®¤ç”¨å†…ç½® Â§3.3 å·²æ ¸å®æ¸…å•ï¼‰");
+            Console.WriteLine("  --para-sep <c>   åŠ¨æ€å‚æ•°åˆ†éš”ç¬¦ï¼ˆé»˜è®¤ ';'ï¼›å¯åŠ¨æ—¶è‡ªåŠ¨åå•† ';' ä¸ ','ï¼Œé£é™©é¡¹ R-2-1ï¼‰");
+            Console.WriteLine("  --no-ja          ä¿å®ˆæ¨¡å¼ï¼šä»…ç”¨ MODE=NEIN è¯» ECU å·²å­˜å®šä¹‰ï¼Œä¸å†™ ECU RAMï¼ˆÂ§3.4ï¼‰");
+            Console.WriteLine("  --no-hotkey      ä¸ç›‘å¬ q é”®ï¼ˆæ— äººå€¼å®ˆ/åå°è¿è¡Œï¼›Ctrl+C ä»å¯åœæ­¢ï¼‰");
+            Console.WriteLine("  --duration <ç§’>  è¿è¡ŒæŒ‡å®šç§’æ•°åä¼˜é›…è‡ªåœï¼ˆæ— äººå€¼å®ˆå®šæ—¶å½•åˆ¶ï¼›é»˜è®¤ 0=ç›´åˆ°æ‰‹åŠ¨åœæ­¢ï¼‰");
+            Console.WriteLine("  --verbose, -v    æ§åˆ¶å°è¾“å‡º API æ˜ç»†ï¼ˆlog æ¨¡å¼é»˜è®¤é™é»˜ã€ä»…æ–‡ä»¶ï¼ŒFR-2-3ï¼‰");
+            Console.WriteLine("  --help, -h       æ˜¾ç¤ºæœ¬å¸®åŠ©");
             Console.WriteLine();
-            Console.WriteLine("ÍË³öÂë: 0=³É¹¦  1=ÒâÍâ´íÎó  2=EDIABAS »·¾³/³õÊ¼»¯Ê§°Ü  3=Í¨ĞÅ/¶Ë¿ÚÊ§°Ü  4=ÎŞ¿ÉÓÃ Job/²ÎÊı±»¾Ü");
-            Console.WriteLine("×¢Òâ: ½öÖ´ĞĞÖ»¶Á Job£»ÇëÎğÓë INPA/Tool32 Í¬Ê±ÔËĞĞ£¨COM6 ¶ÀÕ¼£©¡£");
+            Console.WriteLine("é€€å‡ºç : 0=æˆåŠŸ  1=æ„å¤–é”™è¯¯  2=EDIABAS ç¯å¢ƒ/åˆå§‹åŒ–å¤±è´¥  3=é€šä¿¡/ç«¯å£å¤±è´¥  4=æ— å¯ç”¨ Job/å‚æ•°è¢«æ‹’");
+            Console.WriteLine("æ³¨æ„: ä»…æ‰§è¡Œåªè¯» Jobï¼›è¯·å‹¿ä¸ INPA/Tool32 åŒæ—¶è¿è¡Œï¼ˆCOM6 ç‹¬å ï¼‰ã€‚");
             Console.WriteLine();
-            Console.WriteLine("Ê¾Àı:");
-            Console.WriteLine("  ObdLogger.exe log                                     Ä¬ÈÏ 1Hz ²ÉÑùÄÚÖÃÇåµ¥£¬ÂäÅÌ exe\\log\\");
-            Console.WriteLine("  ObdLogger.exe log --rate 2 --out D:\\logs             2Hz£¬Êä³öµ½ D:\\logs Ä¿Â¼");
-            Console.WriteLine("  ObdLogger.exe log --config config\\sample-extended.txt Ê¹ÓÃÀ©Õ¹²ÉÑùÇåµ¥");
+            Console.WriteLine("ç¤ºä¾‹:");
+            Console.WriteLine("  ObdLogger.exe log                                     é»˜è®¤ 1Hz é‡‡æ ·å†…ç½®æ¸…å•ï¼Œè½ç›˜ exe\\log\\");
+            Console.WriteLine("  ObdLogger.exe log --rate 2 --out D:\\logs             2Hzï¼Œè¾“å‡ºåˆ° D:\\logs ç›®å½•");
+            Console.WriteLine("  ObdLogger.exe log --config config\\sample-extended.txt ä½¿ç”¨æ‰©å±•é‡‡æ ·æ¸…å•");
         }
 
         private sealed class Options
@@ -906,7 +906,7 @@ namespace ObdLogger
                             options.ShowHelp = true;
                             break;
                         default:
-                            Console.Error.WriteLine("[´íÎó] Î´Öª²ÎÊı: " + a);
+                            Console.Error.WriteLine("[é”™è¯¯] æœªçŸ¥å‚æ•°: " + a);
                             return false;
                     }
                 }
